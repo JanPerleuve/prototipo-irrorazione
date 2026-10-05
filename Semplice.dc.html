@@ -306,6 +306,7 @@
   .kpi-label { font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
   .kpi-value { font-family: 'Montserrat', system-ui, sans-serif; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
   .kpi-unit { font-size: 15px; color: var(--ink-soft); }
+  .kpi-near { font-size: 14px; color: var(--ink-soft); }
   .bar { height: 10px; border-radius: 100px; background: var(--sand); overflow: hidden; }
   .bar span { display: block; height: 100%; background: var(--accent-strong); }
 
@@ -610,6 +611,7 @@
           <span class="kpi-value">{{coverageText}}</span>
           <span class="kpi-unit">% della superficie</span>
           <span class="tag">{{coverageClass}}</span>
+          <sc-if value="{{coverageNear}}" hint-placeholder-val="{{false}}"><span class="kpi-near">{{coverageNear}}</span></sc-if>
         </div>
         <div class="bar" aria-hidden="true"><span style="{{barStyle}}"></span></div>
         <sc-if value="{{viewMedia}}" hint-placeholder-val="{{false}}">
@@ -623,7 +625,7 @@
         <sc-if value="{{showPics}}" hint-placeholder-val="{{true}}">
         <div class="pics">
           <div class="pic"><img class="tap-img" src="{{cropUrl}}" alt="Cartina fotografata: tocca dove si trova la graffetta" onClick="{{onMarkClip}}">Foto</div>
-          <div class="pic"><img class="tap-img" src="{{maskUrl}}" alt="Macchie rilevate sulla cartina: tocca dove si trova la graffetta" onClick="{{onMarkClip}}"><span class="pic-cap">Nero: macchie · verde: foglia · arancio: graffetta (escluse)</span></div>
+          <div class="pic"><img class="tap-img" src="{{maskUrl}}" alt="Macchie rilevate sulla cartina: tocca dove si trova la graffetta" onClick="{{onMarkClip}}"><span class="pic-cap">Più scuro: più macchiato · verde: foglia · arancio: graffetta · azzurro e lilla: riflessi e bordi (esclusi)</span></div>
         </div>
         <sc-if value="{{hasClip}}" hint-placeholder-val="{{false}}">
           <div class="clip-note" role="status">
@@ -1092,6 +1094,15 @@ function positionInfo(pos) {
 // Soglie ricavate dal DB storico (colonne "Classe copertura" e "Volume classe").
 function coverageClass(c) {
   return c <= 20 ? 'SCARSO' : c <= 40 ? 'DISCRETO' : c <= 60 ? 'OTTIMALE' : 'ECCESSIVO';
+}
+// "Al limite": a pochi punti da un confine la classe di una foto può cambiare (prova in ufficio: 7 telefoni,
+// 24 cartine confrontate con la scansione; con 5 punti di margine ricadono qui 18 delle 24 classi sbagliate).
+const CLASS_MARGIN = 5;
+function classNear(c) {
+  for (const t of [20, 40, 60]) {
+    if (Math.abs(c - t) <= CLASS_MARGIN) return 'al limite con ' + coverageClass(c <= t ? t + 1 : t).toLowerCase();
+  }
+  return '';
 }
 // Il DB non ha una classe di velocità: tre gruppi di dimensione simile, uguali a SPEED_BINS in tools/stat_confronto.py.
 function speedClass(v) {
@@ -1827,7 +1838,7 @@ class Component extends DCLogic {
     const covs = sess.map((c) => c.cov);
     const sessVm = {
       n: covs.length,
-      summary: covs.length === 0 ? '' : covs.length === 1 ? fmt(covs[0], 1) + ' % · ' + coverageClass(covs[0])
+      summary: covs.length === 0 ? '' : covs.length === 1 ? fmt(covs[0], 1) + ' % · ' + coverageClass(covs[0]) + (classNear(covs[0]) ? ', ' + classNear(covs[0]) : '')
         : 'media ' + fmt(meanOf(sess), 1) + ' % (da ' + fmt(Math.min.apply(null, covs), 1) + ' a ' + fmt(Math.max.apply(null, covs), 1) + ')',
       hasHung: ofCode('MIA').length > 0,
       hungText: ofCode('MIA').length ? 'Appese a metà chioma (MIA): ' + ofCode('MIA').length + (ofCode('MIA').length === 1 ? ' cartina' : ' cartine') + ', media ' + fmt(meanOf(ofCode('MIA')), 1) + '%.' : '',
@@ -2126,6 +2137,7 @@ class Component extends DCLogic {
 
       coverageText: fmt(cov, 1),
       coverageClass: covClass,
+      coverageNear: classNear(cov),
       barStyle: 'width: ' + cov.toFixed(1) + '%',
       cropUrl: selCard ? selCard.cropUrl : '',
       maskUrl: selCard ? selCard.maskUrl : '',
