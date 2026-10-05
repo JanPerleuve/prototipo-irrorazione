@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4E7A1E">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
+<title>Prova schede</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F4; --surface: #FFFFFF; --ink: #231F20; --ink-soft: #5E5856; --line: #EDDCCF;
+    --accent: #8BC53E; --accent-hover: #9ECE5D; --accent-strong: #4E7A1E; --accent-soft: #EFF6E4;
+    --warn: #9B3B2F; --warn-soft: #F7E6E2; --sand: #F4E9E1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--accent-strong); }
+  button, .btn-primary, .btn-ghost, .eyebrow, .field label { font-family: 'Montserrat', system-ui, sans-serif; }
+  input { font-family: inherit; }
+
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.94); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
+  .topbar h1 { font-size: 19px; }
+
+  .btn-primary { display: inline-flex; align-items: center; justify-content: center; border: none; text-decoration: none; background: var(--accent); color: var(--ink); padding: 12px 24px; border-radius: 100px; font-size: 15px; font-weight: 700; min-height: 50px; cursor: pointer; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { background: #DCE9C8; color: #6F6A67; cursor: not-allowed; }
+  .btn-ghost { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 10px 20px; border-radius: 100px; font-size: 14px; font-weight: 700; min-height: 46px; cursor: pointer; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  .btn-small { min-height: 40px; padding: 8px 16px; font-size: 13px; }
+  .link-btn { border: 0; background: transparent; color: var(--accent-strong); font-size: 14px; font-weight: 700; cursor: pointer; padding: 10px 4px; min-height: 44px; align-self: flex-start; }
+  .link-warn { color: var(--warn); }
+
+  .page { max-width: 640px; margin: 0 auto; padding: 16px 16px 64px; display: flex; flex-direction: column; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .card h2 { font-size: 20px; }
+  .hint { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+  .plan-step { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: #1A5FD0; }
+  .notice { font-size: 14px; border-radius: 10px; padding: 10px 12px; background: var(--sand); line-height: 1.45; }
+  .notice-warn { background: var(--warn-soft); color: var(--warn); }
+  .notice-ok { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+
+  .field label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 16px; background: var(--surface); color: var(--ink); min-height: 48px; }
+  .field input:focus { outline: 2px solid var(--accent-strong); outline-offset: 1px; border-color: var(--accent-strong); }
+  .field-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+
+  .more { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+  .more > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--accent-strong); }
+  .more > summary::-webkit-details-marker { display: none; }
+  .more > summary::before { content: ''; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); margin-right: 2px; }
+  .more[open] > summary::before { transform: rotate(45deg); }
+  .more ul { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+
+  .busy { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .spinner { width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--accent-soft); border-top-color: var(--accent); animation: spin 1s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+
+  .result { display: flex; flex-direction: column; gap: 12px; border: 1.5px solid var(--accent); border-radius: 14px; padding: 14px; }
+  .result.is-error { border-color: var(--warn); }
+  .result-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .result-head h3 { font-size: 17px; }
+  .result-cov { font-family: 'Montserrat', system-ui, sans-serif; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .pics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .pics figure { margin: 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); }
+  .pics img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); }
+  .pics-single { grid-template-columns: minmax(0, 1fr); max-width: 320px; }
+  .meta { font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 6px; }
+  .chip { min-height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .chip.is-done { background: var(--accent-soft); border-color: var(--accent); }
+  .chip.is-err { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+  .chip.is-cur { border-color: #1A5FD0; box-shadow: 0 0 0 2px #1A5FD0 inset; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-soft); }
+
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 15px; margin: 0; }
+  .facts dt { color: var(--ink-soft); }
+  .facts dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  img, svg, video, canvas { max-width: 100%; }
+  input, button { max-width: 100%; }
+  h1, h2, h3, p, li, dd, dt, label, a, span { overflow-wrap: break-word; }
+  .shot-area { display: flex; flex-direction: column; gap: 10px; }
+  .shot-area.is-hidden { display: none; }
+  .dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; border: 2px dashed var(--accent); border-radius: 14px; padding: 26px 16px; cursor: pointer; min-height: 180px; background: var(--accent-soft); font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; }
+  .dropzone small { font-family: 'Barlow', system-ui, sans-serif; font-weight: 500; font-size: 14px; color: var(--ink-soft); }
+  .preview { width: 100%; max-height: 360px; object-fit: contain; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); }
+  .steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 1.45; }
+</style>
+</helmet>
+
+<div>
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="eyebrow">Perleuve · prove in ufficio</span>
+      <h1>Prova schede</h1>
+    </div>
+    <a class="btn-ghost btn-small" href="Scelta.dc.html">Esci</a>
+  </header>
+
+  <main class="page">
+    <sc-if value="{{storeError}}" hint-placeholder-val="{{false}}">
+      <p class="notice notice-warn" role="alert">{{storeError}}</p>
+    </sc-if>
+
+    <!-- 1. Preparazione: nome del telefono e numero di schede -->
+    <sc-if value="{{isSetup}}" hint-placeholder-val="{{true}}">
+      <section class="card">
+        <div>
+          <h2>Fotografa le schede con ogni telefono</h2>
+          <p class="hint">Ogni telefono fotografa le stesse schede, con le cartine già nei posti. Le foto restano su questo telefono finché non le invii.</p>
+        </div>
+        <sc-if value="{{resume.has}}" hint-placeholder-val="{{false}}">
+          <div class="notice">
+            <p>C’è una raccolta in corso: <strong>{{resume.phone}}</strong>, {{resume.text}}.</p>
+            <div class="actions" style="margin-top: 8px">
+              <button type="button" class="btn-primary btn-small" onClick="{{onResume}}">Continua</button>
+              <button type="button" class="btn-ghost btn-small" onClick="{{onToDone}}">Invia i dati</button>
+              <button type="button" class="link-btn link-warn" onClick="{{onAskReset}}">Cancella e ricomincia</button>
+            </div>
+          </div>
+        </sc-if>
+        <div class="field-row">
+          <div class="field">
+            <label for="telefono">Nome del telefono</label>
+            <input id="telefono" type="text" autocomplete="off" placeholder="es. Marco · Samsung A52" value="{{phone}}" onChange="{{onPhone}}" readonly="{{phoneLocked}}">
+          </div>
+          <div class="field">
+            <label for="nschede">Schede</label>
+            <input id="nschede" type="number" inputmode="numeric" min="1" max="10" value="{{nText}}" onChange="{{onN}}">
+          </div>
+        </div>
+        <sc-if value="{{phoneLocked}}" hint-placeholder-val="{{false}}"><p class="hint">Per un altro telefono: prima invia i dati, poi “Cancella e ricomincia”.</p></sc-if>
+        <p class="hint">{{deviceHint}}</p>
+        <details class="more">
+          <summary>Come fotografare la scheda</summary>
+          <ul>
+            <li>La scheda intera riempie la foto: i 4 quadrati neri agli angoli e il codice QR devono vedersi tutti.</li>
+            <li>Telefono parallelo alla scheda, luce diffusa vicino a una finestra, senza flash e senza l’ombra del telefono.</li>
+            <li>Si apre la fotocamera del telefono, che scatta a piena risoluzione: serve per vedere bene ogni cartina.</li>
+            <li>Il numero della scheda lo legge il programma dal QR: l’ordine delle foto non conta.</li>
+          </ul>
+        </details>
+        <button type="button" class="btn-primary" onClick="{{onStart}}" disabled="{{cantStart}}">{{startLabel}}</button>
+        <sc-if value="{{resume.has}}" hint-placeholder-val="{{false}}">
+          <sc-if value="{{confirmReset}}" hint-placeholder-val="{{false}}">
+            <div class="notice notice-warn">
+              <p>Le {{resume.count}} foto della raccolta in corso verranno cancellate da questo telefono.</p>
+              <div class="actions" style="margin-top: 8px">
+                <button type="button" class="btn-ghost btn-small" onClick="{{onReset}}">Sì, cancellale</button>
+                <button type="button" class="btn-ghost btn-small" onClick="{{onCancelReset}}">No, tienile</button>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- 2. Foto: una scheda alla volta, con la fotocamera del telefono -->
+    <sc-if value="{{isCapture}}" hint-placeholder-val="{{false}}">
+      <section class="card">
+        <div>
+          <span class="plan-step">Scheda {{cur}} di {{n}} · {{phone}}</span>
+          <h2>Fotografa la scheda {{cur}}</h2>
+        </div>
+
+        <sc-if value="{{showResult}}" hint-placeholder-val="{{false}}">
+          <div class="{{last.cls}}" aria-live="polite">
+            <div class="result-head"><h3>{{last.title}}</h3></div>
+            <img class="preview" src="{{last.rawUrl}}" alt="Foto della scheda {{cur}}">
+            <p class="meta">{{last.meta}}</p>
+            <sc-if value="{{last.warn}}" hint-placeholder-val="{{false}}">
+              <p class="notice notice-warn">{{last.warn}}</p>
+            </sc-if>
+            <p class="hint">Controlla che si vedano i 4 quadrati neri agli angoli e il QR, e che la foto non sia mossa: se no, prova a rifarla.</p>
+            <div class="actions">
+              <button type="button" class="{{last.nextCls}}" onClick="{{onNext}}">{{nextLabel}}</button>
+              <button type="button" class="{{last.retakeCls}}" onClick="{{onRetake}}">Rifai la foto</button>
+            </div>
+          </div>
+        </sc-if>
+
+        <div class="{{shotAreaCls}}">
+          <label for="fotoTelefono" class="dropzone">Tocca per scattare la foto della scheda {{cur}}<small>Si apre la fotocamera del telefono</small></label>
+          <input id="fotoTelefono" type="file" accept="image/*" capture="environment" class="visually-hidden" onChange="{{onCameraFile}}">
+          <label for="fotoFile" class="link-btn">Carica una foto già scattata</label>
+          <input id="fotoFile" type="file" accept="image/*" class="visually-hidden" onChange="{{onPickedFile}}">
+        </div>
+
+        <sc-if value="{{isBusy}}" hint-placeholder-val="{{false}}">
+          <p class="notice busy" role="status"><span class="spinner" aria-hidden="true"></span>Salvataggio…</p>
+        </sc-if>
+
+        <div>
+          <p class="hint" style="margin-bottom: 8px">Tocca un numero per andare a quella scheda.</p>
+          <div class="chips" role="group" aria-label="Schede">
+            <sc-for list="{{chips}}" as="c" hint-placeholder-count="2">
+              <button type="button" class="{{c.cls}}" aria-label="{{c.aria}}" aria-current="{{c.current}}" onClick="{{c.go}}">{{c.n}}</button>
+            </sc-for>
+          </div>
+          <div class="legend" style="margin-top: 8px"><span>verde: fatta</span><span>rosso: poca risoluzione</span><span>blu: quella di adesso</span></div>
+        </div>
+        <button type="button" class="btn-ghost" onClick="{{onToDone}}">{{doneLabel}}</button>
+      </section>
+    </sc-if>
+
+    <!-- 3. Invio dei dati -->
+    <sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+      <section class="card">
+        <div>
+          <h2>Invia i dati</h2>
+          <p class="hint">Un file zip con le foto originali delle schede e i dati del telefono. Mandalo a chi coordina la prova, per email, Teams o WhatsApp: le cartine le analizza il programma sul computer.</p>
+        </div>
+        <dl class="facts">
+          <dt>Telefono</dt><dd>{{phone}}</dd>
+          <dt>Schede</dt><dd>{{summary.cards}}</dd>
+          <dt>Foto</dt><dd>{{summary.shots}}</dd>
+          <dt>Dimensione</dt><dd>{{summary.size}}</dd>
+        </dl>
+        <sc-if value="{{summary.missing}}" hint-placeholder-val="{{false}}">
+          <p class="notice">{{summary.missing}}</p>
+        </sc-if>
+        <sc-if value="{{zipMsg}}" hint-placeholder-val="{{false}}">
+          <p class="{{zipMsgCls}}" role="status">{{zipMsg}}</p>
+        </sc-if>
+        <div class="actions">
+          <sc-if value="{{canShare}}" hint-placeholder-val="{{true}}">
+            <button type="button" class="btn-primary" onClick="{{onShare}}" disabled="{{zipBusy}}">Condividi i dati</button>
+          </sc-if>
+          <button type="button" class="{{downloadCls}}" onClick="{{onDownload}}" disabled="{{zipBusy}}">Scarica il file zip</button>
+        </div>
+        <button type="button" class="link-btn" onClick="{{onBackToCapture}}">Torna alle foto</button>
+        <sc-if value="{{confirmReset}}" hint-placeholder-val="{{false}}">
+          <div class="notice notice-warn">
+            <p>Prima assicurati di aver inviato il file: le {{summary.shots}} foto verranno cancellate da questo telefono.</p>
+            <div class="actions" style="margin-top: 8px">
+              <button type="button" class="btn-ghost btn-small" onClick="{{onReset}}">Sì, cancellale</button>
+              <button type="button" class="btn-ghost btn-small" onClick="{{onCancelReset}}">No, tienile</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{noConfirm}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="link-btn link-warn" onClick="{{onAskReset}}">Ricomincia con un altro telefono</button>
+        </sc-if>
+      </section>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+// Schede proposte per la prova (si può cambiare nella pagina): due schede piene = un rilievo standard da 80 cartine.
+const DEFAULT_SHEETS = 2;
+// Lato lungo minimo della foto: con la scheda (297 mm) che riempie la foto corrisponde a circa 200 dpi.
+const MIN_LONG_SIDE = 2340;
+const SHEET_LONG_MM = 297;
+
+// Prova del rilievo accurato: ogni telefono fotografa le stesse schede con le cartine (foto a piena risoluzione
+// con la fotocamera del telefono, non il fotogramma del video, che su una scheda intera darebbe ~160 dpi).
+// Sul telefono non si analizza niente: le foto originali, così come sono (con i loro EXIF), vanno nello zip e le
+// analizza tools/analisi_schede.py (raccolte da tools/importa_schede.py). Tutto resta in IndexedDB fino all'invio.
+const DB_NAME = 'perleuve-schede', DB_STORE = 'foto', SESSION_KEY = 'perleuve.schede.sessione';
+
+function idb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(DB_STORE, { keyPath: 'id' });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+function idbRun(mode, fn) {
+  return idb().then((db) => new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, mode), out = fn(tx.objectStore(DB_STORE));
+    tx.oncomplete = () => resolve(out && out.result !== undefined ? out.result : undefined);
+    tx.onerror = () => reject(tx.error);
+  }));
+}
+const idbPut = (rec) => idbRun('readwrite', (st) => st.put(rec));
+const idbAll = () => idbRun('readonly', (st) => st.getAll());
+const idbClear = () => idbRun('readwrite', (st) => st.clear());
+
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
+}
+function saveSession(s) {
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) { /* solo comodità: le foto sono in IndexedDB */ }
+}
+
+// ---- Zip senza compressione (le foto sono già JPEG): file locali + indice centrale, nomi in UTF-8 ----
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+  return t;
+})();
+function crc32(u8) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function makeZip(files) {   // files: [{ name, data: Uint8Array }]
+  const enc = new TextEncoder(), parts = [], central = [];
+  let offset = 0;
+  const d = new Date(), dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  files.forEach((f) => {
+    const name = enc.encode(f.name), crc = crc32(f.data), size = f.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, dosTime, true); h.setUint16(12, dosDate, true); h.setUint32(14, crc, true);
+    h.setUint32(18, size, true); h.setUint32(22, size, true); h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+    parts.push(new Uint8Array(h.buffer), name, f.data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+    c.setUint16(10, 0, true); c.setUint16(12, dosTime, true); c.setUint16(14, dosDate, true); c.setUint32(16, crc, true);
+    c.setUint32(20, size, true); c.setUint32(24, size, true); c.setUint16(28, name.length, true);
+    c.setUint32(42, offset, true);
+    central.push(new Uint8Array(c.buffer), name);
+    offset += 30 + name.length + size;
+  });
+  const cSize = central.reduce((a, p) => a + p.length, 0);
+  const e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true);
+  e.setUint32(12, cSize, true); e.setUint32(16, offset, true);
+  return new Blob(parts.concat(central, [new Uint8Array(e.buffer)]), { type: 'application/zip' });
+}
+
+const dataUrlBytes = (url) => fetch(url).then((r) => r.arrayBuffer()).then((b) => new Uint8Array(b));
+const pad2 = (n) => String(n).padStart(2, '0');
+const slug = (s) => (s || 'telefono').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'telefono';
+function fmtNum(n, d) { return typeof n === 'number' && isFinite(n) ? n.toLocaleString('it-IT', { minimumFractionDigits: d, maximumFractionDigits: d }) : ''; }
+function mb(bytes) { return fmtNum(bytes / 1048576, 1) + ' MB'; }
+// Solo valori semplici: getSettings()/getCapabilities() contengono anche oggetti {min, max, step}.
+function plain(o) { try { return JSON.parse(JSON.stringify(o || {})); } catch (e) { return {}; } }
+
+// Telefono e browser: modello (Chrome su Android lo dice), schermo.
+function deviceInfo() {
+  const info = { userAgent: navigator.userAgent, lingua: navigator.language, schermo: { larghezza: screen.width, altezza: screen.height, dpr: window.devicePixelRatio },
+    standalone: window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true };
+  const ua = navigator.userAgentData;
+  if (!ua || !ua.getHighEntropyValues) return Promise.resolve(info);
+  return ua.getHighEntropyValues(['model', 'platform', 'platformVersion', 'fullVersionList'])
+    .then((h) => Object.assign(info, { modello: h.model || '', piattaforma: h.platform + ' ' + (h.platformVersion || ''), browser: (h.fullVersionList || []).map((b) => b.brand + ' ' + b.version).join(', ') }))
+    .catch(() => info);
+}
+
+// Risoluzione della foto: dpi stimati se la scheda riempie la foto (lato lungo della foto = 297 mm).
+function sheetDpi(w, h) { return Math.max(w, h) / (SHEET_LONG_MM / 25.4); }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const old = loadSession();
+    this.state = { step: 'setup', phone: old ? old.phone : '', nText: old ? String(old.n) : String(DEFAULT_SHEETS), cur: old ? old.cur : 1,
+      shots: [], busy: false, last: null, storeError: '', confirmReset: false, zipBusy: false, zipMsg: '', zipErr: false, device: null };
+    this.urls = [];
+  }
+
+  componentDidMount() {
+    deviceInfo().then((d) => this.setState({ device: d }));
+    idbAll().then((list) => this.setState({ shots: (list || []).sort((a, b) => a.meta.ora.localeCompare(b.meta.ora)) }))
+      .catch(() => this.setState({ storeError: 'Questo browser non lascia salvare le foto (navigazione privata?): prova ad aprire la pagina normalmente.' }));
+  }
+
+  n() { const v = parseInt(this.state.nText, 10); return isNaN(v) ? DEFAULT_SHEETS : Math.max(1, Math.min(10, v)); }
+
+  persistSession(patch) {
+    const s = Object.assign({}, this.state, patch);
+    saveSession({ phone: s.phone, n: this.n(), cur: s.cur });
+  }
+
+  start() {
+    const patch = { step: 'capture', last: null, confirmReset: false };
+    this.persistSession(patch);
+    this.setState(patch);
+  }
+
+  goTo(k) {
+    this.setState({ cur: k, last: null });
+    this.persistSession({ cur: k });
+  }
+
+  // Foto dalla fotocamera del telefono o da file: si tiene il file originale, così com'è (con i suoi EXIF).
+  fromFile(e, method) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file || this.state.busy) return;
+    this.setState({ busy: true });
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      URL.revokeObjectURL(url);
+      this.save(file, method, w, h);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); this.setState({ busy: false, storeError: 'Questa immagine non si apre: prova con un’altra foto.' }); };
+    img.src = url;
+  }
+
+  save(file, method, w, h) {
+    const s = this.state, k = s.cur;
+    const attempts = s.shots.filter((x) => x.meta.scheda === k).length;
+    const meta = {
+      telefono: s.phone, scheda: k, tentativo: attempts + 1, ora: new Date().toISOString(), metodo: method,
+      immagine: { larghezza: w, altezza: h, byte: file.size, tipo: file.type, dpi_se_riempie: Math.round(sheetDpi(w, h)) },
+      file: { nome: file.name, tipo: file.type, dimensione: file.size, modificato: new Date(file.lastModified).toISOString() }
+    };
+    const rec = { id: k + '-' + meta.ora, meta: meta, raw: file };
+    idbPut(rec).then(() => {
+      this.setState({ shots: this.state.shots.concat([rec]), busy: false, last: rec, storeError: '' });
+      requestAnimationFrame(() => { const b = document.querySelector('.result .btn-primary'); if (b) b.focus(); });
+    }).catch(() => this.setState({ busy: false, storeError: 'Non riesco a salvare la foto su questo telefono (spazio pieno?). Prova a inviare i dati raccolti finora.' }));
+  }
+
+  // Prossima scheda ancora da fotografare: dopo quella attuale, poi dall'inizio; null = tutte fatte.
+  nextSheet() {
+    const n = this.n(), cur = this.state.cur, done = (k) => this.state.shots.some((x) => x.meta.scheda === k);
+    for (let i = 1; i <= n; i++) { const k = (cur - 1 + i) % n + 1; if (!done(k)) return k; }
+    return null;
+  }
+
+  next() {
+    const k = this.nextSheet();
+    if (k == null) this.toDone(); else this.goTo(k);
+  }
+
+  toDone() { this.setState({ step: 'done', last: null, zipMsg: '', confirmReset: false }); }
+
+  // Zip: dati.json (sessione + una voce per foto), dati.csv e le foto originali.
+  buildZip() {
+    const s = this.state, d = new Date();
+    const base = 'schede_' + slug(s.phone) + '_' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '-' + pad2(d.getHours()) + pad2(d.getMinutes());
+    const lastOf = {};
+    s.shots.forEach((x) => { const m = x.meta; if (!lastOf[m.scheda] || lastOf[m.scheda].meta.tentativo < m.tentativo) lastOf[m.scheda] = x; });
+    const rows = [['telefono', 'scheda', 'tentativo', 'scelta', 'ora', 'metodo', 'larghezza', 'altezza', 'byte', 'dpi_se_riempie', 'file_originale']];
+    const files = [], foto = [];
+    return s.shots.reduce((p, x) => p.then(() => {
+      const m = x.meta, ext = /png/.test(x.raw.type) ? 'png' : /heic|heif/.test(x.raw.type) ? 'heic' : 'jpg';
+      const name = 'S' + pad2(m.scheda) + '_t' + m.tentativo + '_originale.' + ext, scelta = lastOf[m.scheda] === x;
+      rows.push([m.telefono, m.scheda, m.tentativo, scelta ? 1 : 0, m.ora, m.metodo, m.immagine.larghezza, m.immagine.altezza, m.immagine.byte, m.immagine.dpi_se_riempie, 'foto/' + name]);
+      foto.push(Object.assign({ scelta: scelta, file_originale: 'foto/' + name }, m));
+      return x.raw.arrayBuffer().then((buf) => files.push({ name: base + '/foto/' + name, data: new Uint8Array(buf) }));
+    }), Promise.resolve()).then(() => {
+      const enc = new TextEncoder();
+      const json = { tipo: 'prova schede', telefono: s.phone, schede: this.n(), creato: new Date().toISOString(), dispositivo: s.device, foto: foto };
+      const csv = rows.map((r) => r.map((v) => { const t = String(v == null ? '' : v); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; }).join(';')).join('\n');
+      files.unshift({ name: base + '/dati.csv', data: enc.encode('﻿' + csv + '\n') }, { name: base + '/dati.json', data: enc.encode(JSON.stringify(json, null, 2)) });
+      return { blob: makeZip(files), name: base + '.zip' };
+    });
+  }
+
+  share() {
+    this.setState({ zipBusy: true, zipMsg: 'Preparo il file…', zipErr: false });
+    this.buildZip().then(({ blob, name }) => {
+      const file = new File([blob], name, { type: 'application/zip' });
+      if (!(navigator.canShare && navigator.canShare({ files: [file] }))) { this.saveFile(blob, name); return; }
+      return navigator.share({ files: [file], title: 'Prova schede · ' + this.state.phone }).then(
+        () => this.setState({ zipBusy: false, zipMsg: 'Inviato: ' + name + ' (' + mb(blob.size) + ').' }),
+        (err) => err && err.name === 'AbortError' ? this.setState({ zipBusy: false, zipMsg: '' }) : this.saveFile(blob, name));
+    }).catch((err) => this.setState({ zipBusy: false, zipErr: true, zipMsg: 'Non riesco a preparare il file: ' + (err && err.message) }));
+  }
+
+  download() {
+    this.setState({ zipBusy: true, zipMsg: 'Preparo il file…', zipErr: false });
+    this.buildZip().then(({ blob, name }) => this.saveFile(blob, name))
+      .catch((err) => this.setState({ zipBusy: false, zipErr: true, zipMsg: 'Non riesco a preparare il file: ' + (err && err.message) }));
+  }
+
+  saveFile(blob, name) {
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    this.setState({ zipBusy: false, zipMsg: 'Scaricato: ' + name + ' (' + mb(blob.size) + '). Lo trovi nei Download del telefono.' });
+  }
+
+  reset() {
+    idbClear().then(() => {
+      try { localStorage.removeItem(SESSION_KEY); } catch (e) { /* niente */ }
+      this.setState({ shots: [], step: 'setup', cur: 1, last: null, confirmReset: false, phone: '', zipMsg: '' });
+    });
+  }
+
+  rawUrl(rec) {
+    if (!rec || !rec.raw) return '';
+    if (!rec.__url) { rec.__url = URL.createObjectURL(rec.raw); this.urls.push(rec.__url); }
+    return rec.__url;
+  }
+
+  renderVals() {
+    const s = this.state, n = this.n();
+    const bySheet = {};
+    s.shots.forEach((x) => { const m = x.meta; if (!bySheet[m.scheda] || bySheet[m.scheda].meta.tentativo < m.tentativo) bySheet[m.scheda] = x; });
+    const low = (x) => Math.max(x.meta.immagine.larghezza, x.meta.immagine.altezza) < MIN_LONG_SIDE;
+    const doneCount = Object.keys(bySheet).filter((k) => k <= n).length;
+    const last = s.last, m = last && last.meta;
+    const missing = [];
+    for (let k = 1; k <= n; k++) if (!bySheet[k]) missing.push(k);
+    const old = loadSession();
+    const canShare = !!(navigator.canShare && window.File) && (() => { try { return navigator.canShare({ files: [new File([''], 'x.zip', { type: 'application/zip' })] }); } catch (e) { return false; } })();
+    const size = s.shots.reduce((a, x) => a + (x.raw ? x.raw.size : 0), 0);
+    const lastLow = !!(last && low(last));
+    return {
+      storeError: s.storeError,
+      isSetup: s.step === 'setup', isCapture: s.step === 'capture', isDone: s.step === 'done',
+      phone: s.phone, onPhone: (e) => this.setState({ phone: e.target.value }),
+      nText: s.nText, onN: (e) => this.setState({ nText: e.target.value }), n: n,
+      deviceHint: s.device ? 'Questo telefono: ' + (s.device.modello || '') + (s.device.modello ? ' · ' : '') + (s.device.piattaforma || s.device.userAgent.replace(/^Mozilla\/5\.0 \(([^)]*)\).*$/, '$1')) + '. Lo salviamo nei dati.' : '',
+      cantStart: !s.phone.trim(),
+      phoneLocked: s.shots.length > 0,
+      startLabel: s.shots.length && old && old.phone === s.phone ? 'Continua: scheda ' + s.cur : 'Inizia dalla scheda 1',
+      onStart: () => { if (!(s.shots.length && old && old.phone === s.phone)) this.setState({ cur: missing.length ? missing[0] : 1 }); this.start(); },
+      resume: { has: s.shots.length > 0, phone: old ? old.phone : s.phone, count: s.shots.length,
+        text: doneCount + ' di ' + n + ' schede fotografate (' + s.shots.length + ' foto)' },
+      onResume: () => { if (old) this.setState({ phone: old.phone, nText: String(old.n), cur: old.cur }); this.start(); },
+      confirmReset: s.confirmReset, noConfirm: !s.confirmReset,
+      onAskReset: () => this.setState({ confirmReset: true }),
+      onCancelReset: () => this.setState({ confirmReset: false }),
+      onReset: () => this.reset(),
+
+      cur: s.cur,
+      shotAreaCls: 'shot-area' + (last ? ' is-hidden' : ''),
+      onCameraFile: (e) => this.fromFile(e, 'fotocamera del telefono'),
+      onPickedFile: (e) => this.fromFile(e, 'file dalla galleria'),
+      isBusy: s.busy,
+      showResult: !!last,
+      last: last ? {
+        cls: 'result' + (lastLow ? ' is-error' : ''),
+        title: 'Scheda ' + m.scheda + ' salvata',
+        rawUrl: this.rawUrl(last),
+        meta: 'Tentativo ' + m.tentativo + ' · ' + m.immagine.larghezza + ' × ' + m.immagine.altezza + ' px · circa ' + m.immagine.dpi_se_riempie + ' dpi se la scheda riempie la foto · ' + m.metodo,
+        warn: lastLow ? 'La foto ha poca risoluzione per una scheda intera: prova con la fotocamera del telefono e avvicinati finché la scheda riempie la foto.' : '',
+        nextCls: lastLow ? 'btn-ghost' : 'btn-primary', retakeCls: lastLow ? 'btn-primary' : 'btn-ghost'
+      } : {},
+      nextLabel: (() => { const k = this.nextSheet(); return k == null ? 'Fatto: invia i dati' : 'Avanti: scheda ' + k; })(),
+      onNext: () => this.next(),
+      onRetake: () => this.setState({ last: null }),
+      chips: Array.from({ length: n }, (_, i) => {
+        const k = i + 1, x = bySheet[k], bad = x && low(x);
+        return { n: k, cls: 'chip' + (x ? (bad ? ' is-err' : ' is-done') : '') + (k === s.cur ? ' is-cur' : ''),
+          current: k === s.cur ? 'true' : 'false',
+          aria: 'Scheda ' + k + (x ? (bad ? ', poca risoluzione' : ', fatta') : ', da fare'),
+          go: () => this.goTo(k) };
+      }),
+      doneLabel: missing.length ? 'Ho finito: invia i dati (' + doneCount + ' di ' + n + ')' : 'Fatto: invia i dati',
+      onToDone: () => this.toDone(),
+
+      summary: { cards: doneCount + ' di ' + n, shots: s.shots.length, size: mb(size),
+        missing: missing.length && missing.length < n ? 'Manca' + (missing.length === 1 ? ' la scheda ' : 'no le schede ') + missing.join(', ') + ': se vuoi, torna alle foto per completarle.' : '' },
+      canShare: canShare, downloadCls: canShare ? 'btn-ghost' : 'btn-primary',
+      zipBusy: s.zipBusy, zipMsg: s.zipMsg, zipMsgCls: s.zipErr ? 'notice notice-warn' : 'notice notice-ok',
+      onShare: () => this.share(), onDownload: () => this.download(),
+      onBackToCapture: () => this.start()
+    };
+  }
+}
+</script>
+</body>
+</html>
