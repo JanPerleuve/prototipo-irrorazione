@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4E7A1E">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
+<title>Elaborazione rilievo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F4;
+    --surface: #FFFFFF;
+    --ink: #231F20;
+    --ink-soft: #5E5856;
+    --line: #EDDCCF;
+    --accent: #8BC53E;
+    --accent-hover: #9ECE5D;
+    --accent-strong: #4E7A1E;
+    --accent-soft: #EFF6E4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  h1, h2 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--accent-strong); }
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.92); border-bottom: 1px solid var(--line); padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; }
+  .eyebrow { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
+  .topbar h1 { font-size: 24px; }
+  .subtitle { color: var(--ink-soft); font-size: 14px; }
+  .page { display: flex; justify-content: center; padding: 40px 20px 80px; }
+  .card { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 40px 28px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
+  .spinner { width: 64px; height: 64px; border-radius: 50%; border: 6px solid var(--accent-soft); border-top-color: var(--accent); animation: spin 1s linear infinite; }
+  .done-mark { width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: var(--ink); display: flex; align-items: center; justify-content: center; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 3s; } }
+  .card h2 { font-size: 26px; }
+  .card .lead { color: var(--ink-soft); line-height: 1.5; max-width: 420px; }
+  .steps { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 10px; text-align: left; }
+  .step { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; font-size: 15px; }
+  .dot { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 800; }
+  .dot-done { background: var(--accent); color: var(--ink); }
+  .dot-wait { border: 2px solid var(--accent-strong); }
+  .step-state { margin-left: auto; font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+  .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .btn-primary { display: flex; align-items: center; justify-content: center; border: none; text-decoration: none; background: var(--accent); color: var(--ink); padding: 14px 28px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 15px; font-weight: 700; min-height: 52px; cursor: pointer; width: 100%; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { background: #DCE9C8; color: #6F6A67; cursor: not-allowed; }
+  .btn-ghost { display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 14px 28px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 15px; font-weight: 700; min-height: 52px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  @media (min-width: 640px) {
+    .card { padding: 48px 48px; }
+    .actions { flex-direction: row; }
+    .actions > * { flex: 1 1 0; }
+  }
+  @media (max-width: 560px) { .topbar h1 { font-size: 19px; } }
+  /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
+  img, svg, video, canvas { max-width: 100%; }
+  fieldset { min-width: 0; }
+  input, select, textarea, button { max-width: 100%; }
+  h1, h2, h3, h4, p, li, dd, dt, label, a, span, td, th { overflow-wrap: break-word; }
+</style>
+</helmet>
+
+<div>
+  <div class="topbar">
+    <span class="eyebrow">Perleuve</span>
+    <h1>Rilievo condizioni operative</h1>
+    <span class="subtitle">Verifica taratura irroratrice in vigneto</span>
+  </div>
+
+  <main class="page">
+    <div class="card" aria-live="polite">
+      <sc-if value="{{processing}}" hint-placeholder-val="{{true}}">
+        <div class="spinner" role="img" aria-label="Elaborazione in corso"></div>
+        <h2>Elaborazione in corso</h2>
+        <p class="lead">Il rilievo è stato inviato. Stiamo analizzando dati e foto: il responso sarà disponibile tra poco.</p>
+      </sc-if>
+      <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+        <div class="done-mark" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+        </div>
+        <h2>Elaborazione completata</h2>
+        <p class="lead">Il responso con l'analisi delle condizioni operative è pronto.</p>
+      </sc-if>
+
+      <ul class="steps">
+        <li class="step"><span class="dot dot-done" aria-hidden="true">✓</span><span>Dati ricevuti</span><span class="step-state">Fatto</span></li>
+        <li class="step"><span class="dot dot-done" aria-hidden="true">✓</span><span>Foto ricevuta</span><span class="step-state">Fatto</span></li>
+        <li class="step">
+          <sc-if value="{{processing}}" hint-placeholder-val="{{true}}"><span class="dot dot-wait" aria-hidden="true"></span></sc-if>
+          <sc-if value="{{done}}" hint-placeholder-val="{{false}}"><span class="dot dot-done" aria-hidden="true">✓</span></sc-if>
+          <span>Analisi condizioni operative</span>
+          <span class="step-state">{{analysisState}}</span>
+        </li>
+      </ul>
+
+      <div class="actions">
+        <sc-if value="{{processing}}" hint-placeholder-val="{{true}}">
+          <button type="button" class="btn-primary" disabled="{{true}}">Vedi risultati</button>
+        </sc-if>
+        <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+          <a class="btn-primary" href="Risultati.dc.html">Vedi risultati</a>
+        </sc-if>
+        <a class="btn-ghost" href="Scelta.dc.html">Nuovo rilievo</a>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { done: false };
+    this.showResults = this.showResults.bind(this);
+  }
+
+  componentDidMount() {
+    this.timer = setTimeout(() => this.setState({ done: true }), 3500);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timer);
+  }
+
+  showResults() {
+    // Pagina risultati non ancora collegata: verrà agganciata al responso del backend.
+  }
+
+  renderVals() {
+    const done = this.state.done;
+    return {
+      processing: !done,
+      done: done,
+      analysisState: done ? 'Fatto' : 'In corso…',
+      onResults: this.showResults
+    };
+  }
+}
+</script>
+</body>
+</html>

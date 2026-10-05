@@ -1,0 +1,2576 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4E7A1E">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
+<title>Rilievo condizioni operative</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F4;
+    --surface: #FFFFFF;
+    --ink: #231F20;
+    --ink-soft: #5E5856;
+    --line: #EDDCCF;
+    --accent: #8BC53E;
+    --accent-hover: #9ECE5D;
+    --accent-strong: #4E7A1E;
+    --accent-soft: #EFF6E4;
+    --wine: #9B3B2F;
+    --wine-soft: #F4E9E1;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; color: var(--ink); }
+  button, .eyebrow, .card-index, .field label, .section-label, .sidebar a, .nozzle-card-head span, .placeholder-badge { font-family: 'Montserrat', system-ui, sans-serif; }
+  p { margin: 0; }
+  input, textarea, select { font-family: inherit; }
+  input, textarea { font-variant-numeric: tabular-nums; }
+  a { color: var(--accent-strong); }
+  ::placeholder { color: #9AA28D; }
+  .app-shell { max-width: 1160px; margin: 0 auto; padding: 0 0 96px; }
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 16px 20px; display: flex; flex-direction: row; align-items: center; gap: 18px; }
+  .topbar-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .back-btn { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; text-decoration: none; border: 1.5px solid var(--ink); color: var(--ink); background: var(--surface); padding: 10px 18px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; font-weight: 700; min-height: 44px; }
+  .back-btn:hover { background: var(--ink); color: var(--bg); }
+  .topbar-divider { width: 1px; align-self: stretch; background: var(--line); flex-shrink: 0; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
+  .title-row h1 { font-size: 24px; font-weight: 700; }
+  .subtitle { color: var(--ink-soft); font-size: 14px; }
+  .layout { display: block; padding: 20px; }
+  .title-row h1 { overflow-wrap: anywhere; }
+  /* telefoni: intestazione compatta, il pulsante indietro resta solo con la freccia */
+  @media (max-width: 560px) {
+    .topbar { padding: 10px 16px; gap: 12px; }
+    .title-row h1 { font-size: 19px; }
+    .subtitle { font-size: 13px; }
+    .back-btn { padding: 8px 14px; }
+    .back-label { display: none; }
+    .layout { padding: 16px; }
+  }
+  .sidebar { display: none; }
+  .content { display: flex; flex-direction: column; gap: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .card-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .card-header h2 { font-size: 19px; font-weight: 700; }
+  .card-index { font-size: 12px; color: var(--ink); background: var(--accent-soft); padding: 4px 10px; border-radius: 100px; font-weight: 700; white-space: nowrap; }
+  .field-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; }
+  .input-row { display: flex; align-items: center; gap: 8px; }
+  .field input, .field textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; font-size: 15px; background: var(--surface); color: var(--ink); min-height: 44px; }
+  .field textarea { min-height: 76px; resize: vertical; }
+  .field input:focus, .field textarea:focus { outline: 2px solid var(--accent-strong); outline-offset: 1px; border-color: var(--accent-strong); }
+  .unit { font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
+  .section-label { font-size: 14px; margin-bottom: 12px; color: var(--ink-soft); font-weight: 600; }
+  .dual-grid { display: block; }
+  .dual-grid > * + * { margin-top: 24px; }
+  .dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; border: 2px dashed var(--accent); border-radius: var(--radius); padding: 32px 16px; cursor: pointer; min-height: 180px; background: var(--accent-soft); }
+  .dropzone:hover { border-color: var(--accent-strong); }
+  .dropzone-icon { width: 36px; height: 36px; color: var(--accent-strong); }
+  .dropzone-text { font-weight: 600; font-size: 15px; }
+  .dropzone-hint { font-size: 13px; color: var(--ink-soft); max-width: 340px; line-height: 1.5; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+  .photo-img { max-width: 100%; max-height: 320px; border-radius: 10px; object-fit: cover; }
+  .photo-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; gap: 12px; }
+  .photo-name { font-size: 13px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn-ghost { border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 700; cursor: pointer; min-height: 44px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  .btn-primary { border: none; background: var(--accent); color: var(--ink); padding: 14px 32px; border-radius: 100px; font-size: 15px; font-weight: 700; cursor: pointer; min-height: 50px; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { background: #DCE9C8; color: #6F6A67; cursor: not-allowed; }
+  .btn-icon-remove { border: 1px solid var(--line); background: var(--surface); color: var(--wine); width: 36px; height: 36px; border-radius: 100px; cursor: pointer; font-size: 16px; line-height: 1; flex-shrink: 0; }
+  .btn-icon-remove:hover { border-color: var(--wine); }
+  .nozzle-cards { display: flex; flex-direction: column; gap: 12px; }
+  .nozzle-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .nozzle-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .nozzle-card-head span { font-weight: 600; font-size: 13px; color: var(--accent-strong); }
+  .nozzle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .nozzle-table { display: none; }
+  .footnote { font-size: 12px; color: var(--ink-soft); margin-top: 16px; line-height: 1.6; }
+  .add-row-btn { align-self: flex-start; }
+  .actions-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .submit-card { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .submit-hint { font-size: 13px; color: var(--ink-soft); }
+  .confirmation { display: flex; flex-direction: column; gap: 18px; max-width: 640px; margin: 0 auto; padding: 48px 28px; text-align: center; align-items: center; }
+  .confirmation-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .confirmation h2 { font-size: 24px; }
+  .confirmation p { color: var(--ink-soft); }
+  .result-placeholder { width: 100%; border: 1px dashed var(--ink-soft); background: var(--wine-soft); border-radius: var(--radius); padding: 20px; text-align: left; }
+  .placeholder-badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--wine); background: #FFFFFF; padding: 3px 8px; border-radius: 999px; margin-bottom: 8px; }
+  .result-placeholder p { color: var(--ink); font-size: 13px; line-height: 1.6; }
+  .summary-recap { width: 100%; text-align: left; border-top: 1px solid var(--line); padding-top: 16px; }
+  .summary-recap h3 { font-size: 14px; margin-bottom: 10px; }
+  .summary-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; font-size: 13px; margin: 0; }
+  .summary-list dt { color: var(--ink-soft); }
+  .summary-list dd { margin: 0; font-weight: 600; }
+  .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+  .sidebar a { display: block; padding: 10px 14px; border-radius: 100px; font-size: 14px; color: var(--ink); text-decoration: none; font-weight: 700; }
+  .sidebar a:hover { background: var(--accent); color: var(--ink); }
+  .sidebar-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+
+  .type-picker { border: 0; padding: 0; margin: 0 0 18px; }
+  .type-picker legend { font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-bottom: 10px; padding: 0; }
+  .type-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .type-option { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 100px; background: var(--surface); cursor: pointer; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; line-height: 1.25; }
+  .type-option:hover { border-color: var(--accent-strong); }
+  .type-option.is-on { border-color: var(--accent); background: var(--accent-soft); }
+  .type-option input { accent-color: #4E7A1E; width: 18px; height: 18px; margin: 0; flex-shrink: 0; }
+  .type-desc { font-size: 14px; color: var(--ink-soft); margin: 12px 0 0; line-height: 1.5; }
+  .schema { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin-bottom: 24px; }
+  .schema svg { display: block; width: 100%; height: auto; }
+  .schema-caption { font-size: 12px; color: var(--ink-soft); margin: 4px 4px 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .chip { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 100px; padding: 8px 12px; min-height: 36px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .chip:hover { border-color: var(--accent-strong); }
+  .chip.is-on { background: var(--accent); border-color: var(--accent); }
+  .param-desc { font-size: 14px; line-height: 1.5; margin: 12px 4px 4px; color: var(--ink); min-height: 42px; }
+  .param-desc strong { font-family: 'Montserrat', system-ui, sans-serif; }
+  .sv-ground { stroke: #B8A89A; stroke-width: 2; }
+  .sv-soil { fill: #EDDCCF; }
+  .sv-vine { fill: #DCEBC4; stroke: #6E9A36; stroke-width: 1.5; }
+  .sv-trunk { fill: #7A5A3E; }
+  .sv-wire { stroke: #9B8F86; stroke-width: 1; }
+  .sv-grape { fill: #5B3A5E; }
+  .sv-body { fill: #FFFFFF; stroke: #231F20; stroke-width: 2; }
+  .sv-dark { fill: #231F20; }
+  .sv-tube { fill: none; stroke: #231F20; stroke-width: 11; stroke-linecap: round; }
+  .sv-hose-in { fill: none; stroke: #FFFFFF; stroke-width: 5; stroke-dasharray: 2 3; }
+  .sv-tube-in { fill: none; stroke: #FFFFFF; stroke-width: 6; stroke-linecap: round; }
+  .sv-tray { fill: #EFF6E4; stroke: #231F20; stroke-width: 1.5; }
+  .sv-nozzle { fill: #4E7A1E; stroke: #FFFFFF; stroke-width: 1; }
+  .sv-jet { fill: rgba(139, 197, 62, 0.30); stroke: #8BC53E; stroke-width: 1; }
+  .dim { transition: opacity 0.2s; }
+  .dim line, .dim path { stroke: #231F20; stroke-width: 1.4; fill: none; }
+  .dim .guide { stroke-dasharray: 4 3; stroke-width: 1; }
+  .dim text { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; fill: #231F20; paint-order: stroke; stroke: #FBF7F4; stroke-width: 4px; stroke-linejoin: round; }
+  .dim.off { opacity: 0.16; }
+  .dim.on line, .dim.on path { stroke: #4E7A1E; stroke-width: 2.6; }
+  .dim.on .guide { stroke-width: 1.6; }
+  .dim.on text { fill: #4E7A1E; font-size: 13px; }
+  .howto { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; line-height: 1.5; font-size: 15px; }
+  .howto li::marker { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 800; color: var(--accent-strong); }
+  .howto strong { font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; }
+  .wsp-figure { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; align-self: start; }
+  .wsp-figure svg { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; }
+  .wsp-figure figcaption { font-size: 13px; color: var(--ink-soft); margin-top: 8px; text-align: center; }
+  .wsp-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 13px; margin-top: 8px; }
+  .wsp-legend strong { font-family: 'Montserrat', system-ui, sans-serif; }
+  .wsp-key { display: inline-block; width: 14px; height: 9px; background: #F2D43A; border: 1px solid #231F20; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+  .wsp { fill: #F2D43A; stroke: #231F20; stroke-width: 1.2; }
+  .wsp-code { font-family: 'Montserrat', system-ui, sans-serif; font-size: 10px; font-weight: 700; fill: #231F20; }
+  .wsp-axis { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; fill: #5E5856; }
+  .wall-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .wall-text { display: flex; flex-direction: column; gap: 2px; }
+  .sv-jet-ind { fill: rgba(139, 197, 62, 0.10); stroke: #8BC53E; stroke-width: 1; stroke-dasharray: 4 4; }
+  .wall-tag { font-size: 11px; font-weight: 700; color: var(--accent-strong); letter-spacing: 0.04em; text-transform: uppercase; }
+  .sv-rowlbl { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 800; fill: #4E7A1E; }
+  .sheet-guide { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .sheet-title { font-size: 16px; }
+  .sheet-note { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+  .sheet-scroll { overflow-x: auto; }
+  .sheet { display: flex; flex-direction: column; gap: 6px; min-width: 460px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .sheet-row { display: grid; grid-template-columns: 116px repeat(8, minmax(0, 1fr)); gap: 6px; align-items: center; }
+  .sheet-label { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .sheet-n { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-size: 11px; flex-shrink: 0; }
+  .sheet-colhead { font-family: 'Montserrat', system-ui, sans-serif; font-size: 10px; font-weight: 700; color: var(--ink-soft); text-align: center; line-height: 1.3; }
+  .sheet-cell { height: 30px; border-radius: 3px; background: #F2D43A; border: 1px solid #231F20; }
+  .sheet-head .sheet-label { color: var(--ink-soft); }
+  .later-note { font-size: 14px; line-height: 1.5; background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; margin: -4px 0 16px; }
+  .later-note strong { font-family: 'Montserrat', system-ui, sans-serif; }
+  .ntype-list { display: flex; flex-direction: column; gap: 12px; }
+  .ntype-card { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface); }
+  .ntype-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ntype-grid .field-wide { grid-column: 1 / -1; }
+  .field select { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; font-family: inherit; font-size: 15px; background: var(--surface); color: var(--ink); min-height: 44px; }
+  .field select:focus { outline: 2px solid var(--accent-strong); outline-offset: 1px; border-color: var(--accent-strong); }
+  .ugelli-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .nz-figure { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; align-self: start; }
+  .nz-figure svg { display: block; width: 100%; height: auto; }
+  .nz-num { font-family: 'Montserrat', system-ui, sans-serif; font-size: 10px; font-weight: 800; }
+  .nz-side { font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; font-weight: 800; fill: #5E5856; }
+  .nz-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 4px 2px; font-size: 13px; }
+  .nz-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .nz-warn { font-size: 13px; color: var(--wine); margin: 8px 4px 0; }
+  .assign-box { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .assign-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .assign-title { font-size: 15px; }
+  .assign-count { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; color: var(--accent-strong); }
+  .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .btn-small { min-height: 40px; padding: 8px 14px; font-size: 13px; }
+  .sym-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 12px; cursor: pointer; }
+  .sym-toggle input { width: 18px; height: 18px; margin: 0; accent-color: #4E7A1E; }
+  .assign-table { display: flex; flex-direction: column; gap: 6px; }
+  .assign-row { display: grid; grid-template-columns: 76px minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center; }
+  .assign-headrow span { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+  .assign-pos { font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; }
+  .pick-group { display: flex; flex-wrap: wrap; gap: 4px; }
+  .nz-pick { min-width: 36px; min-height: 36px; border-radius: 100px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; padding: 0 8px; }
+  .nz-pick:hover { border-color: var(--ink); }
+  .nz-pick.is-on { border-color: #231F20; }
+  .same-as { font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+  .ntype-usage { font-size: 13px; color: var(--ink-soft); margin: -4px 0 10px; }
+  .misure-figs { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 18px; align-items: stretch; }
+  .misure-figs .explain-figure, .misure-figs .nz-figure { margin: 0; }
+  .svg-wrap { position: relative; }
+  .svg-wrap svg { display: block; width: 100%; height: auto; }
+  .nz-figure .svg-wrap { max-width: 460px; margin: 0 auto; }
+  .svg-labels { position: absolute; inset: 0; pointer-events: none; }
+  .ov-lbl { position: absolute; white-space: nowrap; line-height: 1; font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; font-size: 12px; color: #231F20; transform: translate(-50%, -75%); text-shadow: 0 0 3px #FBF7F4, 0 0 3px #FBF7F4, 0 0 2px #FBF7F4, 0 0 2px #FBF7F4; transition: opacity 0.2s; }
+  .ov-start { transform: translate(0, -75%); }
+  .ov-end { transform: translate(-100%, -75%); }
+  .ov-lbl.off { opacity: 0.18; }
+  .ov-lbl.on { color: #4E7A1E; font-size: 13px; }
+  .ov-num { font-weight: 800; font-size: 12px; transform: translate(-50%, -50%); }
+  .ov-num.on { color: #FFFFFF; background: #4E7A1E; border-radius: 100px; padding: 2px 5px; text-shadow: none; }
+  .explain-figure .dim text { font-size: 21px; }
+  .explain-figure .ex-note { font-size: 19px; }
+  @media (max-width: 520px) { .ov-lbl { font-size: 10px; } .ov-lbl.on { font-size: 11px; } }
+  .nz-lbl-unused { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 800; fill: #231F20; paint-order: stroke; stroke: #FBF7F4; stroke-width: 3.5px; stroke-linejoin: round; }
+  .meas-label { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .meas-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; height: 28px; padding: 0 10px; border-radius: 100px; border: 1.5px solid #231F20; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 800; white-space: nowrap; }
+  .nozzle-card.is-active { border-color: var(--accent-strong); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .nozzle-table tr.is-active td { background: var(--accent-soft); }
+  .meas-type { font-size: 13px; color: var(--ink-soft); }
+  @media (min-width: 900px) {
+    .misure-figs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  }
+  .nozzle-table td { white-space: nowrap; }
+  .nozzle-table td.meas-type { white-space: normal; min-width: 80px; }
+  .nozzle-table input { width: 100%; min-width: 72px; }
+  .explain-figure { margin: 0 0 16px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .explain-figure svg { display: block; width: 100%; max-width: 560px; height: auto; margin: 8px auto 0; }
+  .ex-note { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; fill: #5E5856; }
+  .ex-legend { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 13px; line-height: 1.45; }
+  .ex-legend strong { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; margin-right: 6px; }
+  .fan-note { color: var(--ink-soft); font-size: 13px; }
+  .no-fan .col-fan { display: none; }
+  @media (min-width: 640px) { .ex-legend { grid-template-columns: 1fr 1fr; } }
+  .ntype-name { display: inline-flex; align-items: center; gap: 8px; }
+  .ntype-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #231F20; flex-shrink: 0; }
+  @media (min-width: 960px) {
+    .ugelli-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .nz-figure { position: sticky; top: 110px; }
+  }
+  .pass-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pass-options .type-option { border-radius: 14px; align-items: flex-start; }
+  .pass-sub { font-family: 'Barlow', system-ui, sans-serif; font-weight: 400; font-size: 13px; color: var(--ink-soft); }
+  .pass-figure { display: flex; align-items: center; gap: 14px; margin-top: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+  .pass-svg { width: 150px; height: auto; flex-shrink: 0; display: block; }
+  .preset-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .preset-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 16px 18px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; min-height: 88px; font-family: 'Barlow', system-ui, sans-serif; }
+  .preset-btn:hover { border-color: var(--accent-strong); }
+  .preset-btn.is-on { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .preset-title { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .preset-sub { font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+  .prev-note { display: flex; flex-direction: column; gap: 8px; }
+  .combo { position: relative; }
+  .combo-list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 24px rgba(35, 31, 32, 0.12); max-height: 280px; overflow-y: auto; }
+  .combo-list li { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 9px; cursor: pointer; min-height: 44px; justify-content: center; }
+  .combo-list li:hover, .combo-list li.is-active { background: var(--accent-soft); }
+  .combo-name { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; font-size: 14px; }
+  .combo-sub { font-size: 13px; color: var(--ink-soft); }
+  .vy-note { font-size: 13px; color: var(--accent-strong); background: var(--accent-soft); border-radius: 9px; padding: 8px 10px; margin-top: 8px; line-height: 1.45; }
+  .vy-note .link-btn { padding: 0; min-height: 0; font-size: 13px; }
+  .vy-new { color: var(--ink-soft); background: var(--bg); }
+  .prev-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .preset-note { margin-top: 12px; font-size: 14px; background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+  @media (min-width: 720px) { .preset-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .collapse-head { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; background: transparent; border: 0; padding: 0; margin: 0; text-align: left; cursor: pointer; color: var(--ink); min-height: 48px; }
+  .collapse-title { display: flex; flex-direction: column; gap: 4px; }
+  .collapse-h { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.02em; font-size: 19px; }
+  .collapse-sub { font-family: 'Barlow', system-ui, sans-serif; font-size: 14px; color: var(--ink-soft); font-weight: 400; }
+  .chev { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.2s; }
+  .chev.is-open { transform: rotate(180deg); }
+  .collapse-head:hover .chev { border-color: var(--ink); }
+  .collapse-body { margin-top: 18px; }
+  .count-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 10px; max-width: 480px; }
+  .stepper { display: flex; align-items: stretch; gap: 6px; }
+  .stepper input { text-align: center; min-width: 0; flex: 1 1 auto; -moz-appearance: textfield; }
+  .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .step-btn { width: 44px; min-height: 44px; flex-shrink: 0; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font-family: 'Montserrat', system-ui, sans-serif; font-size: 20px; font-weight: 700; line-height: 1; cursor: pointer; }
+  .step-btn:hover { border-color: var(--ink); }
+  .step-btn:active { background: var(--accent-soft); }
+  .acq-photo .only-scan, .acq-scan .only-photo { display: none; }
+  .template-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .sheet { position: relative; padding: 26px 26px 22px; }
+  .sheet-marker { position: absolute; width: 14px; height: 14px; background: #231F20; border-radius: 2px; }
+  .sheet-marker::after { content: ''; position: absolute; inset: 4px; background: #FFFFFF; }
+  .m-tl { top: 6px; left: 6px; } .m-tr { top: 6px; right: 6px; } .m-bl { bottom: 6px; left: 6px; } .m-br { bottom: 6px; right: 6px; }
+  .sheet-qr { display: flex; align-items: center; gap: 8px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; color: var(--ink-soft); margin-bottom: 4px; }
+  .qr-box { width: 28px; height: 28px; border: 2px solid #231F20; background: repeating-linear-gradient(90deg, #231F20 0 4px, #FFFFFF 4px 8px), repeating-linear-gradient(0deg, #231F20 0 4px, #FFFFFF 4px 8px); background-blend-mode: difference; }
+  .sv-hide { display: none; }
+  .sv-ref { fill: none; stroke: #4E7A1E; stroke-width: 2; }
+
+  @media (min-width: 640px) {
+    .type-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .wall-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .field-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 720px) {
+    .dual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .dual-grid > * + * { margin-top: 0; }
+  }
+
+  @media (min-width: 960px) {
+    .type-options { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start; padding: 32px 40px 0; }
+    .sidebar { display: block; position: sticky; top: 96px; }
+    .nozzle-cards { display: none; }
+    .nozzle-table { display: table; width: 100%; border-collapse: collapse; }
+    .nozzle-table th { text-align: left; font-size: 12px; color: var(--ink-soft); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    .nozzle-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .nozzle-table input { min-height: 38px; padding: 8px 10px; }
+    .nozzle-table td:first-child { font-weight: 600; color: var(--ink-soft); width: 36px; }
+  }
+  /* Griglie che non devono allargare la pagina; su schermi stretti una colonna sola. */
+  .content > *, .ugelli-layout > *, .dual-grid > *, .misure-figs > *, .field-grid > *, .ntype-grid > * { min-width: 0; }
+  .type-option > span { min-width: 0; }
+  @media (max-width: 440px) {
+    .type-options, .pass-options, .ntype-grid, .summary-list { grid-template-columns: minmax(0, 1fr); }
+    .wall-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card { padding-left: 16px; padding-right: 16px; }
+  }
+  /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
+  img, svg, video, canvas { max-width: 100%; }
+  fieldset { min-width: 0; }
+  input, select, textarea, button { max-width: 100%; }
+  h1, h2, h3, h4, p, li, dd, dt, label, a, span, td, th { overflow-wrap: break-word; }
+</style>
+</helmet>
+
+<div class="app-shell">
+  <div class="topbar">
+    <a class="back-btn" href="Rilievi.dc.html" aria-label="Torna a I miei rilievi"><span aria-hidden="true">←</span><span class="back-label"> I miei rilievi</span></a>
+    <span class="topbar-divider" aria-hidden="true"></span>
+    <div class="topbar-titles">
+      <span class="eyebrow">Perleuve</span>
+      <div class="title-row"><h1>Rilievo condizioni operative</h1></div>
+      <span class="subtitle">Verifica taratura irroratrice in vigneto</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <nav aria-label="Sezioni del rilievo">
+          <a href="#sez-cartine">Istruzioni generali</a>
+          <a href="#sez-preset">Tipo di rilievo</a>
+          <sc-if value="{{prev.has}}" hint-placeholder-val="{{true}}"><a href="#sez-precedenti">La macchina di prima</a></sc-if>
+          <a href="#sez-generale">Dati generali</a>
+          <a href="#sez-descrizione">Descrizione prova</a>
+          <a href="#sez-attrezzatura">Attrezzatura</a>
+          <a href="#sez-condizioni">Condizioni operative</a>
+          <a href="#sez-ugelli">{{term.P}}</a>
+          <a href="#sez-misure">Misure per {{term.s}}</a>
+          <a href="#sez-foto">Immagine scheda cartine</a>
+          <a href="#sez-invio">Invio</a>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="content">
+
+      <sc-if value="{{notSubmitted}}" hint-placeholder-val="{{true}}">
+        <section class="card collapsible" id="sez-cartine">
+          <button type="button" class="collapse-head" onClick="{{onToggleIstr}}" aria-expanded="{{istrExpanded}}" aria-controls="istr-body">
+            <span class="collapse-title">
+              <span class="collapse-h">Istruzioni generali</span>
+              <span class="collapse-sub">Come applicare le cartine nella chioma: consigliato a chi fa un rilievo per la prima volta.</span>
+            </span>
+            <span class="{{istrChevronCls}}" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
+          </button>
+          <sc-if value="{{showIstr}}" hint-placeholder-val="{{false}}">
+            <div id="istr-body" class="collapse-body">
+          <div class="dual-grid">
+            <ol class="howto">
+              <li><strong>Maneggiale all’asciutto.</strong> Usa guanti asciutti e tieni le cartine solo dai bordi: la superficie gialla si macchia a contatto con acqua, rugiada o sudore.</li>
+              <li><strong>Scegli le piante.</strong> Piante rappresentative nel tratto centrale del filare, lontano dalle testate.</li>
+              <li><strong>Posiziona le cartine.</strong> Su due altezze (alta e bassa) e due profondità (esterna, verso l’interfila trattata, e interna alla chioma), come nello schema. In ogni posizione fissa due cartine sulla stessa foglia con una graffetta: una sulla pagina superiore e una sulla pagina inferiore, lato giallo verso l’esterno della foglia. In totale 8 cartine per pianta.</li>
+              <li><strong>Codifica ogni cartina.</strong> Scrivi sul retro la posizione e il numero della pianta, es. <em>A-E-sup</em> = alta, esterna, pagina superiore.</li>
+              <li><strong>Esegui il trattamento</strong> con le condizioni operative riportate più sotto.</li>
+              <li><strong>Raccogli a secco.</strong> Attendi che le cartine siano asciutte, raccoglile con i guanti e disponile sulla scheda nell’ordine dello schema.</li>
+              <li><strong>Fotografa la scheda</strong> su sfondo bianco, con buona luce e spazio tra le cartine (vedi le indicazioni nella sezione della foto), e caricala nella sezione “Immagine scheda cartine”, in fondo alla pagina: puoi farlo anche più tardi.</li>
+            </ol>
+            <figure class="wsp-figure">
+              <svg viewBox="0 0 320 300" role="img" aria-label="Posizioni delle cartine nella chioma: alta e bassa, esterna e interna; in ogni posizione una cartina sulla pagina superiore e una sulla pagina inferiore della foglia">
+                  <text class="wsp-axis" x="140" y="18" text-anchor="middle">Esterna</text>
+                  <text class="wsp-axis" x="200" y="18" text-anchor="middle">Interna</text>
+                  <rect x="196" y="238" width="8" height="42" fill="#7A5A3E"></rect>
+                  <line x1="10" y1="280" x2="310" y2="280" stroke="#B8A89A" stroke-width="2"></line>
+                  <path d="M112 242 L112 66 Q112 30 200 30 Q288 30 288 66 L288 242 Z" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.5"></path>
+                  <circle cx="232" cy="222" r="4" fill="#5B3A5E"></circle>
+                  <circle cx="239" cy="228" r="4" fill="#5B3A5E"></circle>
+                  <circle cx="246" cy="222" r="4" fill="#5B3A5E"></circle>
+                  <text class="wsp-axis" x="104" y="92" text-anchor="end">Alta</text>
+                  <text class="wsp-axis" x="104" y="192" text-anchor="end">Bassa</text>
+                  <text class="wsp-axis" x="10" y="146">Irroratrice</text>
+                  <line x1="10" y1="156" x2="96" y2="156" stroke="#4E7A1E" stroke-width="2"></line>
+                  <path d="M96 150 L106 156 L96 162 Z" fill="#4E7A1E"></path>
+                  <rect class="wsp" x="130" y="69" width="20" height="12" rx="2"></rect>
+                  <ellipse cx="140" cy="88" rx="22" ry="6" fill="#6E9A36"></ellipse>
+                  <rect class="wsp" x="130" y="95" width="20" height="12" rx="2"></rect>
+                  <text class="wsp-code" x="140" y="121" text-anchor="middle">A-E</text>
+                  <rect class="wsp" x="190" y="69" width="20" height="12" rx="2"></rect>
+                  <ellipse cx="200" cy="88" rx="22" ry="6" fill="#6E9A36"></ellipse>
+                  <rect class="wsp" x="190" y="95" width="20" height="12" rx="2"></rect>
+                  <text class="wsp-code" x="200" y="121" text-anchor="middle">A-I</text>
+                  <rect class="wsp" x="130" y="169" width="20" height="12" rx="2"></rect>
+                  <ellipse cx="140" cy="188" rx="22" ry="6" fill="#6E9A36"></ellipse>
+                  <rect class="wsp" x="130" y="195" width="20" height="12" rx="2"></rect>
+                  <text class="wsp-code" x="140" y="221" text-anchor="middle">B-E</text>
+                  <rect class="wsp" x="190" y="169" width="20" height="12" rx="2"></rect>
+                  <ellipse cx="200" cy="188" rx="22" ry="6" fill="#6E9A36"></ellipse>
+                  <rect class="wsp" x="190" y="195" width="20" height="12" rx="2"></rect>
+                  <text class="wsp-code" x="200" y="221" text-anchor="middle">B-I</text>
+              </svg>
+              <div class="wsp-legend">
+                <span><span class="wsp-key"></span> sopra la foglia = pagina superiore (<strong>sup</strong>)</span>
+                <span><span class="wsp-key"></span> sotto la foglia = pagina inferiore (<strong>inf</strong>)</span>
+              </div>
+              <figcaption>Sezione della chioma vista lungo il filare: 4 posizioni × 2 pagine della foglia = 8 cartine.</figcaption>
+            </figure>
+          </div>
+            </div>
+          </sc-if>
+        </section>
+
+        <section class="card" id="sez-preset">
+          <div class="card-header"><h2>Tipo di rilievo</h2></div>
+          <p class="type-desc" style="margin: 0 0 14px">Scegli un rilievo standard per precompilare configurazione, pareti e repliche, oppure imposta tutto a mano.</p>
+          <div class="preset-grid">
+            <sc-for list="{{presetOptions}}" as="pr" hint-placeholder-count="3">
+              <button type="button" class="{{pr.cls}}" aria-pressed="{{pr.pressed}}" onClick="{{pr.pick}}">
+                <span class="preset-title">{{pr.title}}</span>
+                <span class="preset-sub">{{pr.sub}}</span>
+              </button>
+            </sc-for>
+          </div>
+          <sc-if value="{{presetApplied}}" hint-placeholder-val="{{false}}">
+            <p class="preset-note" role="status">{{presetNote}}</p>
+          </sc-if>
+        </section>
+
+        <sc-if value="{{prev.has}}" hint-placeholder-val="{{true}}">
+        <section class="card" id="sez-precedenti">
+          <div class="card-header"><h2>Dai rilievi precedenti: la macchina</h2></div>
+          <p class="type-desc" style="margin: 0 0 14px">La macchina di solito non cambia da un rilievo all’altro: toccala per riprenderne i dati, poi controlla che siano ancora giusti. Il vigneto lo scegli nel campo “Vigneto” qui sotto.</p>
+          <sc-if value="{{prev.hasMachines}}" hint-placeholder-val="{{true}}">
+            <p class="section-label">Macchina: trattrice, irroratrice, {{term.p}} e misure</p>
+            <div class="preset-grid">
+              <sc-for list="{{prev.machines}}" as="m" hint-placeholder-count="2">
+                <button type="button" class="{{m.cls}}" aria-pressed="{{m.pressed}}" onClick="{{m.pick}}">
+                  <span class="preset-title">{{m.title}}</span>
+                  <span class="preset-sub">{{m.sub}}</span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{prev.note}}" hint-placeholder-val="{{false}}">
+            <div class="preset-note prev-note" role="status">
+              <p>{{prev.note}}</p>
+              <div class="prev-actions">
+                <sc-if value="{{prev.canSettings}}" hint-placeholder-val="{{false}}">
+                  <button type="button" class="btn-ghost btn-small" onClick="{{prev.onSettings}}">{{prev.settingsLabel}}</button>
+                </sc-if>
+                <button type="button" class="btn-ghost btn-small" onClick="{{prev.onUndo}}">Annulla</button>
+              </div>
+            </div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <section class="card" id="sez-generale">
+          <div class="card-header"><h2>Dati generali</h2></div>
+          <div class="field-grid">
+            <div class="field vy-field">
+              <label for="vigneto" id="vigneto-label">Vigneto *</label>
+              <div class="combo">
+                <input id="vigneto" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="{{vy.expanded}}" aria-controls="vy-list" aria-activedescendant="{{vy.activeId}}"
+                  placeholder="{{vy.placeholder}}" value="{{vigneto}}" onChange="{{vy.onInput}}" onFocus="{{vy.onOpen}}" onClick="{{vy.onOpen}}" onKeyDown="{{vy.onKey}}" onBlur="{{vy.onBlur}}">
+                <sc-if value="{{vy.showList}}" hint-placeholder-val="{{false}}">
+                  <ul class="combo-list" id="vy-list" role="listbox" aria-labelledby="vigneto-label">
+                    <sc-for list="{{vy.options}}" as="o" hint-placeholder-count="3">
+                      <li id="{{o.id}}" role="option" aria-selected="{{o.selected}}" class="{{o.cls}}" onMouseDown="{{vy.keepFocus}}" onClick="{{o.pick}}">
+                        <span class="combo-name">{{o.name}}</span>
+                        <span class="combo-sub">{{o.sub}}</span>
+                      </li>
+                    </sc-for>
+                  </ul>
+                </sc-if>
+              </div>
+              <sc-if value="{{vy.known}}" hint-placeholder-val="{{false}}">
+                <p class="vy-note" role="status">{{vy.knownText}} <button type="button" class="link-btn" onClick="{{vy.onEdit}}">{{vy.editLabel}}</button></p>
+              </sc-if>
+              <sc-if value="{{vy.isNew}}" hint-placeholder-val="{{false}}">
+                <p class="vy-note vy-new">Nuovo vigneto: compila sesto e sistema di allevamento in “Condizioni operative”. Dal prossimo rilievo li troverai già pronti.</p>
+              </sc-if>
+            </div>
+            <sc-for list="{{generalFields}}" as="f" hint-placeholder-count="1">
+              <div class="field">
+                <label for="{{f.key}}">{{f.label}}<sc-if value="{{f.required}}" hint-placeholder-val="{{false}}"> *</sc-if></label>
+                <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section class="card" id="sez-descrizione">
+          <div class="card-header"><h2>Descrizione prova</h2></div>
+          <div class="field">
+            <label for="descrizioneProva">Due o tre parole chiave</label>
+            <input id="descrizioneProva" type="text" maxlength="40" placeholder="es. taratura pre-fioritura" style="max-width: 420px" value="{{descrizioneProva}}" onChange="{{onDescrizioneProva}}">
+          </div>
+        </section>
+
+        <section class="card" id="sez-attrezzatura">
+          <div class="card-header"><h2>Attrezzatura</h2></div>
+          <div class="field-grid">
+            <sc-for list="{{equipmentFields}}" as="f" hint-placeholder-count="4">
+              <div class="field">
+                <label for="{{f.key}}">{{f.label}}</label>
+                <input id="{{f.key}}" type="text" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section class="card" id="sez-condizioni">
+          <div class="card-header"><h2>Condizioni operative</h2></div>
+
+          <fieldset class="type-picker">
+            <legend>Tipo di irroratrice</legend>
+            <div class="type-options">
+              <sc-for list="{{typeOptions}}" as="o" hint-placeholder-count="5">
+                <label class="{{o.cls}}">
+                  <input type="radio" name="tipoIrroratrice" value="{{o.key}}" checked="{{o.checked}}" onChange="{{o.pick}}">
+                  <span>{{o.label}}</span>
+                </label>
+              </sc-for>
+            </div>
+            <p class="type-desc">{{typeDesc}}</p>
+            <sc-if value="{{canIndirect}}" hint-placeholder-val="{{false}}">
+              <label class="{{indCls}}" style="margin-top: 12px; border-radius: 14px; align-items: flex-start">
+                <input type="checkbox" checked="{{indiretto}}" onChange="{{onIndiretto}}" style="margin-top: 2px">
+                <span class="wall-text">
+                  <span>Trattamento indiretto</span>
+                  <span style="font-family: 'Barlow', system-ui, sans-serif; font-weight: 400; font-size: 14px; color: var(--ink-soft)">Il getto attraversa il filare adiacente e raggiunge anche i filari successivi.</span>
+                </span>
+              </label>
+            </sc-if>
+          </fieldset>
+
+          <fieldset class="type-picker">
+            <legend>Passaggio di trattamento</legend>
+            <div class="pass-options">
+              <sc-for list="{{passOptions}}" as="po" hint-placeholder-count="2">
+                <label class="{{po.cls}}">
+                  <input type="radio" name="passaggio" value="{{po.key}}" checked="{{po.checked}}" onChange="{{po.pick}}">
+                  <span class="wall-text">
+                    <span>{{po.label}}</span>
+                    <span class="pass-sub">{{po.sub}}</span>
+                  </span>
+                </label>
+              </sc-for>
+            </div>
+            <div class="pass-figure">
+              <div class="{{passEveryCls}}"><svg viewBox="0 0 300 110" class="pass-svg" aria-hidden="true"><rect x="25" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="85" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="145" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="205" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="265" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><line x1="60" y1="18" x2="60" y2="84" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M53 80 L60 94 L67 80 Z" fill="#4E7A1E"></path><line x1="120" y1="26" x2="120" y2="92" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M113 30 L120 16 L127 30 Z" fill="#4E7A1E"></path><line x1="180" y1="18" x2="180" y2="84" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M173 80 L180 94 L187 80 Z" fill="#4E7A1E"></path><line x1="240" y1="26" x2="240" y2="92" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M233 30 L240 16 L247 30 Z" fill="#4E7A1E"></path></svg></div>
+              <div class="{{passAltCls}}"><svg viewBox="0 0 300 110" class="pass-svg" aria-hidden="true"><rect x="25" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="85" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="145" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="205" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="265" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><line x1="60" y1="18" x2="60" y2="84" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M53 80 L60 94 L67 80 Z" fill="#4E7A1E"></path><line x1="180" y1="26" x2="180" y2="92" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M173 30 L180 16 L187 30 Z" fill="#4E7A1E"></path></svg></div>
+              <p class="type-desc" style="margin: 0">{{passDesc}}</p>
+            </div>
+          </fieldset>
+
+          <div class="schema">
+            <p class="schema-caption">Schema nel filare, vista da dietro · i valori mostrati sono quelli inseriti per {{term.art}} {{refNozzleLabel}}</p>
+            <div class="svg-wrap">
+              <svg viewBox="{{g.viewBox}}" role="img" aria-label="Schema dell'irroratrice nel filare, vista da dietro, con i parametri da misurare">
+              <defs>
+                <marker id="tk" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                  <path d="M5 0 L5 10" stroke="#231F20" stroke-width="2"></path>
+                </marker>
+              </defs>
+
+              <rect class="sv-soil" x="{{g.vbX}}" y="380" width="{{g.vbW}}" height="40"></rect>
+              <line class="sv-ground" x1="{{g.vbX}}" y1="380" x2="{{g.vbX2}}" y2="380"></line>
+              <path class="sv-jet-ind" d="{{g.jetsInd}}"></path>
+
+              <g class="{{vcls.v0}}" transform="translate({{g.v0}} 0)">
+                <rect class="sv-trunk" x="-3" y="284" width="6" height="96"></rect>
+                <path class="sv-vine" d="M-22 290 L-22 172 Q-22 148 0 148 Q22 148 22 172 L22 290 Z"></path>
+                <text class="sv-rowlbl" x="0" y="170" text-anchor="middle">F1</text>
+                <circle class="sv-grape" cx="-9" cy="281" r="3.5"></circle>
+                <circle class="sv-grape" cx="-3" cy="286" r="3.5"></circle>
+                <circle class="sv-grape" cx="-8" cy="290" r="3.5"></circle>
+                <circle class="sv-grape" cx="8" cy="283" r="3.5"></circle>
+                <circle class="sv-grape" cx="13" cy="288" r="3.5"></circle>
+              </g>
+              <g class="{{vcls.v1}}" transform="translate({{g.v1}} 0)">
+                <rect class="sv-trunk" x="-3" y="284" width="6" height="96"></rect>
+                <path class="sv-vine" d="M-22 290 L-22 172 Q-22 148 0 148 Q22 148 22 172 L22 290 Z"></path>
+                <text class="sv-rowlbl" x="0" y="170" text-anchor="middle">F2</text>
+                <circle class="sv-grape" cx="-9" cy="281" r="3.5"></circle>
+                <circle class="sv-grape" cx="-3" cy="286" r="3.5"></circle>
+                <circle class="sv-grape" cx="-8" cy="290" r="3.5"></circle>
+                <circle class="sv-grape" cx="8" cy="283" r="3.5"></circle>
+                <circle class="sv-grape" cx="13" cy="288" r="3.5"></circle>
+              </g>
+              <g class="{{vcls.v2}}" transform="translate({{g.v2}} 0)">
+                <rect class="sv-trunk" x="-3" y="284" width="6" height="96"></rect>
+                <path class="sv-vine" d="M-22 290 L-22 172 Q-22 148 0 148 Q22 148 22 172 L22 290 Z"></path>
+                <text class="sv-rowlbl" x="0" y="170" text-anchor="middle">F3</text>
+                <circle class="sv-grape" cx="-9" cy="281" r="3.5"></circle>
+                <circle class="sv-grape" cx="-3" cy="286" r="3.5"></circle>
+                <circle class="sv-grape" cx="-8" cy="290" r="3.5"></circle>
+                <circle class="sv-grape" cx="8" cy="283" r="3.5"></circle>
+                <circle class="sv-grape" cx="13" cy="288" r="3.5"></circle>
+              </g>
+              <g class="{{vcls.v3}}" transform="translate({{g.v3}} 0)">
+                <rect class="sv-trunk" x="-3" y="284" width="6" height="96"></rect>
+                <path class="sv-vine" d="M-22 290 L-22 172 Q-22 148 0 148 Q22 148 22 172 L22 290 Z"></path>
+                <text class="sv-rowlbl" x="0" y="170" text-anchor="middle">F4</text>
+                <circle class="sv-grape" cx="-9" cy="281" r="3.5"></circle>
+                <circle class="sv-grape" cx="-3" cy="286" r="3.5"></circle>
+                <circle class="sv-grape" cx="-8" cy="290" r="3.5"></circle>
+                <circle class="sv-grape" cx="8" cy="283" r="3.5"></circle>
+                <circle class="sv-grape" cx="13" cy="288" r="3.5"></circle>
+              </g>
+
+              <path class="sv-jet" d="{{g.jets}}"></path>
+              <path class="sv-jet" d="{{g.jetRef}}" style="stroke: #4E7A1E"></path>
+              <path class="wsp" d="{{g.wspMarks}}"></path>
+
+              <g class="{{mcls.atomizzatore}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="304" y="296" width="112" height="66" rx="16"></rect>
+                <circle class="sv-body" cx="360" cy="270" r="58"></circle>
+                <circle cx="360" cy="270" r="42" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="270" r="9"></circle>
+              </g>
+
+              <g class="{{mcls.nebulizzatore}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="306" y="292" width="108" height="70" rx="12"></rect>
+                <path class="sv-tube" d="M330 262 L292 262"></path>
+                <path class="sv-tube-in" d="M330 262 L292 262"></path>
+                <path class="sv-tube" d="M390 262 L428 262"></path>
+                <path class="sv-tube-in" d="M390 262 L428 262"></path>
+                <rect class="sv-body" x="282" y="204" width="14" height="84" rx="6"></rect>
+                <rect class="sv-body" x="424" y="204" width="14" height="84" rx="6"></rect>
+                <rect class="sv-body" x="328" y="248" width="64" height="48" rx="10"></rect>
+                <circle cx="360" cy="272" r="14" fill="none" stroke="#231F20" stroke-width="1.5"></circle>
+                <circle class="sv-dark" cx="360" cy="272" r="5"></circle>
+              </g>
+
+              <g class="{{mcls.torrettaIntere}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="96" y="90" width="528" height="6" rx="2"></rect>
+                <rect class="sv-body" x="352" y="94" width="16" height="118"></rect>
+                <path class="sv-tube" d="M346 214 L346 116 Q346 104 334 104 L114 104 Q102 104 102 116 L102 184"></path>
+                <path class="sv-hose-in" d="M346 214 L346 116 Q346 104 334 104 L114 104 Q102 104 102 116 L102 184"></path>
+                <path class="sv-tube" d="M374 214 L374 116 Q374 104 386 104 L606 104 Q618 104 618 116 L618 184"></path>
+                <path class="sv-hose-in" d="M374 214 L374 116 Q374 104 386 104 L606 104 Q618 104 618 116 L618 184"></path>
+                <rect class="sv-dark" x="98" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-dark" x="612" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-body" x="310" y="208" width="100" height="154" rx="14"></rect>
+                <circle cx="360" cy="300" r="32" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="300" r="7"></circle>
+              </g>
+
+              <g class="{{mcls.torrettaMezze}}">
+                <rect class="sv-dark" x="306" y="332" width="20" height="48" rx="5"></rect>
+                <rect class="sv-dark" x="394" y="332" width="20" height="48" rx="5"></rect>
+                <rect class="sv-dark" x="174" y="90" width="372" height="6" rx="2"></rect>
+                <rect class="sv-body" x="353" y="94" width="14" height="118"></rect>
+                <path class="sv-tube" d="M348 214 L348 116 Q348 104 336 104 L192 104 Q180 104 180 116 L180 184"></path>
+                <path class="sv-hose-in" d="M348 214 L348 116 Q348 104 336 104 L192 104 Q180 104 180 116 L180 184"></path>
+                <path class="sv-tube" d="M372 214 L372 116 Q372 104 384 104 L528 104 Q540 104 540 116 L540 184"></path>
+                <path class="sv-hose-in" d="M372 214 L372 116 Q372 104 384 104 L528 104 Q540 104 540 116 L540 184"></path>
+                <rect class="sv-dark" x="174" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-dark" x="536" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-body" x="322" y="210" width="76" height="152" rx="12"></rect>
+                <circle cx="360" cy="300" r="26" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="300" r="6"></circle>
+              </g>
+
+              <g class="{{mcls.recupero}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="312" y="300" width="96" height="62" rx="12"></rect>
+                <rect class="sv-body" x="354" y="128" width="12" height="174"></rect>
+                <rect class="sv-body" x="216" y="120" width="288" height="10"></rect>
+                <rect class="sv-body" x="84" y="120" width="132" height="12" rx="3"></rect>
+                <rect class="sv-body" x="84" y="132" width="14" height="216" rx="3"></rect>
+                <rect class="sv-body" x="202" y="132" width="14" height="216" rx="3"></rect>
+                <path class="sv-tray" d="M80 348 L102 348 L98 362 L84 362 Z"></path>
+                <path class="sv-tray" d="M198 348 L220 348 L216 362 L202 362 Z"></path>
+                <rect class="sv-body" x="504" y="120" width="132" height="12" rx="3"></rect>
+                <rect class="sv-body" x="622" y="132" width="14" height="216" rx="3"></rect>
+                <rect class="sv-body" x="504" y="132" width="14" height="216" rx="3"></rect>
+                <path class="sv-tray" d="M618 348 L640 348 L636 362 L622 362 Z"></path>
+                <path class="sv-tray" d="M500 348 L522 348 L518 362 L504 362 Z"></path>
+              </g>
+
+              <circle class="{{nzm.s0.cls}}" cx="{{nzm.s0.x}}" cy="{{nzm.s0.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s1.cls}}" cx="{{nzm.s1.x}}" cy="{{nzm.s1.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s2.cls}}" cx="{{nzm.s2.x}}" cy="{{nzm.s2.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s3.cls}}" cx="{{nzm.s3.x}}" cy="{{nzm.s3.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s4.cls}}" cx="{{nzm.s4.x}}" cy="{{nzm.s4.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s5.cls}}" cx="{{nzm.s5.x}}" cy="{{nzm.s5.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s6.cls}}" cx="{{nzm.s6.x}}" cy="{{nzm.s6.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s7.cls}}" cx="{{nzm.s7.x}}" cy="{{nzm.s7.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s8.cls}}" cx="{{nzm.s8.x}}" cy="{{nzm.s8.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s9.cls}}" cx="{{nzm.s9.x}}" cy="{{nzm.s9.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s10.cls}}" cx="{{nzm.s10.x}}" cy="{{nzm.s10.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s11.cls}}" cx="{{nzm.s11.x}}" cy="{{nzm.s11.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s12.cls}}" cx="{{nzm.s12.x}}" cy="{{nzm.s12.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s13.cls}}" cx="{{nzm.s13.x}}" cy="{{nzm.s13.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s14.cls}}" cx="{{nzm.s14.x}}" cy="{{nzm.s14.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s15.cls}}" cx="{{nzm.s15.x}}" cy="{{nzm.s15.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s16.cls}}" cx="{{nzm.s16.x}}" cy="{{nzm.s16.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s17.cls}}" cx="{{nzm.s17.x}}" cy="{{nzm.s17.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s18.cls}}" cx="{{nzm.s18.x}}" cy="{{nzm.s18.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s19.cls}}" cx="{{nzm.s19.x}}" cy="{{nzm.s19.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s20.cls}}" cx="{{nzm.s20.x}}" cy="{{nzm.s20.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s21.cls}}" cx="{{nzm.s21.x}}" cy="{{nzm.s21.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s22.cls}}" cx="{{nzm.s22.x}}" cy="{{nzm.s22.y}}" r="4.5"></circle>
+              <circle class="{{nzm.s23.cls}}" cx="{{nzm.s23.x}}" cy="{{nzm.s23.y}}" r="4.5"></circle>
+              <circle class="sv-ref" cx="{{g.nx}}" cy="{{g.ny}}" r="8"></circle>
+
+              <g class="{{cls.sesto}}">
+                <line class="guide" x1="{{g.sL}}" y1="380" x2="{{g.sL}}" y2="410"></line>
+                <line class="guide" x1="{{g.sR}}" y1="380" x2="{{g.sR}}" y2="410"></line>
+                <line x1="{{g.sL}}" y1="402" x2="{{g.sR}}" y2="402" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+              </g>
+              <g class="{{cls.altezzaTotale}}">
+                <line class="guide" x1="{{g.htG1}}" y1="148" x2="{{g.htG2}}" y2="148"></line>
+                <line x1="{{g.htX}}" y1="380" x2="{{g.htX}}" y2="148" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+              </g>
+              <g class="{{cls.altezzaChioma}}">
+                <line class="guide" x1="{{g.chG1}}" y1="148" x2="{{g.chG2}}" y2="148"></line>
+                <line class="guide" x1="{{g.chG1}}" y1="290" x2="{{g.chG2}}" y2="290"></line>
+                <line x1="{{g.chX}}" y1="290" x2="{{g.chX}}" y2="148" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+              </g>
+              <g class="{{cls.spessoreChioma}}">
+                <line class="guide" x1="{{g.spL}}" y1="290" x2="{{g.spL}}" y2="310"></line>
+                <line class="guide" x1="{{g.spR}}" y1="290" x2="{{g.spR}}" y2="310"></line>
+                <line x1="{{g.spL}}" y1="304" x2="{{g.spR}}" y2="304" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+              </g>
+              <g class="{{cls.distanza}}">
+                <line x1="{{g.fx}}" y1="{{g.ny}}" x2="{{g.nx}}" y2="{{g.ny}}" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+              </g>
+              <g class="{{cls.altezza}}">
+                <line class="guide" x1="{{g.nx}}" y1="{{g.ny}}" x2="{{g.hx}}" y2="{{g.ny}}"></line>
+                <line x1="{{g.hx}}" y1="380" x2="{{g.hx}}" y2="{{g.ny}}" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+              </g>
+              <g class="{{cls.apertura}}">
+                <path d="{{g.apArc}}"></path>
+              </g>
+              <g class="{{cls.inclinazione}}">
+                <line class="guide" x1="{{g.nx}}" y1="{{g.ny}}" x2="{{g.refX}}" y2="{{g.ny}}"></line>
+                <line class="guide" x1="{{g.nx}}" y1="{{g.ny}}" x2="{{g.axX}}" y2="{{g.axY}}"></line>
+                <path d="{{g.inArc}}"></path>
+              </g>
+            </svg>
+              <div class="svg-labels" aria-hidden="true"><sc-for list="{{schemaLabels}}" as="l" hint-placeholder-count="0"><span class="{{l.cls}}" style="left: {{l.left}}%; top: {{l.top}}%">{{l.text}}</span></sc-for></div>
+            </div>
+
+            <div class="chips" role="group" aria-label="Evidenzia un parametro nello schema">
+              <sc-for list="{{paramChips}}" as="c" hint-placeholder-count="8">
+                <button type="button" class="{{c.cls}}" aria-pressed="{{c.pressed}}" onClick="{{c.pick}}">{{c.label}}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{hasDesc}}" hint-placeholder-val="{{false}}">
+              <p class="param-desc"><strong>{{descTitle}}</strong> — {{descText}}</p>
+            </sc-if>
+            <sc-if value="{{noDesc}}" hint-placeholder-val="{{true}}">
+              <p class="param-desc" style="color: var(--ink-soft)">Tocca un parametro, o compila un campo, per evidenziarlo nello schema.</p>
+            </sc-if>
+          </div>
+
+          <fieldset class="type-picker" id="sez-pareti">
+            <legend>Pareti con cartine</legend>
+            <p class="type-desc" style="margin: 0 0 12px">Seleziona le pareti su cui hai applicato le cartine: compaiono in giallo nello schema. F1, F2… sono i filari da sinistra a destra, visti da dietro l’irroratrice.</p>
+            <div class="wall-options">
+              <sc-for list="{{wallOptions}}" as="w" hint-placeholder-count="4">
+                <label class="{{w.cls}}">
+                  <input type="checkbox" checked="{{w.checked}}" onChange="{{w.toggle}}">
+                  <span class="wall-text">
+                    <span>{{w.label}}</span>
+                    <sc-if value="{{w.treated}}" hint-placeholder-val="{{false}}"><span class="wall-tag">{{w.tagText}}</span></sc-if>
+                  </span>
+                </label>
+              </sc-for>
+            </div>
+            <p class="type-desc">{{wallSummary}}</p>
+          </fieldset>
+
+          <div class="field" style="max-width: 260px; margin-bottom: 24px">
+            <label for="repliche">Numero di repliche</label>
+            <div class="stepper">
+              <button type="button" class="step-btn" onClick="{{onRepMinus}}" aria-label="Diminuisci numero di repliche">−</button>
+              <input id="repliche" type="number" min="1" step="1" inputmode="numeric" value="{{repliche}}" onChange="{{onRepliche}}">
+              <button type="button" class="step-btn" onClick="{{onRepPlus}}" aria-label="Aumenta numero di repliche">+</button>
+            </div>
+          </div>
+
+          <div class="dual-grid">
+            <div>
+              <p class="section-label">Vigneto e avanzamento</p>
+              <div class="field-grid" style="grid-template-columns: 1fr;">
+                <sc-for list="{{operatingFields}}" as="f" hint-placeholder-count="10">
+                  <div class="field">
+                    <label for="{{f.key}}">{{f.label}}</label>
+                    <div class="input-row">
+                      <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+                      <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <p class="section-label">Volume e miscela</p>
+              <div class="field-grid" style="grid-template-columns: 1fr; margin-top: 16px">
+                <sc-for list="{{nozzleSummaryFields}}" as="f" hint-placeholder-count="1">
+                  <div class="field">
+                    <label for="{{f.key}}">{{f.label}}</label>
+                    <div class="input-row">
+                      <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+                      <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div class="field" style="margin-top: 16px">
+                <label for="miscela">Miscela utilizzata (prodotti)</label>
+                <textarea id="miscela" value="{{miscela}}" onChange="{{onMiscela}}"></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="sez-ugelli">
+          <div class="card-header"><h2>{{term.P}}</h2></div>
+          <p class="type-desc" style="margin: 0 0 14px">Indica quanti {{term.p}} ci sono per lato sull’irroratrice scelta in “Condizioni operative”, descrivi i tipi di {{term.s}} montati e assegna a ogni posizione il suo tipo: lo schema si colora di conseguenza.</p>
+          <div class="ugelli-layout">
+            <div class="ugelli-left">
+              <div class="assign-box">
+                <div class="assign-head">
+                  <h3 class="assign-title">{{term.P}} sulla macchina</h3>
+                  <span class="assign-count">{{assignSummary}}</span>
+                </div>
+                <div class="count-fields">
+                  <sc-if value="{{isTor}}" hint-placeholder-val="{{false}}">
+                    <div class="field">
+                      <label for="nTower">Ventagli sulla torretta, per lato</label>
+                      <div class="stepper">
+              <button type="button" class="step-btn" onClick="{{onTowerMinus}}" aria-label="Diminuisci ventagli sulla torretta">−</button>
+              <input id="nTower" type="number" min="1" max="{{nTowerMax}}" step="1" inputmode="numeric" placeholder="1" value="{{nTowerVal}}" onChange="{{onNTower}}">
+              <button type="button" class="step-btn" onClick="{{onTowerPlus}}" aria-label="Aumenta ventagli sulla torretta">+</button>
+            </div>
+                    </div>
+                  </sc-if>
+                  <div class="field">
+                    <label for="nozzlesPerSide">{{nPerSideLabel}}</label>
+                    <div class="stepper">
+              <button type="button" class="step-btn" onClick="{{onNMinus}}" aria-label="Diminuisci numero per lato">−</button>
+              <input id="nozzlesPerSide" type="number" min="{{nMin}}" max="12" step="1" inputmode="numeric" placeholder="{{nPlaceholder}}" value="{{nozzlesPerSide}}" onChange="{{onNozzlesPerSide}}">
+              <button type="button" class="step-btn" onClick="{{onNPlus}}" aria-label="Aumenta numero per lato">+</button>
+            </div>
+                  </div>
+                </div>
+                <p class="type-desc" style="margin: 6px 0 14px; font-size: 13px">{{nHint}}</p>
+                <p class="type-desc" style="margin: 0 0 12px">Tocca il numero del tipo per assegnarlo a ciascun {{term.s}}.</p>
+                <div class="quick-row" role="group" aria-label="Assegnazione rapida">
+                  <button type="button" class="btn-ghost btn-small" onClick="{{onAllSame}}">Tutti uguali</button>
+                  <button type="button" class="btn-ghost btn-small" onClick="{{onOnePerPosition}}">Un tipo per posizione</button>
+                  <button type="button" class="btn-ghost btn-small" onClick="{{onClearAssign}}">Azzera</button>
+                </div>
+                <label class="sym-toggle">
+                  <input type="checkbox" checked="{{symmetric}}" onChange="{{onSymmetric}}">
+                  <span>Lato DX uguale al lato SX</span>
+                </label>
+                <div class="assign-table" role="table" aria-label="Tipo di {{term.s}} per posizione e lato">
+                  <div class="assign-row assign-headrow" role="row">
+                    <span role="columnheader">{{term.S}}</span>
+                    <span role="columnheader">Lato SX</span>
+                    <span role="columnheader">Lato DX</span>
+                  </div>
+                  <sc-for list="{{assignRows}}" as="row" hint-placeholder-count="4">
+                    <div class="assign-row" role="row">
+                      <span class="assign-pos" role="rowheader">n. {{row.n}}</span>
+                      <div class="pick-group" role="cell">
+                        <sc-for list="{{row.sx}}" as="o" hint-placeholder-count="2">
+                          <button type="button" class="{{o.cls}}" style="background: {{o.bg}}; color: {{o.fg}}" aria-pressed="{{o.pressed}}" aria-label="{{o.aria}}" onClick="{{o.pick}}">{{o.label}}</button>
+                        </sc-for>
+                      </div>
+                      <div class="pick-group" role="cell">
+                        <sc-if value="{{showDx}}" hint-placeholder-val="{{false}}">
+                          <sc-for list="{{row.dx}}" as="o" hint-placeholder-count="2">
+                            <button type="button" class="{{o.cls}}" style="background: {{o.bg}}; color: {{o.fg}}" aria-pressed="{{o.pressed}}" aria-label="{{o.aria}}" onClick="{{o.pick}}">{{o.label}}</button>
+                          </sc-for>
+                        </sc-if>
+                        <sc-if value="{{symmetric}}" hint-placeholder-val="{{true}}">
+                          <span class="same-as">= SX</span>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <h3 class="assign-title" style="margin: 22px 0 10px">Tipi di {{term.s}}</h3>
+              <div class="ntype-list">
+                <sc-for list="{{nozzleTypes}}" as="t" hint-placeholder-count="1">
+                  <div class="ntype-card">
+                    <div class="nozzle-card-head">
+                      <span class="ntype-name"><span class="ntype-swatch" style="background: {{t.color}}"></span>Tipo {{term.s}} {{t.n}}</span>
+                      <sc-if value="{{t.canRemove}}" hint-placeholder-val="{{false}}">
+                        <button type="button" class="btn-icon-remove" onClick="{{t.onRemove}}" aria-label="Rimuovi tipo {{term.s}} {{t.n}}">×</button>
+                      </sc-if>
+                    </div>
+                    <p class="ntype-usage">{{t.usage}}</p>
+                    <div class="ntype-grid">
+                      <sc-for list="{{t.fields}}" as="f" hint-placeholder-count="4">
+                        <div class="{{f.cls}}">
+                          <label for="{{f.id}}">{{f.label}}</label>
+                          <div class="input-row">
+                            <input id="{{f.id}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}">
+                            <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <button type="button" class="btn-ghost btn-small" style="margin-top: 10px" onClick="{{t.onApplyAll}}">Usa per {{term.all}}</button>
+                  </div>
+                </sc-for>
+              </div>
+              <button type="button" class="btn-ghost" onClick="{{onAddNozzleType}}" style="margin-top: 12px">+ Aggiungi tipo di {{term.s}}</button>
+            </div>
+            <figure class="nz-figure">
+              <p class="schema-caption">{{tipoLabel}} · vista da dietro · {{term.p}} numerati dall’alto verso il basso su ogni lato</p>
+              <div class="svg-wrap">
+              <svg viewBox="{{nzView.box}}" role="img" aria-label="Posizione dei tipi di {{term.s}} sull’irroratrice, vista da dietro">
+                <text x="{{nzView.sxX}}" y="{{nzView.labY}}" class="nz-side">SX</text>
+                <text x="{{nzView.dxX}}" y="{{nzView.labY}}" text-anchor="end" class="nz-side">DX</text>
+                <line x1="60" y1="380" x2="660" y2="380" class="sv-ground"></line>
+                <g class="{{mcls.atomizzatore}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="304" y="296" width="112" height="66" rx="16"></rect>
+                <circle class="sv-body" cx="360" cy="270" r="58"></circle>
+                <circle cx="360" cy="270" r="42" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="270" r="9"></circle>
+              </g>
+                <g class="{{mcls.nebulizzatore}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="306" y="292" width="108" height="70" rx="12"></rect>
+                <path class="sv-tube" d="M330 262 L292 262"></path>
+                <path class="sv-tube-in" d="M330 262 L292 262"></path>
+                <path class="sv-tube" d="M390 262 L428 262"></path>
+                <path class="sv-tube-in" d="M390 262 L428 262"></path>
+                <rect class="sv-body" x="282" y="204" width="14" height="84" rx="6"></rect>
+                <rect class="sv-body" x="424" y="204" width="14" height="84" rx="6"></rect>
+                <rect class="sv-body" x="328" y="248" width="64" height="48" rx="10"></rect>
+                <circle cx="360" cy="272" r="14" fill="none" stroke="#231F20" stroke-width="1.5"></circle>
+                <circle class="sv-dark" cx="360" cy="272" r="5"></circle>
+              </g>
+                <g class="{{mcls.torrettaIntere}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="96" y="90" width="528" height="6" rx="2"></rect>
+                <rect class="sv-body" x="352" y="94" width="16" height="118"></rect>
+                <path class="sv-tube" d="M346 214 L346 116 Q346 104 334 104 L114 104 Q102 104 102 116 L102 184"></path>
+                <path class="sv-hose-in" d="M346 214 L346 116 Q346 104 334 104 L114 104 Q102 104 102 116 L102 184"></path>
+                <path class="sv-tube" d="M374 214 L374 116 Q374 104 386 104 L606 104 Q618 104 618 116 L618 184"></path>
+                <path class="sv-hose-in" d="M374 214 L374 116 Q374 104 386 104 L606 104 Q618 104 618 116 L618 184"></path>
+                <rect class="sv-dark" x="98" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-dark" x="612" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-body" x="310" y="208" width="100" height="154" rx="14"></rect>
+                <circle cx="360" cy="300" r="32" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="300" r="7"></circle>
+              </g>
+                <g class="{{mcls.torrettaMezze}}">
+                <rect class="sv-dark" x="306" y="332" width="20" height="48" rx="5"></rect>
+                <rect class="sv-dark" x="394" y="332" width="20" height="48" rx="5"></rect>
+                <rect class="sv-dark" x="174" y="90" width="372" height="6" rx="2"></rect>
+                <rect class="sv-body" x="353" y="94" width="14" height="118"></rect>
+                <path class="sv-tube" d="M348 214 L348 116 Q348 104 336 104 L192 104 Q180 104 180 116 L180 184"></path>
+                <path class="sv-hose-in" d="M348 214 L348 116 Q348 104 336 104 L192 104 Q180 104 180 116 L180 184"></path>
+                <path class="sv-tube" d="M372 214 L372 116 Q372 104 384 104 L528 104 Q540 104 540 116 L540 184"></path>
+                <path class="sv-hose-in" d="M372 214 L372 116 Q372 104 384 104 L528 104 Q540 104 540 116 L540 184"></path>
+                <rect class="sv-dark" x="174" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-dark" x="536" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-body" x="322" y="210" width="76" height="152" rx="12"></rect>
+                <circle cx="360" cy="300" r="26" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="300" r="6"></circle>
+              </g>
+                <g class="{{mcls.recupero}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="312" y="300" width="96" height="62" rx="12"></rect>
+                <rect class="sv-body" x="354" y="128" width="12" height="174"></rect>
+                <rect class="sv-body" x="216" y="120" width="288" height="10"></rect>
+                <rect class="sv-body" x="84" y="120" width="132" height="12" rx="3"></rect>
+                <rect class="sv-body" x="84" y="132" width="14" height="216" rx="3"></rect>
+                <rect class="sv-body" x="202" y="132" width="14" height="216" rx="3"></rect>
+                <path class="sv-tray" d="M80 348 L102 348 L98 362 L84 362 Z"></path>
+                <path class="sv-tray" d="M198 348 L220 348 L216 362 L202 362 Z"></path>
+                <rect class="sv-body" x="504" y="120" width="132" height="12" rx="3"></rect>
+                <rect class="sv-body" x="622" y="132" width="14" height="216" rx="3"></rect>
+                <rect class="sv-body" x="504" y="132" width="14" height="216" rx="3"></rect>
+                <path class="sv-tray" d="M618 348 L640 348 L636 362 L622 362 Z"></path>
+                <path class="sv-tray" d="M500 348 L522 348 L518 362 L504 362 Z"></path>
+              </g>
+                <g class="{{nz.s0.cls}}">
+                  <circle cx="{{nz.s0.x}}" cy="{{nz.s0.y}}" r="{{nz.s0.r}}" fill="{{nz.s0.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s1.cls}}">
+                  <circle cx="{{nz.s1.x}}" cy="{{nz.s1.y}}" r="{{nz.s1.r}}" fill="{{nz.s1.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s2.cls}}">
+                  <circle cx="{{nz.s2.x}}" cy="{{nz.s2.y}}" r="{{nz.s2.r}}" fill="{{nz.s2.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s3.cls}}">
+                  <circle cx="{{nz.s3.x}}" cy="{{nz.s3.y}}" r="{{nz.s3.r}}" fill="{{nz.s3.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s4.cls}}">
+                  <circle cx="{{nz.s4.x}}" cy="{{nz.s4.y}}" r="{{nz.s4.r}}" fill="{{nz.s4.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s5.cls}}">
+                  <circle cx="{{nz.s5.x}}" cy="{{nz.s5.y}}" r="{{nz.s5.r}}" fill="{{nz.s5.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s6.cls}}">
+                  <circle cx="{{nz.s6.x}}" cy="{{nz.s6.y}}" r="{{nz.s6.r}}" fill="{{nz.s6.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s7.cls}}">
+                  <circle cx="{{nz.s7.x}}" cy="{{nz.s7.y}}" r="{{nz.s7.r}}" fill="{{nz.s7.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s8.cls}}">
+                  <circle cx="{{nz.s8.x}}" cy="{{nz.s8.y}}" r="{{nz.s8.r}}" fill="{{nz.s8.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s9.cls}}">
+                  <circle cx="{{nz.s9.x}}" cy="{{nz.s9.y}}" r="{{nz.s9.r}}" fill="{{nz.s9.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s10.cls}}">
+                  <circle cx="{{nz.s10.x}}" cy="{{nz.s10.y}}" r="{{nz.s10.r}}" fill="{{nz.s10.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s11.cls}}">
+                  <circle cx="{{nz.s11.x}}" cy="{{nz.s11.y}}" r="{{nz.s11.r}}" fill="{{nz.s11.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s12.cls}}">
+                  <circle cx="{{nz.s12.x}}" cy="{{nz.s12.y}}" r="{{nz.s12.r}}" fill="{{nz.s12.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s13.cls}}">
+                  <circle cx="{{nz.s13.x}}" cy="{{nz.s13.y}}" r="{{nz.s13.r}}" fill="{{nz.s13.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s14.cls}}">
+                  <circle cx="{{nz.s14.x}}" cy="{{nz.s14.y}}" r="{{nz.s14.r}}" fill="{{nz.s14.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s15.cls}}">
+                  <circle cx="{{nz.s15.x}}" cy="{{nz.s15.y}}" r="{{nz.s15.r}}" fill="{{nz.s15.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s16.cls}}">
+                  <circle cx="{{nz.s16.x}}" cy="{{nz.s16.y}}" r="{{nz.s16.r}}" fill="{{nz.s16.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s17.cls}}">
+                  <circle cx="{{nz.s17.x}}" cy="{{nz.s17.y}}" r="{{nz.s17.r}}" fill="{{nz.s17.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s18.cls}}">
+                  <circle cx="{{nz.s18.x}}" cy="{{nz.s18.y}}" r="{{nz.s18.r}}" fill="{{nz.s18.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s19.cls}}">
+                  <circle cx="{{nz.s19.x}}" cy="{{nz.s19.y}}" r="{{nz.s19.r}}" fill="{{nz.s19.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s20.cls}}">
+                  <circle cx="{{nz.s20.x}}" cy="{{nz.s20.y}}" r="{{nz.s20.r}}" fill="{{nz.s20.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s21.cls}}">
+                  <circle cx="{{nz.s21.x}}" cy="{{nz.s21.y}}" r="{{nz.s21.r}}" fill="{{nz.s21.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s22.cls}}">
+                  <circle cx="{{nz.s22.x}}" cy="{{nz.s22.y}}" r="{{nz.s22.r}}" fill="{{nz.s22.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nz.s23.cls}}">
+                  <circle cx="{{nz.s23.x}}" cy="{{nz.s23.y}}" r="{{nz.s23.r}}" fill="{{nz.s23.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+              </svg>
+              <div class="svg-labels" aria-hidden="true"><sc-for list="{{nzLabels}}" as="l" hint-placeholder-count="0"><span class="{{l.cls}}" style="left: {{l.left}}%; top: {{l.top}}%">{{l.text}}</span></sc-for></div>
+            </div>
+              <div class="nz-legend">
+                <sc-for list="{{nzLegend}}" as="l" hint-placeholder-count="2">
+                  <span class="nz-legend-item"><span class="ntype-swatch" style="background: {{l.color}}"></span>{{l.label}}</span>
+                </sc-for>
+              </div>
+              <sc-if value="{{nzHasConflict}}" hint-placeholder-val="{{false}}">
+                <p class="nz-warn">{{nzConflictText}}</p>
+              </sc-if>
+            </figure>
+          </div>
+        </section>
+
+        <section class="card" id="sez-misure">
+          <div class="card-header"><h2>Misure per {{term.s}}</h2></div>
+          <p class="type-desc" style="margin: 0 0 14px">Una riga per ogni {{term.s}} della macchina, secondo la configurazione scelta ({{measConfigText}}). <strong>SX 1</strong> = lato sinistro guardando la macchina da dietro, primo {{term.s}} dall’alto; il colore indica il tipo. Tocca un campo: {{term.art}} corrispondente si evidenzia nello schema.</p>
+
+          <label class="sym-toggle">
+            <input type="checkbox" checked="{{showFan}}" onChange="{{onFan}}">
+            <span>{{fanToggleLabel}} <span class="fan-note">{{fanNote}}</span></span>
+          </label>
+
+          <div class="misure-wrap {{fanCls}}">
+            <div class="misure-figs">
+              <figure class="explain-figure">
+                <h3 class="assign-title">Cosa misurare</h3>
+                <svg viewBox="-70 -14 590 244" role="img" aria-label="Significato delle misure: distanza dalla parete, altezza da terra, apertura del ventaglio e inclinazione del getto">
+                  <line x1="-70" y1="200" x2="520" y2="200" class="sv-ground"></line>
+                  <rect x="412" y="178" width="6" height="22" class="sv-trunk"></rect>
+                  <path class="sv-vine" d="M380 182 L380 50 Q380 30 405 30 Q430 30 430 50 L430 182 Z"></path>
+                  <text x="438" y="44" class="ex-note">Parete</text>
+                  <text x="438" y="58" class="ex-note">fogliare</text>
+                  <path class="sv-jet" d="M180 120 L380 18.1 L380 130.5 Z"></path>
+                  <rect x="140" y="108" width="36" height="24" rx="5" class="sv-dark"></rect>
+                  <circle cx="180" cy="120" r="6" class="sv-nozzle"></circle>
+                  <text x="158" y="148" text-anchor="middle" class="ex-note {{exUg}}">Ugello</text>
+                  <text x="158" y="148" text-anchor="middle" class="ex-note {{exVe}}">Ventaglio</text>
+
+                  <g class="{{cls.distanza}}">
+                    <line class="guide" x1="180" y1="112" x2="180" y2="10"></line>
+                    <line class="guide" x1="380" y1="30" x2="380" y2="10"></line>
+                    <line x1="180" y1="16" x2="380" y2="16" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+                    <text x="280" y="8" text-anchor="middle">A · Distanza da parete</text>
+                  </g>
+                  <g class="{{cls.altezza}}">
+                    <line class="guide" x1="140" y1="120" x2="114" y2="120"></line>
+                    <line x1="120" y1="200" x2="120" y2="120" marker-start="url(#tk)" marker-end="url(#tk)"></line>
+                    <text x="112" y="158" text-anchor="end">B · Altezza</text>
+                    <text x="112" y="173" text-anchor="end">da terra</text>
+                  </g>
+                  <g class="{{cls.apertura}} col-fan">
+                    <path d="M234.9 122.9 A55 55 0 0 0 229 95"></path>
+                    <text x="236" y="72" text-anchor="start">C · Apertura</text>
+                  </g>
+                  <g class="{{cls.inclinazione}}">
+                    <line class="guide" x1="180" y1="120" x2="300" y2="120"></line>
+                    <line class="guide" x1="180" y1="120" x2="380" y2="77.5"></line>
+                    <path d="M275 120 A95 95 0 0 0 272.9 100.2"></path>
+                    <text x="302" y="138" text-anchor="start">D · Inclinazione</text>
+                  </g>
+                </svg>
+                <ul class="ex-legend">
+                  <li><strong>A</strong> Distanza orizzontale tra {{term.s}} e parete fogliare.</li>
+                  <li><strong>B</strong> Altezza {{term.of}} dal terreno.</li>
+                  <li class="col-fan"><strong>C</strong> Angolo di apertura del ventaglio.</li>
+                  <li><strong>D</strong> Angolo del getto rispetto all’orizzontale: 0° perpendicolare alla parete, positivo verso l’alto.</li>
+                </ul>
+              </figure>
+            <figure class="nz-figure misure-figure">
+              <p class="schema-caption">{{tipoLabel}} · vista da dietro · {{measActiveText}}</p>
+              <div class="svg-wrap">
+              <svg viewBox="{{nzView.box}}" role="img" aria-label="Numerazione dei {{term.p}} sull’irroratrice, vista da dietro">
+                <text x="{{nzView.sxX}}" y="{{nzView.labY}}" class="nz-side">SX</text>
+                <text x="{{nzView.dxX}}" y="{{nzView.labY}}" text-anchor="end" class="nz-side">DX</text>
+                <line x1="60" y1="380" x2="660" y2="380" class="sv-ground"></line>
+                <g class="{{mcls.atomizzatore}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="304" y="296" width="112" height="66" rx="16"></rect>
+                <circle class="sv-body" cx="360" cy="270" r="58"></circle>
+                <circle cx="360" cy="270" r="42" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="270" r="9"></circle>
+              </g>
+                <g class="{{mcls.nebulizzatore}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="306" y="292" width="108" height="70" rx="12"></rect>
+                <path class="sv-tube" d="M330 262 L292 262"></path>
+                <path class="sv-tube-in" d="M330 262 L292 262"></path>
+                <path class="sv-tube" d="M390 262 L428 262"></path>
+                <path class="sv-tube-in" d="M390 262 L428 262"></path>
+                <rect class="sv-body" x="282" y="204" width="14" height="84" rx="6"></rect>
+                <rect class="sv-body" x="424" y="204" width="14" height="84" rx="6"></rect>
+                <rect class="sv-body" x="328" y="248" width="64" height="48" rx="10"></rect>
+                <circle cx="360" cy="272" r="14" fill="none" stroke="#231F20" stroke-width="1.5"></circle>
+                <circle class="sv-dark" cx="360" cy="272" r="5"></circle>
+              </g>
+                <g class="{{mcls.torrettaIntere}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="96" y="90" width="528" height="6" rx="2"></rect>
+                <rect class="sv-body" x="352" y="94" width="16" height="118"></rect>
+                <path class="sv-tube" d="M346 214 L346 116 Q346 104 334 104 L114 104 Q102 104 102 116 L102 184"></path>
+                <path class="sv-hose-in" d="M346 214 L346 116 Q346 104 334 104 L114 104 Q102 104 102 116 L102 184"></path>
+                <path class="sv-tube" d="M374 214 L374 116 Q374 104 386 104 L606 104 Q618 104 618 116 L618 184"></path>
+                <path class="sv-hose-in" d="M374 214 L374 116 Q374 104 386 104 L606 104 Q618 104 618 116 L618 184"></path>
+                <rect class="sv-dark" x="98" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-dark" x="612" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-body" x="310" y="208" width="100" height="154" rx="14"></rect>
+                <circle cx="360" cy="300" r="32" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="300" r="7"></circle>
+              </g>
+                <g class="{{mcls.torrettaMezze}}">
+                <rect class="sv-dark" x="306" y="332" width="20" height="48" rx="5"></rect>
+                <rect class="sv-dark" x="394" y="332" width="20" height="48" rx="5"></rect>
+                <rect class="sv-dark" x="174" y="90" width="372" height="6" rx="2"></rect>
+                <rect class="sv-body" x="353" y="94" width="14" height="118"></rect>
+                <path class="sv-tube" d="M348 214 L348 116 Q348 104 336 104 L192 104 Q180 104 180 116 L180 184"></path>
+                <path class="sv-hose-in" d="M348 214 L348 116 Q348 104 336 104 L192 104 Q180 104 180 116 L180 184"></path>
+                <path class="sv-tube" d="M372 214 L372 116 Q372 104 384 104 L528 104 Q540 104 540 116 L540 184"></path>
+                <path class="sv-hose-in" d="M372 214 L372 116 Q372 104 384 104 L528 104 Q540 104 540 116 L540 184"></path>
+                <rect class="sv-dark" x="174" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-dark" x="536" y="182" width="10" height="80" rx="4"></rect>
+                <rect class="sv-body" x="322" y="210" width="76" height="152" rx="12"></rect>
+                <circle cx="360" cy="300" r="26" fill="none" stroke="#231F20" stroke-width="1" stroke-dasharray="3 4"></circle>
+                <circle class="sv-dark" cx="360" cy="300" r="6"></circle>
+              </g>
+                <g class="{{mcls.recupero}}">
+                <rect class="sv-dark" x="290" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-dark" x="406" y="330" width="24" height="50" rx="6"></rect>
+                <rect class="sv-body" x="312" y="300" width="96" height="62" rx="12"></rect>
+                <rect class="sv-body" x="354" y="128" width="12" height="174"></rect>
+                <rect class="sv-body" x="216" y="120" width="288" height="10"></rect>
+                <rect class="sv-body" x="84" y="120" width="132" height="12" rx="3"></rect>
+                <rect class="sv-body" x="84" y="132" width="14" height="216" rx="3"></rect>
+                <rect class="sv-body" x="202" y="132" width="14" height="216" rx="3"></rect>
+                <path class="sv-tray" d="M80 348 L102 348 L98 362 L84 362 Z"></path>
+                <path class="sv-tray" d="M198 348 L220 348 L216 362 L202 362 Z"></path>
+                <rect class="sv-body" x="504" y="120" width="132" height="12" rx="3"></rect>
+                <rect class="sv-body" x="622" y="132" width="14" height="216" rx="3"></rect>
+                <rect class="sv-body" x="504" y="132" width="14" height="216" rx="3"></rect>
+                <path class="sv-tray" d="M618 348 L640 348 L636 362 L622 362 Z"></path>
+                <path class="sv-tray" d="M500 348 L522 348 L518 362 L504 362 Z"></path>
+              </g>
+                <g class="{{nzMeas.s0.cls}}">
+                  <circle class="{{nzMeas.s0.ringCls}}" cx="{{nzMeas.s0.x}}" cy="{{nzMeas.s0.y}}" r="{{nzMeas.s0.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s0.x}}" cy="{{nzMeas.s0.y}}" r="{{nzMeas.s0.r}}" fill="{{nzMeas.s0.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s1.cls}}">
+                  <circle class="{{nzMeas.s1.ringCls}}" cx="{{nzMeas.s1.x}}" cy="{{nzMeas.s1.y}}" r="{{nzMeas.s1.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s1.x}}" cy="{{nzMeas.s1.y}}" r="{{nzMeas.s1.r}}" fill="{{nzMeas.s1.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s2.cls}}">
+                  <circle class="{{nzMeas.s2.ringCls}}" cx="{{nzMeas.s2.x}}" cy="{{nzMeas.s2.y}}" r="{{nzMeas.s2.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s2.x}}" cy="{{nzMeas.s2.y}}" r="{{nzMeas.s2.r}}" fill="{{nzMeas.s2.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s3.cls}}">
+                  <circle class="{{nzMeas.s3.ringCls}}" cx="{{nzMeas.s3.x}}" cy="{{nzMeas.s3.y}}" r="{{nzMeas.s3.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s3.x}}" cy="{{nzMeas.s3.y}}" r="{{nzMeas.s3.r}}" fill="{{nzMeas.s3.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s4.cls}}">
+                  <circle class="{{nzMeas.s4.ringCls}}" cx="{{nzMeas.s4.x}}" cy="{{nzMeas.s4.y}}" r="{{nzMeas.s4.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s4.x}}" cy="{{nzMeas.s4.y}}" r="{{nzMeas.s4.r}}" fill="{{nzMeas.s4.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s5.cls}}">
+                  <circle class="{{nzMeas.s5.ringCls}}" cx="{{nzMeas.s5.x}}" cy="{{nzMeas.s5.y}}" r="{{nzMeas.s5.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s5.x}}" cy="{{nzMeas.s5.y}}" r="{{nzMeas.s5.r}}" fill="{{nzMeas.s5.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s6.cls}}">
+                  <circle class="{{nzMeas.s6.ringCls}}" cx="{{nzMeas.s6.x}}" cy="{{nzMeas.s6.y}}" r="{{nzMeas.s6.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s6.x}}" cy="{{nzMeas.s6.y}}" r="{{nzMeas.s6.r}}" fill="{{nzMeas.s6.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s7.cls}}">
+                  <circle class="{{nzMeas.s7.ringCls}}" cx="{{nzMeas.s7.x}}" cy="{{nzMeas.s7.y}}" r="{{nzMeas.s7.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s7.x}}" cy="{{nzMeas.s7.y}}" r="{{nzMeas.s7.r}}" fill="{{nzMeas.s7.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s8.cls}}">
+                  <circle class="{{nzMeas.s8.ringCls}}" cx="{{nzMeas.s8.x}}" cy="{{nzMeas.s8.y}}" r="{{nzMeas.s8.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s8.x}}" cy="{{nzMeas.s8.y}}" r="{{nzMeas.s8.r}}" fill="{{nzMeas.s8.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s9.cls}}">
+                  <circle class="{{nzMeas.s9.ringCls}}" cx="{{nzMeas.s9.x}}" cy="{{nzMeas.s9.y}}" r="{{nzMeas.s9.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s9.x}}" cy="{{nzMeas.s9.y}}" r="{{nzMeas.s9.r}}" fill="{{nzMeas.s9.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s10.cls}}">
+                  <circle class="{{nzMeas.s10.ringCls}}" cx="{{nzMeas.s10.x}}" cy="{{nzMeas.s10.y}}" r="{{nzMeas.s10.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s10.x}}" cy="{{nzMeas.s10.y}}" r="{{nzMeas.s10.r}}" fill="{{nzMeas.s10.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s11.cls}}">
+                  <circle class="{{nzMeas.s11.ringCls}}" cx="{{nzMeas.s11.x}}" cy="{{nzMeas.s11.y}}" r="{{nzMeas.s11.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s11.x}}" cy="{{nzMeas.s11.y}}" r="{{nzMeas.s11.r}}" fill="{{nzMeas.s11.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s12.cls}}">
+                  <circle class="{{nzMeas.s12.ringCls}}" cx="{{nzMeas.s12.x}}" cy="{{nzMeas.s12.y}}" r="{{nzMeas.s12.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s12.x}}" cy="{{nzMeas.s12.y}}" r="{{nzMeas.s12.r}}" fill="{{nzMeas.s12.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s13.cls}}">
+                  <circle class="{{nzMeas.s13.ringCls}}" cx="{{nzMeas.s13.x}}" cy="{{nzMeas.s13.y}}" r="{{nzMeas.s13.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s13.x}}" cy="{{nzMeas.s13.y}}" r="{{nzMeas.s13.r}}" fill="{{nzMeas.s13.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s14.cls}}">
+                  <circle class="{{nzMeas.s14.ringCls}}" cx="{{nzMeas.s14.x}}" cy="{{nzMeas.s14.y}}" r="{{nzMeas.s14.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s14.x}}" cy="{{nzMeas.s14.y}}" r="{{nzMeas.s14.r}}" fill="{{nzMeas.s14.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s15.cls}}">
+                  <circle class="{{nzMeas.s15.ringCls}}" cx="{{nzMeas.s15.x}}" cy="{{nzMeas.s15.y}}" r="{{nzMeas.s15.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s15.x}}" cy="{{nzMeas.s15.y}}" r="{{nzMeas.s15.r}}" fill="{{nzMeas.s15.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s16.cls}}">
+                  <circle class="{{nzMeas.s16.ringCls}}" cx="{{nzMeas.s16.x}}" cy="{{nzMeas.s16.y}}" r="{{nzMeas.s16.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s16.x}}" cy="{{nzMeas.s16.y}}" r="{{nzMeas.s16.r}}" fill="{{nzMeas.s16.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s17.cls}}">
+                  <circle class="{{nzMeas.s17.ringCls}}" cx="{{nzMeas.s17.x}}" cy="{{nzMeas.s17.y}}" r="{{nzMeas.s17.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s17.x}}" cy="{{nzMeas.s17.y}}" r="{{nzMeas.s17.r}}" fill="{{nzMeas.s17.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s18.cls}}">
+                  <circle class="{{nzMeas.s18.ringCls}}" cx="{{nzMeas.s18.x}}" cy="{{nzMeas.s18.y}}" r="{{nzMeas.s18.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s18.x}}" cy="{{nzMeas.s18.y}}" r="{{nzMeas.s18.r}}" fill="{{nzMeas.s18.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s19.cls}}">
+                  <circle class="{{nzMeas.s19.ringCls}}" cx="{{nzMeas.s19.x}}" cy="{{nzMeas.s19.y}}" r="{{nzMeas.s19.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s19.x}}" cy="{{nzMeas.s19.y}}" r="{{nzMeas.s19.r}}" fill="{{nzMeas.s19.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s20.cls}}">
+                  <circle class="{{nzMeas.s20.ringCls}}" cx="{{nzMeas.s20.x}}" cy="{{nzMeas.s20.y}}" r="{{nzMeas.s20.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s20.x}}" cy="{{nzMeas.s20.y}}" r="{{nzMeas.s20.r}}" fill="{{nzMeas.s20.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s21.cls}}">
+                  <circle class="{{nzMeas.s21.ringCls}}" cx="{{nzMeas.s21.x}}" cy="{{nzMeas.s21.y}}" r="{{nzMeas.s21.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s21.x}}" cy="{{nzMeas.s21.y}}" r="{{nzMeas.s21.r}}" fill="{{nzMeas.s21.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s22.cls}}">
+                  <circle class="{{nzMeas.s22.ringCls}}" cx="{{nzMeas.s22.x}}" cy="{{nzMeas.s22.y}}" r="{{nzMeas.s22.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s22.x}}" cy="{{nzMeas.s22.y}}" r="{{nzMeas.s22.r}}" fill="{{nzMeas.s22.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+                <g class="{{nzMeas.s23.cls}}">
+                  <circle class="{{nzMeas.s23.ringCls}}" cx="{{nzMeas.s23.x}}" cy="{{nzMeas.s23.y}}" r="{{nzMeas.s23.rr}}" fill="none" stroke="#4E7A1E" stroke-width="3"></circle>
+                  <circle cx="{{nzMeas.s23.x}}" cy="{{nzMeas.s23.y}}" r="{{nzMeas.s23.r}}" fill="{{nzMeas.s23.fill}}" stroke="#231F20" stroke-width="1.5"></circle>
+                </g>
+              </svg>
+              <div class="svg-labels" aria-hidden="true"><sc-for list="{{nzMeasLabels}}" as="l" hint-placeholder-count="0"><span class="{{l.cls}}" style="left: {{l.left}}%; top: {{l.top}}%">{{l.text}}</span></sc-for></div>
+            </div>
+            </figure>
+
+            </div>
+
+            <div class="misure-data">
+              <div class="nozzle-cards">
+                <sc-for list="{{nozzleRows}}" as="row" hint-placeholder-count="6">
+                  <div class="{{row.cardCls}}">
+                    <div class="nozzle-card-head">
+                      <span class="meas-label"><span class="meas-badge" style="background: {{row.bg}}; color: {{row.fg}}">{{row.label}}</span>{{row.typeLabel}}</span>
+                    </div>
+                    <div class="nozzle-grid">
+                      <div class="field">
+                        <label for="nozzle-{{row.id}}-distanza">A · Distanza da parete (cm)</label>
+                        <input id="nozzle-{{row.id}}-distanza" type="number" step="any" value="{{row.distanza}}" onChange="{{row.onDistanza}}" onFocus="{{row.fDistanza}}">
+                      </div>
+                      <div class="field">
+                        <label for="nozzle-{{row.id}}-altezza">B · Altezza da terra (cm)</label>
+                        <input id="nozzle-{{row.id}}-altezza" type="number" step="any" value="{{row.altezza}}" onChange="{{row.onAltezza}}" onFocus="{{row.fAltezza}}">
+                      </div>
+                      <div class="field col-fan">
+                        <label for="nozzle-{{row.id}}-apertura">C · Apertura ventaglio (°)</label>
+                        <input id="nozzle-{{row.id}}-apertura" type="number" step="any" value="{{row.apertura}}" onChange="{{row.onApertura}}" onFocus="{{row.fApertura}}">
+                      </div>
+                      <div class="field">
+                        <label for="nozzle-{{row.id}}-inclinazione">D · Inclinazione (°)</label>
+                        <input id="nozzle-{{row.id}}-inclinazione" type="number" step="any" value="{{row.inclinazione}}" onChange="{{row.onInclinazione}}" onFocus="{{row.fInclinazione}}">
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <table class="nozzle-table">
+                <thead>
+                  <tr>
+                    <th>{{term.S}}</th>
+                    <th>Tipo</th>
+                    <th>A · Distanza da parete (cm)</th>
+                    <th>B · Altezza da terra (cm)</th>
+                    <th class="col-fan">C · Apertura ventaglio (°)</th>
+                    <th>D · Inclinazione (°)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{nozzleRows}}" as="row" hint-placeholder-count="6">
+                    <tr class="{{row.trCls}}">
+                      <td><span class="meas-badge" style="background: {{row.bg}}; color: {{row.fg}}">{{row.label}}</span></td>
+                      <td class="meas-type">{{row.typeShort}}</td>
+                      <td><input type="number" step="any" value="{{row.distanza}}" onChange="{{row.onDistanza}}" onFocus="{{row.fDistanza}}" aria-label="Distanza da parete, {{term.s}} {{row.label}}"></td>
+                      <td><input type="number" step="any" value="{{row.altezza}}" onChange="{{row.onAltezza}}" onFocus="{{row.fAltezza}}" aria-label="Altezza da terra, {{term.s}} {{row.label}}"></td>
+                      <td class="col-fan"><input type="number" step="any" value="{{row.apertura}}" onChange="{{row.onApertura}}" onFocus="{{row.fApertura}}" aria-label="Apertura ventaglio, {{term.s}} {{row.label}}"></td>
+                      <td><input type="number" step="any" value="{{row.inclinazione}}" onChange="{{row.onInclinazione}}" onFocus="{{row.fInclinazione}}" aria-label="Inclinazione, {{term.s}} {{row.label}}"></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <p class="footnote">Il numero di righe cambia con il numero di {{term.p}} per lato impostato nella sezione “{{term.P}}”.</p>
+          <p class="footnote">* Un getto ortogonale all'asse verticale del filare corrisponde a 0°. Un getto orientato direttamente verso il cielo corrisponde a 90°. I getti orientati verso l'alto sono descritti da valori positivi, quelli verso il basso da valori negativi.</p>
+        </section>
+
+        <section class="card {{acqCls}}" id="sez-foto">
+          <div class="card-header"><h2>Immagine scheda cartine<br></h2></div>
+          <p class="later-note"><strong>Puoi caricarla anche più tardi.</strong> Se ora non hai la foto, invia comunque il rilievo: potrai aggiungere l’immagine in seguito aprendo il rilievo da “I miei rilievi”.</p>
+
+          <fieldset class="type-picker">
+            <legend>Metodo di acquisizione</legend>
+            <div class="pass-options">
+              <sc-for list="{{acqOptions}}" as="ao" hint-placeholder-count="2">
+                <label class="{{ao.cls}}">
+                  <input type="radio" name="acquisizione" value="{{ao.key}}" checked="{{ao.checked}}" onChange="{{ao.pick}}">
+                  <span class="wall-text">
+                    <span>{{ao.label}}</span>
+                    <span class="pass-sub">{{ao.sub}}</span>
+                  </span>
+                </label>
+              </sc-for>
+            </div>
+          </fieldset>
+
+          <div class="sheet-guide">
+            <h3 class="sheet-title">Come disporre le cartine sulla scheda</h3>
+            <sc-if value="{{sheetMissing}}" hint-placeholder-val="{{true}}">
+              <p class="sheet-note">{{sheetMissingText}}</p>
+            </sc-if>
+            <sc-if value="{{sheetReady}}" hint-placeholder-val="{{false}}">
+              <ol class="howto">
+                <li><strong>Stampa il modello della scheda</strong> generato per questo rilievo: griglia già numerata, marcatori agli angoli e codice QR del rilievo. {{sheetSizeText}}
+                  <div class="template-row">
+                    <button type="button" class="btn-ghost btn-small" disabled="{{true}}">Scarica modello (PDF)</button>
+                    <span class="send-hint">[Disponibile con il backend]</span>
+                  </div>
+                </li>
+                <li><strong>Una riga per parete e replica</strong>, dall’alto verso il basso nell’ordine dello schema qui sotto. Scrivi l’etichetta della riga (es. <em>{{sheetFirstLabel}}</em>) sul margine sinistro.</li>
+                <li><strong>Da sinistra a destra</strong>, in ogni riga: A-E sup, A-E inf, A-I sup, A-I inf, B-E sup, B-E inf, B-I sup, B-I inf.</li>
+                <li><strong>Posto vuoto se manca una cartina.</strong> Se una cartina è persa o danneggiata lascia libero il suo posto: non spostare le altre.</li>
+                <li class="only-photo"><strong>Sfondo bianco.</strong> Appoggia le cartine su un foglio o un cartoncino bianco, opaco e senza scritte oltre alle etichette delle righe.</li>
+                <li><strong>Spazio tra le cartine.</strong> Lascia almeno 1 mm libero tra una cartina e l’altra, senza sovrapporle né farle toccare: ogni cartina deve essere circondata dallo sfondo bianco. Lato esposto verso l’alto e una freccia sull’angolo in alto a sinistra della scheda.</li>
+                <li class="only-photo"><strong>Marcatori visibili.</strong> I quattro marcatori agli angoli e il codice QR devono essere interi nella foto: servono a raddrizzare l’immagine e a riconoscere il rilievo.</li>
+                <li class="only-photo"><strong>Buona luce.</strong> Fotografa con luce abbondante e uniforme, meglio naturale diffusa: niente sole diretto, ombre (anche del telefono o della mano) o riflessi. Evita il flash.</li>
+                <li class="only-photo"><strong>Foto dall’alto</strong>, con il telefono parallelo alla scheda, tutta la griglia inquadrata e a fuoco.</li>
+                <li class="only-scan"><strong>Scansiona a colori</strong> con lo scanner piano, risoluzione di almeno 600 dpi [da confermare con lo script di analisi], senza miglioramenti automatici di colore o contrasto.</li>
+                <li class="only-scan"><strong>Scheda intera e dritta</strong> sul vetro, con marcatori e codice QR dentro l’area di scansione. Se la scheda è più grande del vetro, scansionala in più parti, una riga completa per volta.</li>
+                <li class="only-scan"><strong>Salva il file</strong> in TIFF, PNG o PDF (JPG solo alla qualità massima) e caricalo qui sotto.</li>
+              </ol>
+              <div class="sheet-scroll">
+                <div class="sheet" role="table" aria-label="Schema di disposizione delle cartine sulla scheda">
+                  <span class="sheet-marker m-tl" aria-hidden="true"></span><span class="sheet-marker m-tr" aria-hidden="true"></span><span class="sheet-marker m-bl" aria-hidden="true"></span><span class="sheet-marker m-br" aria-hidden="true"></span>
+                  <div class="sheet-qr" aria-hidden="true"><span class="qr-box"></span><span>QR rilievo</span></div>
+                  <div class="sheet-row sheet-head" role="row">
+                    <span class="sheet-label" role="columnheader">Riga</span>
+                    <sc-for list="{{sheetCols}}" as="col" hint-placeholder-count="8">
+                      <span class="sheet-colhead" role="columnheader">{{col.pos}}<br>{{col.face}}</span>
+                    </sc-for>
+                  </div>
+                  <sc-for list="{{sheetRows}}" as="row" hint-placeholder-count="2">
+                    <div class="sheet-row" role="row">
+                      <span class="sheet-label" role="rowheader"><span class="sheet-n">{{row.n}}</span> {{row.label}}</span>
+                      <sc-for list="{{sheetCols}}" as="col" hint-placeholder-count="8">
+                        <span class="sheet-cell" role="cell" aria-label="{{row.label}} {{col.pos}} {{col.face}}"></span>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+          <label for="{{acqInputId}}" class="dropzone">
+            <sc-if value="{{noPhoto}}" hint-placeholder-val="{{true}}">
+              <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"></path>
+                <circle cx="12" cy="13" r="3.5"></circle>
+              </svg>
+              <span class="dropzone-text">{{acqDropText}}</span>
+              <span class="dropzone-hint">{{acqDropHint}}</span>
+            </sc-if>
+            <sc-if value="{{hasPhoto}}" hint-placeholder-val="{{false}}">
+              <img src="{{photoDataUrl}}" alt="Anteprima della scheda cartine" class="photo-img">
+            </sc-if>
+            <sc-if value="{{hasFileOnly}}" hint-placeholder-val="{{false}}">
+              <span class="dropzone-text">File caricato: {{photoName}}</span>
+              <span class="dropzone-hint">Anteprima non disponibile per questo formato. Tocca per sostituirlo.</span>
+            </sc-if>
+          </label>
+          <input id="photoInput" type="file" accept="image/*" capture="environment" onChange="{{onPhoto}}" class="visually-hidden">
+          <input id="scanInput" type="file" accept="image/png,image/jpeg,image/tiff,.tif,.tiff,application/pdf,.pdf" onChange="{{onPhoto}}" class="visually-hidden">
+          <sc-if value="{{hasAnyFile}}" hint-placeholder-val="{{false}}">
+            <div class="photo-meta">
+              <span class="photo-name">{{photoName}}</span>
+              <button type="button" class="btn-ghost" onClick="{{onClearPhoto}}">Rimuovi file</button>
+            </div>
+          </sc-if>
+        </section>
+
+        <section class="card submit-card" id="sez-invio">
+          <div class="card-header" style="width: 100%"><h2>Invio rilievo</h2></div>
+          <p class="submit-hint">Verifica i dati inseriti prima di inviare. Il rilievo verrà salvato in “I miei rilievi”: se non hai ancora la foto della scheda cartine potrai caricarla da lì in un secondo momento.</p>
+          <a class="btn-primary" href="Rilievi.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Invia rilievo</a>
+        </section>
+      </sc-if>
+
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+// Azienda e data non si chiedono: l'azienda viene dall'account (login), la data è quella del giorno
+// in cui si compila il rilievo. Nel prototipo l'account è fisso.
+const ACCOUNT = { azienda: 'Azienda di prova' };
+function todayIso() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// Dati che restano uguali tra un rilievo completo e il successivo: all'invio si salvano e nel rilievo dopo
+// si riprendono con un tocco (sezione "Dai rilievi precedenti"). Nel prototipo stanno nel browser
+// (localStorage); nel prodotto vengono dal server, dai rilievi dell'azienda dell'account.
+// Le regolazioni (velocità, pressione…) si riprendono solo su richiesta, perché spesso cambiano.
+const HISTORY_KEY = 'perleuve.storicoCompleti';
+const HISTORY_MAX = 30;
+const MACHINE_KEYS = ['tipoIrroratrice', 'irroratriceMarca', 'irroratriceModello', 'trattriceMarca', 'trattriceModello',
+  'nTower', 'hasFan', 'nozzlesPerSide', 'nozzleTypes', 'assignL', 'assignR', 'symmetric', 'measures'];
+const VINEYARD_KEYS = ['vigneto', 'sesto', 'sistemaAllevamento'];
+const SETTING_KEYS = ['velocita', 'marcia', 'giriMotore', 'giriPresaPotenza', 'pressione', 'ugelliLitriHa'];
+// Esempio mostrato finché nel browser non c'è nessun rilievo inviato (solo prototipo).
+const HISTORY_EXAMPLE = [{ date: '2026-09-29', example: true,
+  machine: { tipoIrroratrice: 'atomizzatore', irroratriceMarca: 'Esempio', irroratriceModello: 'AT 1000', trattriceMarca: 'Esempio', trattriceModello: 'T 90',
+    nozzlesPerSide: '6', symmetric: true },
+  vineyard: { vigneto: 'Vigneto A', sesto: '2,5 × 0,9 m', sistemaAllevamento: 'Guyot' },
+  settings: { velocita: '6', marcia: '2 ridotta', giriMotore: '1800', giriPresaPotenza: '540', pressione: '10', ugelliLitriHa: '300' } },
+  { date: '2026-09-22', example: true, machine: {}, vineyard: { vigneto: 'Vigneto B', sesto: '2,4 × 0,8 m', sistemaAllevamento: 'Cordone speronato' }, settings: {} },
+  { date: '2026-09-15', example: true, machine: {}, vineyard: { vigneto: 'Vigneto C', sesto: '2,8 × 1,0 m', sistemaAllevamento: 'Pergola' }, settings: {} }];
+
+function copyKeys(src, keys) {
+  const out = {};
+  keys.forEach((k) => { if (src[k] !== undefined) out[k] = JSON.parse(JSON.stringify(src[k])); });
+  return out;
+}
+function loadHistory() {
+  try {
+    const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || 'null');
+    return Array.isArray(list) && list.length ? list : HISTORY_EXAMPLE;
+  } catch (e) { return HISTORY_EXAMPLE; }
+}
+function saveToHistory(state) {
+  const entry = { date: state.dataVerifica || todayIso(), machine: copyKeys(state, MACHINE_KEYS),
+    vineyard: copyKeys(state, VINEYARD_KEYS), settings: copyKeys(state, SETTING_KEYS) };
+  try {
+    const list = loadHistory().filter((e) => !e.example);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify([entry].concat(list).slice(0, HISTORY_MAX)));
+  } catch (e) { /* spazio pieno o storage non disponibile: nel prototipo si rinuncia */ }
+}
+function machineId(m) {
+  return [m.tipoIrroratrice, m.irroratriceMarca, m.irroratriceModello, m.trattriceMarca, m.trattriceModello].join('|').toLowerCase().trim();
+}
+function itDate(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || '');
+  return m ? m[3] + '/' + m[2] + '/' + m[1] : '';
+}
+
+const GENERAL_FIELDS = [
+  { key: 'vigneto', label: 'Vigneto', type: 'text', required: true },
+  { key: 'bbch', label: 'Stadio fenologico (BBCH)', type: 'text' }
+];
+
+const EQUIPMENT_FIELDS = [
+  { key: 'irroratriceMarca', label: 'Irroratrice — marca', type: 'text' },
+  { key: 'irroratriceModello', label: 'Irroratrice — modello', type: 'text' },
+  { key: 'trattriceMarca', label: 'Trattrice — marca', type: 'text' },
+  { key: 'trattriceModello', label: 'Trattrice — modello', type: 'text' }
+];
+
+const OPERATING_FIELDS = [
+  { key: 'sesto', label: "Sesto d'impianto", type: 'text' },
+  { key: 'sistemaAllevamento', label: 'Sistema di allevamento', type: 'text' },
+  { key: 'altezzaTotale', label: 'Altezza totale piante', type: 'number', unit: 'cm' },
+  { key: 'altezzaChioma', label: 'Altezza chioma', type: 'number', unit: 'cm' },
+  { key: 'spessoreChioma', label: 'Spessore chioma basale', type: 'number', unit: 'cm' },
+  { key: 'velocita', label: 'Velocità di avanzamento', type: 'number', unit: 'km/h' },
+  { key: 'marcia', label: 'Marcia', type: 'text' },
+  { key: 'giriMotore', label: 'Giri/minuto motore', type: 'number', unit: 'rpm' },
+  { key: 'giriPresaPotenza', label: 'Giri/minuto presa di potenza', type: 'number', unit: 'rpm' },
+  { key: 'pressione', label: 'Pressione di esercizio', type: 'number', unit: 'bar' }
+];
+
+const NOZZLE_SUMMARY_FIELDS = [
+  { key: 'ugelliLitriHa', label: 'Volume distribuito (totale macchina)', type: 'number', unit: 'l/ha' }
+];
+
+const NOZZLE_TYPE_FIELDS = [
+  { key: 'tipo', label: 'Tipo irroratore / nebulizzatore', type: 'text', wide: true },
+  { key: 'colore', label: 'Albuz o colore ISO', type: 'text' },
+  { key: 'piastrine', label: 'Piastrine', type: 'text' },
+  { key: 'portata', label: 'Portata per ugello', type: 'number', unit: 'l/min' }
+];
+
+const NOZZLE_COLORS = [
+  { fill: '#8BC53E', text: '#231F20' },
+  { fill: '#2F6FB0', text: '#FFFFFF' },
+  { fill: '#E08A1E', text: '#231F20' },
+  { fill: '#7A3E8E', text: '#FFFFFF' },
+  { fill: '#231F20', text: '#FFFFFF' },
+  { fill: '#D94F70', text: '#FFFFFF' }
+];
+
+const NOZZLE_DEFAULTS = { atomizzatore: 6, nebulizzatore: 2, torrettaIntere: 2, torrettaMezze: 2, recupero: 6 };
+const NOZZLE_MIN = { atomizzatore: 1, nebulizzatore: 1, torrettaIntere: 1, torrettaMezze: 1, recupero: 1 };
+
+function spread(a, b, n, k) { return n === 1 ? (a + b) / 2 : a + (b - a) * k / (n - 1); }
+
+function nozzleLayout(key, n, nTower) {
+  const pts = [];
+  let ref = 0;
+  if (key === 'atomizzatore') {
+    const span = Math.min(120, 75 + Math.max(0, n - 6) * 10);
+    const a0 = 172.5 - span / 2, a1 = 172.5 + span / 2;
+    let best = 999;
+    for (let k = 0; k < n; k++) {
+      const a = n === 1 ? 180 : spread(a0, a1, n, k);
+      const rad = a * Math.PI / 180;
+      pts.push({ x: r1(360 + 58 * Math.cos(rad)), y: r1(270 - 58 * Math.sin(rad)), fx: 172, incl: Math.round(180 - a), ap: 28 });
+      if (Math.abs(a - 150) < best) { best = Math.abs(a - 150); ref = k; }
+    }
+    pts[ref].ap = null;
+  } else if (key === 'nebulizzatore') {
+    for (let k = 0; k < n; k++) pts.push({ x: 283, y: r1(spread(214, 278, n, k)), fx: 172, incl: k === 0 ? null : Math.round(spread(15, -5, n, k)), ap: null });
+  } else if (key === 'torrettaIntere' || key === 'torrettaMezze') {
+    const mezze = key === 'torrettaMezze';
+    const t = Math.max(1, nTower || 1);
+    for (let k = 0; k < t; k++) pts.push({ x: mezze ? 174 : 108, y: r1(spread(194, 252, t, k)), fx: mezze ? 112 : 128, incl: Math.round(spread(-15, -35, t, k)), ap: null });
+    const m = Math.max(1, n - t);
+    for (let k = 0; k < m; k++) pts.push({ x: mezze ? 318 : 304, y: r1(spread(222, 276, m, k)), fx: mezze ? 292 : 172, incl: k === 0 ? null : Math.round(spread(0, -10, m, k)), ap: null });
+    ref = t;
+  } else {
+    const ci = Math.ceil(n / 2), co = Math.floor(n / 2);
+    for (let k = 0; k < ci; k++) pts.push({ x: 202, y: r1(spread(178, 262, ci, k)), fx: 172, incl: null, ap: null });
+    for (let k = 0; k < co; k++) pts.push({ x: 98, y: r1(spread(178, 262, co, k)), fx: 128, incl: null, ap: null });
+    ref = Math.floor(ci / 2);
+  }
+  return { pts: pts, ref: ref };
+}
+
+function applyLayout(type, layout) {
+  const p = layout.pts[layout.ref];
+  const others = layout.pts.filter(function (x, i) { return i !== layout.ref; });
+  const hx = type.key === 'recupero' ? p.x + 30 : r1((p.x + p.fx) / 2);
+  return Object.assign({}, type, {
+    nx: p.x, ny: p.y, fx: p.fx, hx: hx,
+    defIncl: p.incl == null ? type.defIncl : p.incl,
+    jets: others.map(function (q) { return [q.x, q.y, q.fx, q.incl, q.ap]; })
+  });
+}
+
+function mainNozzleSlots(pts) {
+  const nz = {};
+  let k = 0;
+  ['L', 'R'].forEach(function (sd) {
+    pts.forEach(function (p) {
+      nz['s' + k] = { cls: 'sv-nozzle', x: sd === 'L' ? p.x : r1(720 - p.x), y: p.y };
+      k++;
+    });
+  });
+  for (; k < 24; k++) nz['s' + k] = { cls: 'sv-hide', x: 0, y: 0 };
+  return nz;
+}
+
+function parseNozzleRefs(text) {
+  const out = [];
+  String(text || '').split(/[,;\s]+/).forEach(function (part) {
+    if (!part) return;
+    const m = part.match(/^(\d+)\s*[-–—]\s*(\d+)$/);
+    if (m) {
+      const a = parseInt(m[1], 10), b = parseInt(m[2], 10);
+      for (let k = Math.min(a, b); k <= Math.max(a, b) && k - Math.min(a, b) < 50; k++) out.push(k);
+    } else if (/^\d+$/.test(part)) {
+      out.push(parseInt(part, 10));
+    }
+  });
+  return out;
+}
+
+function nozzleMap(layoutPts, nozzleTypes, assignL, assignR, ring) {
+  const pts = layoutPts.map(function (p) { return [p.x, p.y]; });
+  const small = pts.length > 6;
+  const idx = {};
+  nozzleTypes.forEach(function (t, i) { idx[t.id] = i; });
+  const nz = {};
+  let k = 0;
+  ['L', 'R'].forEach(function (sd) {
+    const arr = sd === 'L' ? assignL : assignR;
+    pts.forEach(function (p, i) {
+      const ti = idx[arr[i]];
+      const col = ti == null ? { fill: '#FFFFFF', text: '#231F20' } : NOZZLE_COLORS[ti % NOZZLE_COLORS.length];
+      const x = sd === 'L' ? p[0] : 720 - p[0];
+      let lx, ly;
+      if (ring) {
+        const dx = x - 360, dy = p[1] - 270, len = Math.sqrt(dx * dx + dy * dy) || 1;
+        lx = x + dx / len * 16; ly = p[1] + dy / len * 16 + 4;
+      } else {
+        lx = x + (sd === 'L' ? -15 : 15); ly = p[1] + 4;
+      }
+      nz['s' + k] = { cls: '', x: r1(x), y: p[1], r: small ? 5 : 6, lx: r1(lx), ly: r1(ly), n: i + 1, fill: col.fill, textFill: col.text };
+      k++;
+    });
+  });
+  for (; k < 24; k++) nz['s' + k] = { cls: 'sv-hide', x: 0, y: 0, r: 0, lx: 0, ly: 0, n: '', fill: 'none', textFill: 'none' };
+  return { nz: nz, count: pts.length, conflicts: [] };
+}
+
+function rangesText(list) {
+  const out = [];
+  let a = null, b = null;
+  list.forEach(function (n) {
+    if (a == null) { a = b = n; } else if (n === b + 1) { b = n; } else { out.push(a === b ? String(a) : a + '–' + b); a = b = n; }
+  });
+  if (a != null) out.push(a === b ? String(a) : a + '–' + b);
+  return out.join(', ');
+}
+
+function makeNozzleType(id) {
+  return { id: id, tipo: '', colore: '', piastrine: '', numero: '', portata: '', lato: 'entrambi', posizione: '', rif: '' };
+}
+
+const SPRAYER_TYPES = [
+  { key: 'atomizzatore', label: 'Atomizzatore',
+    desc: 'Ventilatore assiale con ugelli disposti a raggiera: dall’interfila tratta la parete interna dei due filari adiacenti.',
+    rows: [150, 570], fx: 172, nx: 310, ny: 241, hx: 240, defIncl: 30,
+    jets: [[319, 229, 172, 35, 28], [304, 255, 172, 15, 28], [302, 270, 172, 0, 28], [304, 285, 172, -15, 28], [310, 299, 172, -30, 28]] },
+  { key: 'nebulizzatore', label: 'Nebulizzatore',
+    desc: 'Getto pneumatico: la miscela viene polverizzata dalla corrente d’aria in uscita da cannoni o diffusori.',
+    rows: [150, 570], fx: 172, nx: 290, ny: 222, hx: 230, defIncl: 15,
+    jets: [[288, 270, 172, -5, null]] },
+  { key: 'torrettaIntere', label: 'Torretta · 2 filari a parete intera',
+    desc: 'Nebulizzatore multifilare con torretta: le uscite basse trattano le pareti interne, le tubazioni sui bracci scavalcano i filari e trattano le pareti esterne. Tratta entrambe le pareti di 2 filari.',
+    rows: [150, 570], fx: 172, nx: 304, ny: 226, hx: 238, defIncl: 0,
+    jets: [[304, 262, 172, -10, null], [106, 196, 128, -25, null]] },
+  { key: 'torrettaMezze', label: 'Torretta · 4 mezze pareti',
+    desc: 'Nebulizzatore multifilare con torretta: le uscite basse trattano le pareti interne dei filari adiacenti, le tubazioni sui bracci li scavalcano e trattano la parete dei filari successivi. Tratta 4 mezze pareti.',
+    rows: [90, 270, 450, 630], fx: 292, nx: 318, ny: 228, hx: 305, defIncl: 0,
+    jets: [[318, 262, 292, -10, null], [174, 196, 112, -25, null]] },
+  { key: 'recupero', label: 'Atomizzatore a recupero',
+    desc: 'Pannelli a tunnel ai lati della chioma: la miscela che non si deposita viene raccolta e rimessa in circolo.',
+    rows: [150, 570], fx: 172, nx: 202, ny: 215, hx: 232, defIncl: 0,
+    jets: [[202, 185, 172, null, null], [202, 250, 172, null, null], [98, 185, 128, null, null], [98, 215, 128, null, null], [98, 250, 128, null, null]] }
+];
+
+const PARAMS = [
+  { key: 'sesto', label: "Sesto d'impianto", desc: 'distanza tra due filari adiacenti (interfila), da centro a centro.' },
+  { key: 'altezzaTotale', label: 'Altezza piante', desc: 'dal terreno alla sommità della vegetazione.' },
+  { key: 'altezzaChioma', label: 'Altezza chioma', desc: 'altezza della parete fogliare, dalla base della vegetazione alla cima.' },
+  { key: 'spessoreChioma', label: 'Spessore chioma', desc: 'larghezza della chioma misurata alla base della parete fogliare.' },
+  { key: 'distanza', label: 'Distanza da parete', desc: 'distanza orizzontale tra ugello (o diffusore) e parete fogliare.' },
+  { key: 'altezza', label: 'Altezza da terra', desc: 'altezza dell’ugello (o diffusore) dal terreno.' },
+  { key: 'apertura', label: 'Apertura ventaglio', desc: 'angolo di apertura del getto in uscita dall’ugello.' },
+  { key: 'inclinazione', label: 'Inclinazione', desc: 'angolo del getto rispetto all’orizzontale: 0° = perpendicolare alla parete, 90° = verso il cielo; positivo verso l’alto, negativo verso il basso.' }
+];
+
+const GROUND = 380, HALF_CANOPY = 22;
+
+function toNum(v, def, min, max) {
+  const n = parseFloat(String(v == null ? '' : v).replace(',', '.'));
+  if (isNaN(n)) return def;
+  return Math.max(min, Math.min(max, n));
+}
+
+function r1(n) { return Math.round(n * 10) / 10; }
+
+function fanPath(nx, ny, fx, incl, ap) {
+  const d = Math.abs(nx - fx);
+  const top = Math.max(-75, Math.min(75, incl + ap / 2)) * Math.PI / 180;
+  const bot = Math.max(-75, Math.min(75, incl - ap / 2)) * Math.PI / 180;
+  return 'M' + r1(nx) + ' ' + r1(ny) + ' L' + fx + ' ' + r1(ny - d * Math.tan(top)) + ' L' + fx + ' ' + r1(ny - d * Math.tan(bot)) + ' Z ';
+}
+
+function leftPt(nx, ny, r, deg) {
+  const a = deg * Math.PI / 180;
+  return [r1(nx - r * Math.cos(a)), r1(ny - r * Math.sin(a))];
+}
+
+function leftArc(nx, ny, r, fromDeg, toDeg) {
+  const p1 = leftPt(nx, ny, r, fromDeg), p2 = leftPt(nx, ny, r, toDeg);
+  const sweep = toDeg > fromDeg ? 1 : 0;
+  return 'M' + p1[0] + ' ' + p1[1] + ' A' + r + ' ' + r + ' 0 0 ' + sweep + ' ' + p2[0] + ' ' + p2[1];
+}
+
+function sprayerGeometry(type, row, walls) {
+  const ap = toNum(row.apertura, 40, 5, 110);
+  const incl = toNum(row.inclinazione, type.defIncl, -60, 60);
+  const nx = type.nx, ny = type.ny, fx = type.fx, d = nx - fx;
+  let jets = fanPath(720 - nx, ny, 720 - fx, incl, ap);
+  type.jets.forEach(function (e) {
+    const i = e[3] == null ? incl : e[3], a = e[4] == null ? ap : e[4];
+    jets += fanPath(e[0], e[1], e[2], i, a) + fanPath(720 - e[0], e[1], 720 - e[2], i, a);
+  });
+  const rows = type.rows, first = rows[0], last = rows[rows.length - 1];
+  const sL = Math.max.apply(null, rows.filter(function (x) { return x < 360; }));
+  const sR = Math.min.apply(null, rows.filter(function (x) { return x > 360; }));
+  const htX = first >= 120 ? first - 90 : first - 54;
+  const chX = last <= 600 ? last + 80 : last + 54;
+  const r = Math.round(Math.max(12, Math.min(34, d * 0.6)));
+  const r2 = r + 12;
+  const e1 = Math.min(75, incl + ap / 2), e2 = Math.max(-75, incl - ap / 2);
+  const apL = leftPt(nx, ny, r + 14, e1 + 8);
+  const inL = leftPt(nx, ny, r2 + 14, Math.min(incl, 0) - 16);
+  const refP = leftPt(nx, ny, r2 + 8, 0);
+  const g = {
+    nx: nx, ny: ny, fx: fx, hx: type.hx,
+    dmx: r1((nx + fx) / 2), dly: ny - 10,
+    hlx: type.hx + 6, hly: Math.round(ny + (GROUND - ny) * 0.55),
+    jets: jets,
+    jetRef: fanPath(nx, ny, fx, incl, ap),
+    apArc: leftArc(nx, ny, r, e2, e1), apLx: apL[0], apLy: apL[1],
+    refX: refP[0], axX: fx, axY: r1(ny - d * Math.tan(incl * Math.PI / 180)),
+    inArc: leftArc(nx, ny, r2, 0, incl), inLx: inL[0], inLy: inL[1],
+    sL: sL, sR: sR,
+    htX: htX, htG1: htX - 6, htG2: first - HALF_CANOPY, htL: htX - 16,
+    chX: chX, chG1: last + HALF_CANOPY, chG2: chX + 6, chL: chX + 16,
+    spL: first - HALF_CANOPY, spR: first + HALF_CANOPY, spC: first
+  };
+  for (let k = 0; k < 4; k++) g['v' + k] = rows[k] == null ? 0 : rows[k];
+  const vbX = type.indirect ? -360 : 0, vbW = type.indirect ? 1440 : 720;
+  g.viewBox = vbX + ' 0 ' + vbW + ' 420';
+  g.vbX = vbX; g.vbW = vbW; g.vbX2 = vbX + vbW;
+  let ind = '';
+  if (type.indirect) {
+    const farL = first + HALF_CANOPY;
+    const src = [[nx, ny, incl, ap]].concat(type.jets.map(function (e) { return [e[0], e[1], e[3] == null ? incl : e[3], e[4] == null ? ap : e[4]]; }));
+    src.filter(function (e) { return Math.abs(e[2]) <= 20; }).forEach(function (e) {
+      ind += fanPath(e[0], e[1], farL, e[2], e[3]) + fanPath(720 - e[0], e[1], 720 - farL, e[2], e[3]);
+    });
+  }
+  g.jetsInd = ind;
+  let marks = '';
+  rows.forEach(function (x, k) {
+    ['L', 'R'].forEach(function (side) {
+      if (!walls || !walls['F' + (k + 1) + side]) return;
+      const fx = side === 'L' ? x - HALF_CANOPY : x + HALF_CANOPY;
+      [190, 255].forEach(function (y) {
+        marks += 'M' + (fx - 5) + ' ' + (y - 8) + ' h10 v16 h-10 Z ';
+      });
+    });
+  });
+  g.wspMarks = marks;
+  return g;
+}
+
+const SHEET_COLS = [
+  { pos: 'A-E', face: 'sup' }, { pos: 'A-E', face: 'inf' },
+  { pos: 'A-I', face: 'sup' }, { pos: 'A-I', face: 'inf' },
+  { pos: 'B-E', face: 'sup' }, { pos: 'B-E', face: 'inf' },
+  { pos: 'B-I', face: 'sup' }, { pos: 'B-I', face: 'inf' }
+];
+
+function treatedFaces(type, alterni) {
+  const faces = {};
+  const add = function (fx, kind) {
+    [Math.round(fx), Math.round(720 - fx)].forEach(function (k) { if (faces[k] !== 'dir') faces[k] = kind; });
+  };
+  add(type.fx, 'dir');
+  type.jets.forEach(function (e) { add(e[2], 'dir'); });
+  if (type.indirect) {
+    const adj = type.rows[1], far = type.rows[0];
+    add(adj - HALF_CANOPY, 'ind');
+    add(far + HALF_CANOPY, 'ind');
+  }
+  if (alterni) {
+    const adjL = Math.max.apply(null, type.rows.filter(function (x) { return x < 360; }));
+    add(adjL - HALF_CANOPY, type.key.indexOf('torretta') === 0 ? 'ret' : 'ind');
+  }
+  return faces;
+}
+
+function withValue(label, v, unit) {
+  return v === '' || v == null ? label : label + ' · ' + v + unit;
+}
+
+function makeNozzleRows() {
+  return [1, 2, 3, 4, 5, 6, 7, 8].map(function (n) {
+    return { id: n, distanza: '', altezza: '', apertura: '', inclinazione: '' };
+  });
+}
+
+function initialState() {
+  const state = { photoDataUrl: null, photoName: '', submitted: false, miscela: '', descrizioneProva: '', tipoIrroratrice: 'atomizzatore', activeParam: null, acquisizione: 'foto', photoIsImage: false, nTower: '', showIstr: false, preset: null, passaggio: 'ogni', hasFan: null, measures: {}, activeNozzle: null, nozzlesPerSide: '', nozzleTypes: [makeNozzleType(1)], assignL: Array(12).fill(1), assignR: Array(12).fill(1), symmetric: true, walls: {}, indiretto: false, repliche: '', nozzleRows: makeNozzleRows() };
+  GENERAL_FIELDS.concat(EQUIPMENT_FIELDS, OPERATING_FIELDS, NOZZLE_SUMMARY_FIELDS).forEach(function (f) {
+    state[f.key] = '';
+  });
+  // compilati in automatico, non compaiono nel modulo
+  state.azienda = ACCOUNT.azienda;
+  state.dataVerifica = todayIso();
+  // dai rilievi precedenti: cosa è stato ripreso e i valori di prima, per "Annulla"
+  Object.assign(state, { prevMachine: null, prevSettings: false, prevUndo: null });
+  // vigneto: già inserito (vyKnown) o nuovo; vyEdit = l'utente vuole vedere e cambiare sesto e allevamento
+  Object.assign(state, { vyKnown: null, vyEdit: false, vyOpen: false, vyActive: -1 });
+  return state;
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = initialState();
+    this.history = loadHistory();
+    this.handlePhoto = this.handlePhoto.bind(this);
+    this.clearPhoto = this.clearPhoto.bind(this);
+    this.addRow = this.addRow.bind(this);
+    this.submitForm = this.submitForm.bind(this);
+    this.resetForm = this.resetForm.bind(this);
+  }
+
+  focusParam(key) {
+    return () => {
+      if (key) this.setState({ activeParam: key });
+    };
+  }
+
+  toggleParam(key) {
+    return () => this.setState({ activeParam: this.state.activeParam === key ? null : key });
+  }
+
+  updateNozzleType(id, key) {
+    return (e) => {
+      const value = e.target.value;
+      this.setState({ nozzleTypes: this.state.nozzleTypes.map((t) => (t.id === id ? Object.assign({}, t, { [key]: value }) : t)) });
+    };
+  }
+
+  assignNozzle(side, i, id) {
+    const key = side === 'L' ? 'assignL' : 'assignR';
+    const arr = this.state[key].slice();
+    arr[i] = id;
+    this.setState({ [key]: arr });
+  }
+
+  removeNozzleType(id) {
+    const clear = (a) => a.map((x) => (x === id ? null : x));
+    this.setState({
+      nozzleTypes: this.state.nozzleTypes.filter((x) => x.id !== id),
+      assignL: clear(this.state.assignL),
+      assignR: clear(this.state.assignR)
+    });
+  }
+
+  measureHandler(id, field) {
+    return (e) => {
+      const value = e.target.value;
+      const all = Object.assign({}, this.state.measures);
+      all[id] = Object.assign({}, all[id], { [field]: value });
+      this.setState({ measures: all });
+    };
+  }
+
+  focusMeasure(id, param) {
+    return () => this.setState({ activeNozzle: id, activeParam: param });
+  }
+
+  applyPreset(key) {
+    if (key === 'atomizzatore') {
+      this.setState({ preset: key, tipoIrroratrice: 'atomizzatore', indiretto: false, passaggio: 'ogni', repliche: '5',
+        walls: { F1R: true, F2L: true }, nozzlesPerSide: '', hasFan: null });
+    } else if (key === 'torretta') {
+      this.setState({ preset: key, tipoIrroratrice: 'torrettaMezze', indiretto: false, passaggio: 'alterni', repliche: '5',
+        walls: { F2R: true, F2L: true }, nozzlesPerSide: '', hasFan: null });
+    } else {
+      this.setState({ preset: 'custom' });
+    }
+  }
+
+  handleField(field) {
+    return (e) => this.setState({ [field]: e.target.value });
+  }
+
+  handleRowField(id, field) {
+    return (e) => {
+      const value = e.target.value;
+      this.setState({
+        nozzleRows: this.state.nozzleRows.map((row) => (row.id === id ? { ...row, [field]: value } : row))
+      });
+    };
+  }
+
+  removeRowHandler(id) {
+    return () => {
+      this.setState({ nozzleRows: this.state.nozzleRows.filter((row) => row.id !== id) });
+    };
+  }
+
+  addRow() {
+    const ids = this.state.nozzleRows.map((row) => row.id);
+    const nextId = ids.length ? Math.max.apply(null, ids) + 1 : 1;
+    this.setState({
+      nozzleRows: [...this.state.nozzleRows, { id: nextId, distanza: '', altezza: '', apertura: '', inclinazione: '' }]
+    });
+  }
+
+  handlePhoto(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    const previewable = /^image\/(png|jpe?g|webp|gif|heic|heif)$/i.test(file.type || '');
+    if (!previewable) {
+      this.setState({ photoDataUrl: null, photoName: file.name });
+      return;
+    }
+    reader.onload = () => {
+      this.setState({ photoDataUrl: reader.result, photoName: file.name });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  clearPhoto() {
+    this.setState({ photoDataUrl: null, photoName: '' });
+  }
+
+  submitForm() {
+    const data = this.state.dataVerifica || todayIso();
+    saveToHistory(Object.assign({}, this.state, { dataVerifica: data }));
+    this.history = loadHistory();
+    this.setState({ submitted: true, azienda: ACCOUNT.azienda, dataVerifica: data });
+  }
+
+  resetForm() {
+    this.setState(initialState());
+  }
+
+  // Riprende dai rilievi precedenti un gruppo di dati (macchina, vigneto, regolazioni).
+  // Il primo tocco salva i valori attuali, così "Annulla" torna a com'era il modulo.
+  fillFromHistory(values, extra) {
+    const s = this.state;
+    const undo = s.prevUndo || copyKeys(s, MACHINE_KEYS.concat(VINEYARD_KEYS, SETTING_KEYS));
+    this.setState(Object.assign(JSON.parse(JSON.stringify(values)), { prevUndo: undo }, extra));
+  }
+
+  undoHistory() {
+    const undo = this.state.prevUndo;
+    if (!undo) return;
+    const blank = {}, fresh = initialState();
+    MACHINE_KEYS.concat(SETTING_KEYS).forEach((k) => { blank[k] = k in undo ? undo[k] : fresh[k]; });
+    this.setState(Object.assign(blank, { prevUndo: null, prevMachine: null, prevSettings: false }));
+  }
+
+  // Vigneti dell'azienda già inseriti nei rilievi precedenti, dal più recente.
+  knownVineyards() {
+    const out = [], seen = {};
+    (this.history || []).forEach((e) => {
+      const v = e.vineyard || {}, k = (v.vigneto || '').trim().toLowerCase();
+      if (k && !seen[k]) { seen[k] = 1; out.push(Object.assign({ date: e.date, example: !!e.example }, v)); }
+    });
+    return out;
+  }
+
+  // Scelta di un vigneto già inserito: si compilano sesto e sistema di allevamento, che non si mostrano più.
+  pickVineyard(v) {
+    this.setState({ vigneto: v.vigneto, sesto: v.sesto || '', sistemaAllevamento: v.sistemaAllevamento || '',
+      vyKnown: { vigneto: v.vigneto, sesto: v.sesto || '', sistemaAllevamento: v.sistemaAllevamento || '', date: v.date, example: v.example },
+      vyEdit: false, vyOpen: false, vyActive: -1 });
+  }
+
+  // Se si cambia il nome dopo aver scelto un vigneto, i dati compilati in automatico non valgono più.
+  typeVineyard(value) {
+    const s = this.state, patch = { vigneto: value, vyOpen: true, vyActive: -1 };
+    if (s.vyKnown && value.trim().toLowerCase() !== s.vyKnown.vigneto.trim().toLowerCase()) {
+      if (s.sesto === s.vyKnown.sesto) patch.sesto = '';
+      if (s.sistemaAllevamento === s.vyKnown.sistemaAllevamento) patch.sistemaAllevamento = '';
+      Object.assign(patch, { vyKnown: null, vyEdit: false });
+    }
+    this.setState(patch);
+  }
+
+  // Campo "Vigneto": premendo si aprono i vigneti dell'azienda già inseriti, filtrati da quello che si scrive.
+  vineyardVals() {
+    const s = this.state, all = this.knownVineyards();
+    const q = (s.vigneto || '').trim().toLowerCase();
+    const known = s.vyKnown;
+    // con un vigneto già scelto si mostrano tutti, per poterlo cambiare
+    const list = known || !q ? all : all.filter((v) => v.vigneto.toLowerCase().indexOf(q) >= 0);
+    const active = Math.min(s.vyActive, list.length - 1);
+    const close = () => this.setState({ vyOpen: false, vyActive: -1 });
+    const exact = all.some((v) => v.vigneto.trim().toLowerCase() === q);
+    return {
+      showList: !!s.vyOpen && list.length > 0,
+      expanded: s.vyOpen && list.length > 0 ? 'true' : 'false',
+      activeId: active >= 0 ? 'vy-opt-' + active : '',
+      placeholder: all.length ? 'Scegli un vigneto o scrivine uno nuovo' : 'Nome del vigneto',
+      options: list.map((v, i) => ({
+        id: 'vy-opt-' + i, name: v.vigneto,
+        sub: [v.sesto, v.sistemaAllevamento].filter(Boolean).join(' · ') + ' · ultimo rilievo ' + itDate(v.date) + (v.example ? ' (esempio)' : ''),
+        selected: known && known.vigneto === v.vigneto ? 'true' : 'false',
+        cls: i === active ? 'is-active' : '',
+        pick: () => this.pickVineyard(v)
+      })),
+      onOpen: () => { if (!this.state.vyOpen) this.setState({ vyOpen: true }); },
+      onInput: (e) => this.typeVineyard(e.target.value),
+      // il tocco su un vigneto non deve togliere il fuoco al campo prima del clic
+      keepFocus: (e) => e.preventDefault(),
+      onBlur: () => setTimeout(close, 150),
+      onKey: (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          const n = list.length; if (!n) return;
+          const cur = this.state.vyOpen ? active : -1;
+          this.setState({ vyOpen: true, vyActive: e.key === 'ArrowDown' ? (cur + 1) % n : (cur <= 0 ? n - 1 : cur - 1) });
+        } else if (e.key === 'Enter' && this.state.vyOpen && active >= 0) {
+          e.preventDefault(); this.pickVineyard(list[active]);
+        } else if (e.key === 'Escape') {
+          close();
+        }
+      },
+      known: !!known,
+      knownText: known ? 'Sesto e sistema di allevamento ripresi dal rilievo del ' + itDate(known.date) + (known.example ? ' (esempio)' : '') + ': '
+        + ([s.sesto, s.sistemaAllevamento].filter(Boolean).join(' · ') || 'non indicati') + '.' : '',
+      editLabel: s.vyEdit ? 'Nascondi' : 'Modifica',
+      onEdit: () => this.setState({ vyEdit: !this.state.vyEdit }),
+      isNew: !known && q.length > 0 && !exact && (!s.vyOpen || list.length === 0)
+    };
+  }
+
+  // Sezione "Dai rilievi precedenti": macchine distinte, dal più recente.
+  prevVals() {
+    const s = this.state, hist = this.history || [];
+    const machines = [], seenM = {};
+    hist.forEach((e) => {
+      const m = e.machine || {}, id = machineId(m);
+      if ((m.irroratriceMarca || m.irroratriceModello || m.trattriceMarca || m.nozzlesPerSide) && !seenM[id]) { seenM[id] = 1; machines.push(e); }
+    });
+    const typeLabel = (k) => (SPRAYER_TYPES.find((t) => t.key === k) || {}).label || '';
+    const chosen = machines.find((e) => machineId(e.machine) === s.prevMachine);
+    const when = (e) => itDate(e.date) + (e.example ? ', esempio' : '');
+    const bits = [];
+    if (chosen) bits.push('macchina' + (s.prevSettings ? ' e regolazioni' : '') + ' dal rilievo del ' + when(chosen));
+    return {
+      has: machines.length > 0,
+      hasMachines: machines.length > 0,
+      machines: machines.map((e) => {
+        const m = e.machine, on = machineId(m) === s.prevMachine;
+        const name = [m.irroratriceMarca, m.irroratriceModello].filter(Boolean).join(' ') || 'Irroratrice senza nome';
+        const tractor = [m.trattriceMarca, m.trattriceModello].filter(Boolean).join(' ');
+        return {
+          title: name + ' · ' + typeLabel(m.tipoIrroratrice),
+          sub: [tractor ? 'Trattrice ' + tractor : '', m.nozzlesPerSide ? m.nozzlesPerSide + ' per lato' : '', 'ultimo rilievo ' + when(e)].filter(Boolean).join(' · '),
+          cls: on ? 'preset-btn is-on' : 'preset-btn', pressed: on ? 'true' : 'false',
+          pick: () => this.fillFromHistory(e.machine, { prevMachine: machineId(m), prevSettings: false })
+        };
+      }),
+      note: bits.length ? 'Ripresi ' + bits.join('; ') + '. Controlla che siano ancora giusti: puoi cambiare tutto nelle sezioni sotto.' : '',
+      canSettings: !!chosen && !s.prevSettings && Object.keys(chosen.settings || {}).some((k) => chosen.settings[k]),
+      settingsLabel: 'Riprendi anche le regolazioni (velocità, marcia, giri, pressione, volume)',
+      onSettings: () => chosen && this.fillFromHistory(chosen.settings, { prevSettings: true }),
+      onUndo: () => this.undoHistory()
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const buildFields = (configs) => configs.map((cfg) => ({
+      key: cfg.key,
+      label: cfg.label,
+      type: cfg.type,
+      unit: cfg.unit || '',
+      required: !!cfg.required,
+      value: s[cfg.key],
+      onChange: this.handleField(cfg.key),
+      onFocus: this.focusParam(PARAMS.some((p) => p.key === cfg.key) ? cfg.key : null)
+    }));
+
+
+    const missingRequired = !s.vigneto;
+
+    const baseType = SPRAYER_TYPES.find((t) => t.key === s.tipoIrroratrice) || SPRAYER_TYPES[0];
+    const canIndirect = baseType.key === 'atomizzatore' || baseType.key === 'nebulizzatore';
+    const nDefault = NOZZLE_DEFAULTS[baseType.key], nMin = NOZZLE_MIN[baseType.key];
+    const nParsed = parseInt(s.nozzlesPerSide, 10);
+    const isTor = baseType.key.indexOf('torretta') === 0;
+    const nTowerParsed = parseInt(s.nTower, 10);
+    const nTower = isTor ? (isNaN(nTowerParsed) ? 1 : Math.max(1, Math.min(6, nTowerParsed))) : 0;
+    const nMain = isNaN(nParsed) ? nDefault : Math.max(nMin, Math.min(12 - nTower, nParsed));
+    const nPerSide = nMain + nTower;
+    const layout = nozzleLayout(baseType.key, nPerSide, nTower);
+    const laidType = applyLayout(baseType, layout);
+    const type = canIndirect && s.indiretto
+      ? Object.assign({}, laidType, { rows: [-270, 150, 570, 990], indirect: true })
+      : laidType;
+    const isNeb = baseType.key === 'nebulizzatore' || baseType.key.indexOf('torretta') === 0;
+    const term = isNeb
+      ? { s: 'ventaglio', p: 'ventagli', S: 'Ventaglio', P: 'Ventagli', art: 'il ventaglio', of: 'del ventaglio', all: 'tutti i ventagli', theP: 'i ventagli' }
+      : { s: 'ugello', p: 'ugelli', S: 'Ugello', P: 'Ugelli', art: 'l’ugello', of: 'dell’ugello', all: 'tutti gli ugelli', theP: 'gli ugelli' };
+    const NZ_VIEWS = {
+      atomizzatore: [250, 185, 220, 205], nebulizzatore: [236, 180, 248, 210],
+      torrettaIntere: [70, 80, 580, 310], torrettaMezze: [150, 80, 420, 310], recupero: [62, 100, 596, 290]
+    };
+    const vb = NZ_VIEWS[baseType.key] || NZ_VIEWS.atomizzatore;
+    const fanAuto = isNeb;
+    const showFan = s.hasFan == null ? fanAuto : !!s.hasFan;
+    const refId = 'L' + (layout.ref + 1);
+    const isNebLbl = baseType.key === 'nebulizzatore' || baseType.key.indexOf('torretta') === 0;
+    const row1 = s.measures[refId] || {};
+    const active = s.activeParam;
+    const cls = {};
+    PARAMS.forEach((p) => { cls[p.key] = active ? (p.key === active ? 'dim on' : 'dim off') : 'dim'; });
+    const mcls = {};
+    SPRAYER_TYPES.forEach((t) => { mcls[t.key] = t.key === type.key ? '' : 'sv-hide'; });
+    const vcls = {};
+    for (let k = 0; k < 4; k++) vcls['v' + k] = type.rows[k] == null ? 'sv-hide' : '';
+    const lbl = {
+      sesto: s.sesto ? 'Sesto · ' + s.sesto : "Sesto d'impianto",
+      altezzaTotale: withValue('H piante', s.altezzaTotale, ' cm'),
+      altezzaChioma: withValue('H chioma', s.altezzaChioma, ' cm'),
+      spessoreChioma: withValue('Spessore', s.spessoreChioma, ' cm'),
+      distanza: withValue('Distanza', row1.distanza, ' cm'),
+      altezza: withValue(isNebLbl ? 'H ventaglio' : 'H ugello', row1.altezza, ' cm'),
+      apertura: withValue('Apertura', row1.apertura, '°'),
+      inclinazione: withValue('Inclinazione', row1.inclinazione, '°')
+    };
+    const activeInfo = PARAMS.find((p) => p.key === active);
+    const effR = s.symmetric ? s.assignL : s.assignR;
+    const nzInfo = nozzleMap(layout.pts, s.nozzleTypes, s.assignL, effR, baseType.key === 'atomizzatore');
+    const typeIdx = {};
+    s.nozzleTypes.forEach((t, i) => { typeIdx[t.id] = i; });
+    const pickCells = (side, i) => {
+      const cur = (side === 'L' ? s.assignL : effR)[i];
+      const opts = s.nozzleTypes.map((t, ti) => {
+        const col = NOZZLE_COLORS[ti % NOZZLE_COLORS.length];
+        const on = cur === t.id;
+        return {
+          label: String(ti + 1),
+          cls: on ? 'nz-pick is-on' : 'nz-pick',
+          bg: on ? col.fill : '#FFFFFF', fg: on ? col.text : '#231F20',
+          pressed: on ? 'true' : 'false',
+          aria: term.S + ' ' + (i + 1) + ' lato ' + (side === 'L' ? 'SX' : 'DX') + ': tipo ' + (ti + 1),
+          pick: () => this.assignNozzle(side, i, t.id)
+        };
+      });
+      opts.push({
+        label: '–', cls: cur == null || typeIdx[cur] == null ? 'nz-pick is-on' : 'nz-pick', bg: '#FFFFFF', fg: '#231F20',
+        pressed: cur == null ? 'true' : 'false',
+        aria: term.S + ' ' + (i + 1) + ' lato ' + (side === 'L' ? 'SX' : 'DX') + ': non assegnato',
+        pick: () => this.assignNozzle(side, i, null)
+      });
+      return opts;
+    };
+    const assignRows = [];
+    for (let i = 0; i < nPerSide; i++) assignRows.push({ n: i + 1, sx: pickCells('L', i), dx: pickCells('R', i) });
+    const usageOf = (id) => {
+      const l = [], r = [];
+      for (let i = 0; i < nPerSide; i++) { if (s.assignL[i] === id) l.push(i + 1); if (effR[i] === id) r.push(i + 1); }
+      if (!l.length && !r.length) return 'Non ancora assegnato';
+      const parts = [];
+      if (l.length) parts.push('SX ' + rangesText(l));
+      if (r.length) parts.push('DX ' + rangesText(r));
+      const tot = l.length + r.length;
+      return 'Montato su ' + tot + ' ' + (tot === 1 ? term.s : term.p) + ' · ' + parts.join(' · ');
+    };
+    const measRows = [];
+    ['L', 'R'].forEach((sd) => {
+      const arr = sd === 'L' ? s.assignL : effR;
+      for (let i = 0; i < nPerSide; i++) {
+        const id = sd + (i + 1);
+        const ti = typeIdx[arr[i]];
+        const t = ti == null ? null : s.nozzleTypes[ti];
+        const col = ti == null ? { fill: '#FFFFFF', text: '#231F20' } : NOZZLE_COLORS[ti % NOZZLE_COLORS.length];
+        const m = s.measures[id] || {};
+        const on = s.activeNozzle === id;
+        const desc = t ? [t.tipo, isNeb ? '' : t.colore].filter(Boolean).join(' ') : '';
+        measRows.push({
+          id: id,
+          label: (sd === 'L' ? 'SX ' : 'DX ') + (i + 1),
+          typeLabel: t ? 'Tipo ' + (ti + 1) + (desc ? ' · ' + desc : '') : 'Tipo non assegnato',
+          typeShort: t ? 'Tipo ' + (ti + 1) + (desc ? ' · ' + desc : '') : '—',
+          bg: col.fill, fg: col.text,
+          cardCls: on ? 'nozzle-card is-active' : 'nozzle-card',
+          trCls: on ? 'is-active' : '',
+          distanza: m.distanza || '', altezza: m.altezza || '', apertura: m.apertura || '', inclinazione: m.inclinazione || '',
+          onDistanza: this.measureHandler(id, 'distanza'),
+          onAltezza: this.measureHandler(id, 'altezza'),
+          onApertura: this.measureHandler(id, 'apertura'),
+          onInclinazione: this.measureHandler(id, 'inclinazione'),
+          fDistanza: this.focusMeasure(id, 'distanza'),
+          fAltezza: this.focusMeasure(id, 'altezza'),
+          fApertura: this.focusMeasure(id, 'apertura'),
+          fInclinazione: this.focusMeasure(id, 'inclinazione')
+        });
+      }
+    });
+    const nzMeas = {};
+    Object.keys(nzInfo.nz).forEach((k) => {
+      const q = nzInfo.nz[k];
+      const idx = parseInt(k.slice(1), 10);
+      const id = idx < nPerSide ? 'L' + (idx + 1) : 'R' + (idx - nPerSide + 1);
+      nzMeas[k] = Object.assign({}, q, { rr: (q.r || 0) + 4, ringCls: q.cls === '' && s.activeNozzle === id ? '' : 'sv-hide' });
+    });
+    const activeRow = measRows.find((r) => r.id === s.activeNozzle);
+    const geo = sprayerGeometry(type, row1, s.walls);
+    const ovState = (key) => (cls[key] === 'dim on' ? ' on' : cls[key] === 'dim off' ? ' off' : '');
+    const toPct = (x, y) => ({ left: r1((x - geo.vbX) / geo.vbW * 100), top: r1(y / 420 * 100) });
+    const schemaLabels = [
+      ['sesto', 360, 406, 'mid'], ['altezzaTotale', geo.htL, 136, 'start'], ['altezzaChioma', geo.chL, 136, 'end'],
+      ['spessoreChioma', geo.spC, 324, 'mid'], ['distanza', geo.dmx, geo.dly, 'mid'], ['altezza', geo.hlx, geo.hly, 'start'],
+      ['apertura', geo.apLx, geo.apLy, 'end'], ['inclinazione', geo.inLx, geo.inLy, 'end']
+    ].map((a) => Object.assign({ text: lbl[a[0]], cls: 'ov-lbl' + (a[3] === 'mid' ? '' : ' ov-' + a[3]) + ovState(a[0]) }, toPct(a[1], a[2])));
+    const nzPct = (q) => ({ left: r1((q.lx - vb[0]) / vb[2] * 100), top: r1((q.ly - 4 - vb[1]) / vb[3] * 100) });
+    const nzLabels = Object.keys(nzInfo.nz).filter((k) => nzInfo.nz[k].cls === '').map((k) => Object.assign({ text: String(nzInfo.nz[k].n), cls: 'ov-lbl ov-num' }, nzPct(nzInfo.nz[k])));
+    const nzMeasLabels = Object.keys(nzMeas).filter((k) => nzMeas[k].cls === '').map((k) => Object.assign({ text: String(nzMeas[k].n), cls: 'ov-lbl ov-num' + (nzMeas[k].ringCls === '' ? ' on' : '') }, nzPct(nzMeas[k])));
+    let assignedCount = 0;
+    for (let i = 0; i < nPerSide; i++) { if (typeIdx[s.assignL[i]] != null) assignedCount++; if (typeIdx[effR[i]] != null) assignedCount++; }
+    const faces = treatedFaces(type, s.passaggio === 'alterni');
+    const wallOptions = [];
+    type.rows.forEach((x, k) => {
+      [['L', 'lato SX', x - 22], ['R', 'lato DX', x + 22]].forEach((w) => {
+        const id = 'F' + (k + 1) + w[0];
+        const checked = !!s.walls[id];
+        wallOptions.push({
+          label: 'F' + (k + 1) + ' · ' + w[1],
+          checked: checked,
+          treated: !!faces[w[2]],
+          tagText: faces[w[2]] === 'ind' ? 'indiretta' : faces[w[2]] === 'ret' ? 'trattata al ritorno' : 'trattata',
+          cls: checked ? 'type-option is-on' : 'type-option',
+          toggle: (e) => {
+            const next = Object.assign({}, this.state.walls);
+            next[id] = e.target.checked;
+            this.setState({ walls: next });
+          }
+        });
+      });
+    });
+    const nSel = wallOptions.filter((w) => w.checked).length;
+    const nRep = parseInt(s.repliche, 10);
+    const selWalls = wallOptions.filter((w) => w.checked);
+    const sheetRows = [];
+    if (nRep > 0) {
+      selWalls.forEach((w) => {
+        for (let k = 1; k <= nRep; k++) sheetRows.push({ n: sheetRows.length + 1, label: w.label.replace(' · ', ' ') + ' · R' + k });
+      });
+    }
+    const sheetReady = sheetRows.length > 0;
+    let sheetMissingText = '';
+    if (!selWalls.length && !(nRep > 0)) sheetMissingText = 'Seleziona le pareti con cartine e il numero di repliche in “Condizioni operative”: qui comparirà lo schema della scheda.';
+    else if (!selWalls.length) sheetMissingText = 'Seleziona le pareti con cartine in “Condizioni operative” per vedere lo schema della scheda.';
+    else if (!(nRep > 0)) sheetMissingText = 'Inserisci il numero di repliche in “Condizioni operative” per vedere lo schema della scheda.';
+    let wallSummary = nSel === 0 ? 'Nessuna parete selezionata.' : nSel + (nSel === 1 ? ' parete selezionata' : ' pareti selezionate') + ' · ' + (nSel * 8) + ' cartine per replica (8 per parete)';
+    if (nSel > 0) wallSummary += nRep > 0 ? ' × ' + nRep + (nRep === 1 ? ' replica' : ' repliche') + ' = ' + (nSel * 8 * nRep) + ' cartine in totale.' : '.';
+
+    return {
+      generalFields: buildFields(GENERAL_FIELDS.filter((f) => f.key !== 'vigneto')),
+      equipmentFields: buildFields(EQUIPMENT_FIELDS),
+      // vigneto già inserito: sesto e sistema di allevamento sono compilati e non si mostrano (salvo "Modifica")
+      operatingFields: buildFields(OPERATING_FIELDS.filter((f) => !(s.vyKnown && !s.vyEdit && VINEYARD_KEYS.indexOf(f.key) >= 0))),
+      nozzleSummaryFields: buildFields(NOZZLE_SUMMARY_FIELDS),
+      nozzleTypes: s.nozzleTypes.map((t, i) => ({
+        id: t.id,
+        n: i + 1,
+        color: NOZZLE_COLORS[i % NOZZLE_COLORS.length].fill,
+        usage: usageOf(t.id),
+        canRemove: s.nozzleTypes.length > 1,
+        onRemove: () => this.removeNozzleType(t.id),
+        onApplyAll: () => this.setState({ assignL: Array(12).fill(t.id), assignR: Array(12).fill(t.id) }),
+        fields: NOZZLE_TYPE_FIELDS.filter((f) => !isNeb || f.key === 'tipo' || f.key === 'portata').map((f) => ({
+          id: 'nt-' + t.id + '-' + f.key,
+          label: isNeb && f.key === 'tipo' ? 'Tipo ventaglio' : f.label.replace('per ugello', 'per ' + term.s),
+          type: f.type,
+          unit: f.unit || '',
+          cls: f.wide ? 'field field-wide' : 'field',
+          value: t[f.key],
+          onChange: this.updateNozzleType(t.id, f.key)
+        }))
+      })),
+      nz: nzInfo.nz,
+      nzLegend: s.nozzleTypes.map((t, i) => ({
+        color: NOZZLE_COLORS[i % NOZZLE_COLORS.length].fill,
+        label: 'Tipo ' + (i + 1) + (t.tipo || (!isNeb && t.colore) ? ' · ' + [t.tipo, isNeb ? '' : t.colore].filter(Boolean).join(' ') : '')
+      })).concat([{ color: '#FFFFFF', label: 'Non assegnato' }]),
+      nzHasConflict: false,
+      assignRows: assignRows,
+      symmetric: !!s.symmetric,
+      showDx: !s.symmetric,
+      onSymmetric: (e) => this.setState(e.target.checked ? { symmetric: true } : { symmetric: false, assignR: this.state.assignL.slice() }),
+      assignSummary: assignedCount + ' / ' + (nPerSide * 2) + ' assegnati',
+      nPerSideText: nPerSide + ' per lato, ' + (nPerSide * 2) + ' in totale',
+      onAllSame: () => {
+        const id = this.state.nozzleTypes[0].id;
+        this.setState({ assignL: Array(12).fill(id), assignR: Array(12).fill(id), symmetric: true });
+      },
+      onOnePerPosition: () => {
+        const types = this.state.nozzleTypes.slice();
+        let next = Math.max.apply(null, types.map((t) => t.id)) + 1;
+        while (types.length < nPerSide) types.push(makeNozzleType(next++));
+        const l = Array(12).fill(null);
+        for (let i = 0; i < nPerSide; i++) l[i] = types[i].id;
+        this.setState({ nozzleTypes: types, assignL: l, assignR: l.slice(), symmetric: true });
+      },
+      onClearAssign: () => this.setState({ assignL: Array(12).fill(null), assignR: Array(12).fill(null) }),
+      nzConflictText: nzInfo.conflicts.length ? 'Attenzione: ugello assegnato a più tipi (' + nzInfo.conflicts.join(', ') + '). Vale l’ultimo tipo inserito.' : '',
+      onAddNozzleType: () => {
+        const ids = this.state.nozzleTypes.map((t) => t.id);
+        const next = (ids.length ? Math.max.apply(null, ids) : 0) + 1;
+        this.setState({ nozzleTypes: this.state.nozzleTypes.concat([makeNozzleType(next)]) });
+      },
+      miscela: s.miscela,
+      onMiscela: this.handleField('miscela'),
+      descrizioneProva: s.descrizioneProva,
+      onDescrizioneProva: this.handleField('descrizioneProva'),
+      photoDataUrl: s.photoDataUrl,
+      photoName: s.photoName,
+      hasPhoto: !!s.photoDataUrl,
+      noPhoto: !s.photoDataUrl && !s.photoName,
+      hasFileOnly: !s.photoDataUrl && !!s.photoName,
+      hasAnyFile: !!s.photoName,
+      acqCls: s.acquisizione === 'scansione' ? 'acq-scan' : 'acq-photo',
+      acqInputId: s.acquisizione === 'scansione' ? 'scanInput' : 'photoInput',
+      acqDropText: s.acquisizione === 'scansione' ? 'Carica il file della scansione' : 'Tocca per scattare o caricare la foto',
+      acqDropHint: s.acquisizione === 'scansione'
+        ? 'TIFF, PNG, PDF o JPG ad alta qualità, con tutta la scheda e i marcatori visibili'
+        : 'Scheda stampata vista dall’alto, con i quattro marcatori e il codice QR visibili',
+      acqOptions: [
+        { key: 'foto', label: 'Foto con modello stampato', sub: 'In campo, con lo smartphone: misura la copertura (% area)' },
+        { key: 'scansione', label: 'Scansione', sub: 'In ufficio, con scanner piano: copertura e, se la risoluzione basta, densità e dimensione delle gocce' }
+      ].map((o) => ({
+        key: o.key, label: o.label, sub: o.sub,
+        checked: s.acquisizione === o.key,
+        cls: s.acquisizione === o.key ? 'type-option is-on' : 'type-option',
+        pick: () => this.setState({ acquisizione: o.key })
+      })),
+      onPhoto: this.handlePhoto,
+      onClearPhoto: this.clearPhoto,
+      nozzleRows: measRows,
+      showIstr: !!s.showIstr,
+      istrExpanded: s.showIstr ? 'true' : 'false',
+      istrChevronCls: s.showIstr ? 'chev is-open' : 'chev',
+      onToggleIstr: () => this.setState({ showIstr: !this.state.showIstr }),
+      prev: this.prevVals(),
+      vy: this.vineyardVals(),
+      presetOptions: [
+        { key: 'atomizzatore', title: 'Rilievo standard atomizzatore', sub: 'Irrorazione diretta, passaggio in ogni filare, pareti a SX e DX della macchina, 5 repliche' },
+        { key: 'torretta', title: 'Rilievo standard torretta', sub: 'Nebulizzatore a torretta a filari alterni, filare a SX della macchina: lato trattato all’andata e lato trattato al ritorno, 5 repliche' },
+        { key: 'custom', title: 'Rilievo personalizzato', sub: 'Imposti tu irroratrice, passaggio, pareti e repliche' }
+      ].map((o) => ({
+        title: o.title, sub: o.sub,
+        cls: s.preset === o.key ? 'preset-btn is-on' : 'preset-btn',
+        pressed: s.preset === o.key ? 'true' : 'false',
+        pick: () => this.applyPreset(o.key)
+      })),
+      presetApplied: !!s.preset,
+      presetNote: s.preset === 'atomizzatore'
+        ? 'Impostato: atomizzatore, trattamento diretto, passaggio in ogni filare, cartine su F1 lato DX e F2 lato SX (le due pareti ai lati della macchina), 5 repliche. Puoi modificare tutto nelle sezioni sotto.'
+        : s.preset === 'torretta'
+          ? 'Impostato: nebulizzatore a torretta (4 mezze pareti), passaggio a filari alterni, cartine sul filare F2 a sinistra della macchina: lato DX, trattato a questo passaggio, e lato SX, trattato quando la macchina torna indietro nell’interfila accanto. 5 repliche. Puoi modificare tutto nelle sezioni sotto.'
+          : 'Rilievo personalizzato: compila liberamente tutte le sezioni.',
+      passOptions: [
+        { key: 'ogni', label: 'Ogni filare', sub: 'La macchina passa in tutte le interfile' },
+        { key: 'alterni', label: 'Filari alterni', sub: 'La macchina passa un’interfila sì e una no' }
+      ].map((o) => ({
+        key: o.key, label: o.label, sub: o.sub,
+        checked: s.passaggio === o.key,
+        cls: s.passaggio === o.key ? 'type-option is-on' : 'type-option',
+        pick: () => this.setState({ passaggio: o.key })
+      })),
+      passEveryCls: s.passaggio === 'alterni' ? 'sv-hide' : '',
+      passAltCls: s.passaggio === 'alterni' ? '' : 'sv-hide',
+      passDesc: s.passaggio === 'alterni'
+        ? (baseType.key.indexOf('torretta') === 0
+          ? 'Vista dall’alto: la macchina percorre un’interfila sì e una no, andata e ritorno. La parete di un filare che non viene trattata all’andata viene trattata al passaggio di ritorno nell’interfila accanto.'
+          : 'Vista dall’alto: la macchina percorre un’interfila sì e una no: ogni filare riceve il getto diretto su una sola parete, l’altra viene raggiunta solo per via indiretta, attraverso la chioma.' + (canIndirect && !s.indiretto ? ' In questo caso attiva anche “Trattamento indiretto”.' : ''))
+        : 'Vista dall’alto: la macchina passa in ogni interfila, quindi ogni filare viene trattato su entrambe le pareti.',
+      term: term,
+      nzView: { box: vb.join(' '), sxX: vb[0] + 10, dxX: vb[0] + vb[2] - 10, labY: vb[1] + 20 },
+      fanToggleLabel: isNeb ? 'Misura l’apertura del ventaglio' : 'Ugelli a ventaglio: misura anche l’apertura',
+      showFan: showFan,
+      fanCls: showFan ? '' : 'no-fan',
+      fanNote: s.hasFan == null ? '(automatico per ' + baseType.label.toLowerCase() + ')' : '',
+      onFan: (e) => this.setState({ hasFan: e.target.checked }),
+      nzMeas: nzMeas,
+      measConfigText: nPerSide + ' per lato, ' + (nPerSide * 2) + ' in totale',
+      measActiveText: activeRow ? 'evidenziato: ' + activeRow.label : 'SX 1…' + nPerSide + ' e DX 1…' + nPerSide + ' dall’alto',
+      refNozzleLabel: 'SX ' + (layout.ref + 1),
+      missingRequired: missingRequired,
+      canSubmit: !missingRequired,
+      onSubmit: this.submitForm,
+      onReset: this.resetForm,
+      submitted: s.submitted,
+      notSubmitted: !s.submitted,
+      azienda: s.azienda,
+      vigneto: s.vigneto,
+      dataVerifica: s.dataVerifica,
+      rowCount: nPerSide * 2,
+      typeOptions: SPRAYER_TYPES.map((t) => ({
+        key: t.key,
+        label: t.label,
+        checked: t.key === type.key,
+        cls: t.key === type.key ? 'type-option is-on' : 'type-option',
+        pick: () => this.setState({ tipoIrroratrice: t.key })
+      })),
+      typeDesc: type.desc,
+      tipoLabel: type.label,
+      g: geo,
+      schemaLabels: schemaLabels,
+      nzLabels: nzLabels,
+      nzMeasLabels: nzMeasLabels,
+      exUg: isNeb ? 'sv-hide' : '',
+      exVe: isNeb ? '' : 'sv-hide',
+      nzm: mainNozzleSlots(layout.pts),
+      nozzlesPerSide: s.nozzlesPerSide,
+      onNozzlesPerSide: this.handleField('nozzlesPerSide'),
+      nMin: nMin,
+      nPlaceholder: String(nDefault),
+      nPerSideLabel: isTor ? 'Ventagli bassi sul corpo, per lato' : baseType.key === 'nebulizzatore' ? 'Ventagli per lato' : 'Ugelli per lato',
+      nHint: isTor
+        ? 'Nello schema: ' + nTower + ' sulla torretta + ' + nMain + ' sul corpo = ' + nPerSide + ' per lato (' + (nPerSide * 2) + ' in totale)' + (isNaN(nParsed) && isNaN(nTowerParsed) ? ' · valori predefiniti, modificali se serve.' : '.')
+        : 'Nello schema: ' + nPerSide + ' per lato (' + (nPerSide * 2) + ' in totale)' + (baseType.key === 'recupero' ? ', divisi tra pannello interno ed esterno' : '') + (isNaN(nParsed) ? ' · valore predefinito, modificalo se serve.' : '.'),
+      isTor: isTor,
+      nTowerVal: s.nTower,
+      onNTower: this.handleField('nTower'),
+      nTowerMax: 12 - nMain,
+      canIndirect: canIndirect,
+      indiretto: !!s.indiretto,
+      indCls: s.indiretto ? 'type-option is-on' : 'type-option',
+      onIndiretto: (e) => this.setState({ indiretto: e.target.checked }),
+      wallOptions: wallOptions,
+      wallSummary: wallSummary,
+      repliche: s.repliche,
+      sheetReady: sheetReady,
+      sheetMissing: !sheetReady,
+      sheetMissingText: sheetMissingText,
+      sheetRows: sheetRows,
+      sheetCols: SHEET_COLS,
+      sheetFirstLabel: sheetReady ? sheetRows[0].label : '',
+      sheetSizeText: sheetReady ? ('Servono ' + sheetRows.length + (sheetRows.length === 1 ? ' riga' : ' righe') + ' da 8 cartine: ' + selWalls.length + (selWalls.length === 1 ? ' parete' : ' pareti') + ' × ' + nRep + (nRep === 1 ? ' replica' : ' repliche') + ', ' + (sheetRows.length * 8) + ' cartine in totale.') : '',
+      onRepliche: this.handleField('repliche'),
+      onRepMinus: () => { const v = parseInt(this.state.repliche, 10); this.setState({ repliche: String(Math.max(1, (isNaN(v) ? 1 : v) - 1)) }); },
+      onRepPlus: () => { const v = parseInt(this.state.repliche, 10); this.setState({ repliche: String(isNaN(v) ? 1 : v + 1) }); },
+      onTowerMinus: () => this.setState({ nTower: String(Math.max(1, nTower - 1)) }),
+      onTowerPlus: () => this.setState({ nTower: String(Math.min(12 - nMain, 6, nTower + 1)) }),
+      onNMinus: () => this.setState({ nozzlesPerSide: String(Math.max(nMin, nMain - 1)) }),
+      onNPlus: () => this.setState({ nozzlesPerSide: String(Math.min(12 - nTower, nMain + 1)) }),
+      cls: cls,
+      mcls: mcls,
+      vcls: vcls,
+      lbl: lbl,
+      paramChips: PARAMS.map((p) => ({
+        label: p.label,
+        cls: p.key === active ? 'chip is-on' : 'chip',
+        pressed: p.key === active ? 'true' : 'false',
+        pick: this.toggleParam(p.key)
+      })),
+      hasDesc: !!activeInfo,
+      noDesc: !activeInfo,
+      descTitle: activeInfo ? activeInfo.label : '',
+      descText: activeInfo ? (isNeb ? activeInfo.desc.replace('tra ugello (o diffusore)', 'tra ventaglio').replace('dell’ugello (o diffusore)', 'del ventaglio').replace('dall’ugello', 'dal ventaglio') : activeInfo.desc.replace(' (o diffusore)', '')) : ''
+    };
+  }
+}
+</script>
+</body>
+</html>

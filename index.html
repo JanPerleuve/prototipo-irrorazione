@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rilievo irrorazione</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4E7A1E">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Pagina d'ingresso della web app (modello in tools/webapp_index.html): una colonna, pensata per il telefono. */
+  :root {
+    --bg: #FBF7F4; --surface: #FFFFFF; --ink: #231F20; --ink-soft: #5E5856; --line: #EDDCCF;
+    --accent: #8BC53E; --accent-ink: #231F20; --accent-strong: #4E7A1E; --accent-soft: #EFF6E4;
+    --display: 'Montserrat', system-ui, sans-serif; --body: 'Barlow', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px); -webkit-font-smoothing: antialiased; }
+  main { max-width: 480px; margin: 0 auto; padding-block: 32px 48px; display: flex; flex-direction: column; gap: 22px; }
+  .eyebrow { font-family: var(--display); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); }
+  h1 { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin: 6px 0 8px; text-wrap: balance; }
+  p { margin: 0; }
+  .lead { color: var(--ink-soft); }
+  .actions { display: flex; flex-direction: column; gap: 10px; }
+  .btn { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-height: 64px; padding: 12px 20px; border-radius: 16px; text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 16px; color: var(--ink); border: 1.5px solid var(--line); background: var(--surface); text-align: left; cursor: pointer; width: 100%; }
+  .btn small { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--ink-soft); }
+  .btn-main { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-main small { color: var(--accent-ink); opacity: 0.8; }
+  .btn:hover { border-color: var(--accent-strong); }
+  .btn:focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; }
+  .btn-install { background: var(--accent-strong); border-color: var(--accent-strong); color: #FFFFFF; }
+  .btn-install small { color: #FFFFFF; opacity: 0.85; }
+  .notes { background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .notes h2 { font-family: var(--display); font-size: 15px; font-weight: 700; margin: 0; }
+  .notes ul, .notes ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Perleuve · prototipo</span>
+    <h1>Rilievo irrorazione</h1>
+    <p class="lead">Una versione di prova dell’app, da usare sul telefono in vigneto o su una scrivania con qualche cartina.</p>
+  </header>
+
+  <nav class="actions" aria-label="Da dove iniziare">
+    <a class="btn btn-main" href="Semplice.dc.html">Prova il rilievo semplice<small>Fotografa le cartine e tocca dov’erano sulla pianta</small></a>
+    <a class="btn" href="Login.dc.html">Parti dall’accesso<small>Il percorso completo: accesso, scelta del rilievo, risultati</small></a>
+    <a class="btn" href="Rilievi.dc.html">I miei rilievi<small>I rilievi semplici salvati su questo telefono</small></a>
+  </nav>
+
+  <!-- Android e computer: il browser offre l'installazione; si mostra il pulsante solo quando è possibile. -->
+  <button type="button" class="btn btn-install" id="installa" hidden>Installa l’app<small>Icona sulla schermata Home, si apre a schermo intero</small></button>
+
+  <section class="notes" id="come-installare" aria-labelledby="install-title">
+    <h2 id="install-title">Per averla come app</h2>
+    <ol>
+      <li><strong>Android (Chrome):</strong> menu ⋮ in alto a destra, poi “Installa app” o “Aggiungi a schermata Home”.</li>
+      <li><strong>iPhone (Safari):</strong> pulsante Condividi, poi “Aggiungi alla schermata Home”.</li>
+    </ol>
+    <p>Dopo la prima apertura si avvia anche senza rete.</p>
+  </section>
+
+  <section class="notes" aria-labelledby="notes-title">
+    <h2 id="notes-title">Da sapere</h2>
+    <ul>
+      <li>La prima volta il telefono chiede il permesso di usare la fotocamera: se puoi, consentilo.</li>
+      <li>Nell’accesso puoi lasciare vuoti email e password: basta toccare “Accedi”.</li>
+      <li>I rilievi salvati restano solo su questo telefono.</li>
+      <li>La copertura calcolata è indicativa: serve a provare l’app, non è ancora l’analisi definitiva.</li>
+    </ul>
+  </section>
+</main>
+<script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
+  // Già installata e aperta come app: le istruzioni non servono.
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (standalone) document.getElementById('come-installare').hidden = true;
+  var prompt = null, btn = document.getElementById('installa');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    prompt = e;
+    btn.hidden = false;
+  });
+  btn.addEventListener('click', function () {
+    if (!prompt) return;
+    prompt.prompt();
+    prompt.userChoice.finally(function () { prompt = null; btn.hidden = true; });
+  });
+  window.addEventListener('appinstalled', function () { btn.hidden = true; document.getElementById('come-installare').hidden = true; });
+</script>
+</body>
+</html>

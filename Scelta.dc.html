@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#4E7A1E">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
+<title>Nuovo rilievo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F4;
+    --surface: #FFFFFF;
+    --ink: #231F20;
+    --ink-soft: #5E5856;
+    --line: #EDDCCF;
+    --accent: #8BC53E;
+    --accent-hover: #9ECE5D;
+    --accent-strong: #4E7A1E;
+    --accent-soft: #EFF6E4;
+    --sand: #F4E9E1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--accent-strong); }
+
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.94); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
+  .eyebrow { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
+  .topbar h1 { font-size: 22px; }
+  .btn-ghost { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 11px 22px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; font-weight: 700; min-height: 46px; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+  .intro h2 { font-size: 26px; margin-bottom: 6px; }
+  .intro p { color: var(--ink-soft); }
+  .choices { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .choice { display: flex; flex-direction: column; gap: 12px; text-decoration: none; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 22px; min-height: 200px; }
+  .choice:hover { border-color: var(--accent-strong); }
+  .choice:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+  .choice-quick { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .choice-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--accent-soft); display: flex; align-items: center; justify-content: center; }
+  .choice h3 { font-size: 20px; }
+  .choice-text { color: var(--ink-soft); line-height: 1.5; }
+  .choice-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--ink-soft); }
+  .choice-go { margin-top: auto; display: inline-flex; align-self: flex-start; align-items: center; justify-content: center; background: var(--accent); color: var(--ink); padding: 12px 24px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; font-weight: 700; min-height: 46px; }
+  .choice:hover .choice-go { background: var(--accent-hover); }
+  .choice-full .choice-go { background: transparent; border: 1.5px solid var(--ink); }
+  .choice-full:hover .choice-go { background: var(--ink); color: var(--bg); }
+  .tag { display: inline-block; align-self: flex-start; font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 100px; background: var(--sand); }
+  .tag-quick { background: var(--accent-soft); color: var(--accent-strong); }
+  .list-link { align-self: flex-start; font-family: 'Montserrat', system-ui, sans-serif; font-size: 15px; font-weight: 700; padding: 10px 0; }
+
+  @media (min-width: 720px) {
+    .choices { grid-template-columns: 1fr 1fr; }
+  }
+  /* Telefoni: intestazione compatta su una riga, così resta in alto senza coprire la pagina. */
+  @media (max-width: 560px) {
+    .topbar { padding: 10px 16px; gap: 10px; flex-wrap: nowrap; }
+    .topbar h1 { font-size: 19px; }
+    .topbar .eyebrow { font-size: 11px; }
+    .topbar .btn-ghost, .topbar .btn-primary { min-height: 40px; padding: 8px 14px; font-size: 13px; flex-shrink: 0; }
+    .topbar-title { min-width: 0; }
+  }
+  /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
+  img, svg, video, canvas { max-width: 100%; }
+  fieldset { min-width: 0; }
+  input, select, textarea, button { max-width: 100%; }
+  h1, h2, h3, h4, p, li, dd, dt, label, a, span, td, th { overflow-wrap: break-word; }
+</style>
+</helmet>
+
+<div>
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="eyebrow">Perleuve</span>
+      <h1>Nuovo rilievo</h1>
+    </div>
+    <a class="btn-ghost" href="Login.dc.html">Esci</a>
+  </header>
+
+  <main class="page">
+    <div class="intro">
+      <h2>Che rilievo vuoi fare?</h2>
+      <p>Il rilievo semplice ti dà subito un’indicazione sulla copertura. Quello accurato serve per una verifica completa della taratura.</p>
+    </div>
+
+    <div class="choices">
+      <a class="choice choice-quick" href="Semplice.dc.html">
+        <span class="choice-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4E7A1E" stroke-width="1.6">
+            <path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"></path>
+            <circle cx="12" cy="13" r="3.5"></circle>
+          </svg>
+        </span>
+        <span class="tag tag-quick">Circa 1 minuto</span>
+        <h3>Rilievo semplice</h3>
+        <p class="choice-text">Si apre subito la fotocamera: fotografa le cartine una dopo l’altra, quante vuoi, oppure carica le foto dal telefono. Dopo ogni foto, se vuoi, tocchi sulla pianta dov’era la cartina. Poi tre domande sull’irroratrice e ricevi un confronto con macchine simili.</p>
+        <ul class="choice-list">
+          <li>Una foto e un tocco per la posizione, che è facoltativa</li>
+          <li>Risultato: copertura % (indicativa) e confronto con il database</li>
+        </ul>
+        <span class="choice-go">Apri la fotocamera</span>
+      </a>
+
+      <a class="choice choice-full" href="Main.dc.html">
+        <span class="choice-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4E7A1E" stroke-width="1.6">
+            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+            <path d="M8 8h8M8 12h8M8 16h5"></path>
+          </svg>
+        </span>
+        <span class="tag">Verifica completa</span>
+        <h3>Rilievo accurato</h3>
+        <p class="choice-text">Scheda con le condizioni operative, gli ugelli e le cartine disposte sulla scheda standard.</p>
+        <ul class="choice-list">
+          <li>Tutte le cartine del rilievo</li>
+          <li>Copertura, densità e dimensione delle gocce (con scansione)</li>
+        </ul>
+        <span class="choice-go">Compila la scheda</span>
+      </a>
+    </div>
+
+    <a class="list-link" href="Rilievi.dc.html">I miei rilievi →</a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
