@@ -293,6 +293,9 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+// Cartine proposte per la prova in ufficio (si può cambiare nella pagina).
+const DEFAULT_CARDS = 24;
+
 // Raccolta dati per tarare ritaglio e analisi su telefoni diversi: ogni telefono fotografa le stesse cartine
 // numerate (1…n). Per ogni foto si salvano l'immagine originale a piena risoluzione (il fotogramma intero
 // della fotocamera, o il file così com'è), il risultato dell'analisi di analisi.js (la stessa del rilievo
@@ -386,7 +389,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     const old = loadSession();
-    this.state = { step: 'setup', phone: old ? old.phone : '', nText: old ? String(old.n) : '20', cur: old ? old.cur : 1,
+    this.state = { step: 'setup', phone: old ? old.phone : '', nText: old ? String(old.n) : String(DEFAULT_CARDS), cur: old ? old.cur : 1,
       shots: [], camState: 'starting', camError: '', busy: false, last: null, storeError: '', confirmReset: false,
       zipBusy: false, zipMsg: '', zipErr: false, device: null };
     this.stream = null;
@@ -402,7 +405,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() { this.stopCamera(); }
 
-  n() { const v = parseInt(this.state.nText, 10); return isNaN(v) ? 20 : Math.max(1, Math.min(60, v)); }
+  n() { const v = parseInt(this.state.nText, 10); return isNaN(v) ? DEFAULT_CARDS : Math.max(1, Math.min(60, v)); }
 
   persistSession(patch) {
     const s = Object.assign({}, this.state, patch);
