@@ -4,7 +4,7 @@
   "lang": "it",
   "dir": "ltr",
   "description": "Prototipo per il rilievo dell’irrorazione con le cartine idrosensibili.",
-  "start_url": "./index.html",
+  "start_url": "./Login.dc.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
