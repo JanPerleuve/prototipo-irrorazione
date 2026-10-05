@@ -93,6 +93,7 @@
   .pics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .pics figure { margin: 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); }
   .pics img { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); }
+  .pics-single { grid-template-columns: minmax(0, 1fr); max-width: 320px; }
   .meta { font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -202,6 +203,9 @@
               </div>
             </sc-if>
             <sc-if value="{{last.error}}" hint-placeholder-val="{{false}}">
+              <div class="pics pics-single">
+                <figure><img src="{{last.rawUrl}}" alt="Foto intera"><figcaption>Foto</figcaption></figure>
+              </div>
               <p class="hint">{{last.error}} La foto è salvata comunque: anche questo serve a migliorare il riconoscimento.</p>
             </sc-if>
             <p class="meta">{{last.meta}}</p>
