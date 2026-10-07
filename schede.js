@@ -113,6 +113,62 @@ function leggiQrScheda(file) {
   });
 }
 
+// Miniatura JPEG di un'immagine: si conserva con il rilievo nel browser (le foto intere non ci stanno).
+function miniaturaImmagine(file, lato) {
+  lato = lato || 900;
+  return new Promise((resolve) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(1, lato / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(''); };
+    img.src = url;
+  });
+}
+
+// ---- Controllo dell'immagine di una scheda collegata ({ numero, id, foto }) ----
+// foto: { qr (letto), manuale (scritto a mano), confermata (conferma dell'operatore) }.
+// Stato: 'nessuna' | 'illeggibile' | 'ok' | 'diverso' | 'confermata'.
+function controlloFoto(sc) {
+  const f = sc && sc.foto;
+  if (!f) return { stato: 'nessuna' };
+  if (f.esempio) return { stato: 'ok', visto: sc.numero, esempio: true };
+  const visto = f.manuale || f.qr;
+  if (!visto) return { stato: 'illeggibile' };
+  if (numeroBase(visto) === sc.numero) return { stato: 'ok', visto: visto, manuale: !!f.manuale };
+  return { stato: f.confermata ? 'confermata' : 'diverso', visto: visto, manuale: !!f.manuale };
+}
+// Frase per l'operatore e classe di stile (check-ok, check-warn, check-info).
+function testoControllo(chk, sc) {
+  if (chk.stato === 'ok' && chk.esempio) return { testo: 'Immagine già caricata (esempio).', cls: 'check-ok' };
+  if (chk.stato === 'ok') return { testo: (chk.manuale ? 'Numero scritto a mano: ' : 'QR letto: ') + chk.visto + ', è la scheda collegata a questa parete.', cls: 'check-ok' };
+  if (chk.stato === 'illeggibile') return { testo: 'Non riesco a leggere il QR in questa foto: prova a scrivere qui sotto il numero che vedi sulla scheda.', cls: 'check-warn' };
+  if (chk.stato === 'diverso') return { testo: 'Nella foto c’è la scheda ' + chk.visto + ', ma a questa parete è collegata la ' + sc.numero + ': prova a controllare. Se è la foto giusta, puoi usarla lo stesso.', cls: 'check-warn' };
+  if (chk.stato === 'confermata') return { testo: 'Foto confermata a mano: nella foto c’è la scheda ' + chk.visto + ', a questa parete è collegata la ' + sc.numero + '. Lo annotiamo con il rilievo.', cls: 'check-info' };
+  return { testo: '', cls: 'check-info' };
+}
+const fotoInOrdine = (sc) => ['ok', 'confermata'].indexOf(controlloFoto(sc).stato) !== -1;
+
+// ---- Rilievi accurati inviati (archivio di prova nel browser; con il backend li tiene il server) ----
+// { id, data, azienda, vigneto, descrizione, tipo, pareti, repliche, bbch, velocita, pressione, litriHa, miscela,
+//   stato: 'foto' | 'elab' | 'done', schede: [{ key, title, numero, id, foto: { nome, thumb, qr, manuale, confermata } | null }] }
+const RILIEVI_ACC_KEY = 'perleuve.rilieviAccurati';
+function rilieviAccurati() {
+  try { return JSON.parse(localStorage.getItem(RILIEVI_ACC_KEY) || '[]'); } catch (e) { return []; }
+}
+function salvaRilieviAccurati(list) {
+  try { localStorage.setItem(RILIEVI_ACC_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
+}
+// Aggiunge o sostituisce un rilievo (per id); false se lo spazio del browser è pieno.
+function salvaRilievoAccurato(rec) {
+  return salvaRilieviAccurati([rec].concat(rilieviAccurati().filter((r) => r.id !== rec.id)));
+}
+
 // ---- PDF delle schede ----
 // Stessa scheda di tools/genera_scheda.py (stesse misure in mm: tools/analisi_schede.py la riconosce), disegnata
 // con i caratteri standard del PDF (Helvetica) invece di Montserrat e Barlow. Una scheda per pagina, A4 orizzontale.

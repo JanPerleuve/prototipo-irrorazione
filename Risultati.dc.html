@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="Irrorazione">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <title>Risultati rilievo</title>
+<script src="./schede.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -93,6 +94,27 @@
     .topbar-title { min-width: 0; }
   }
   @media (max-width: 560px) { .back-label { display: none; } }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-soft); }
+  .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .band-scarso { fill: #FBE3DF; } .band-discreto { fill: #FCEFD2; } .band-ottimale { fill: #E3EFD3; } .band-eccessivo { fill: #ECE4F3; }
+  .band-label { font-family: 'Montserrat', system-ui, sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; fill: #5E5856; }
+  .bar { fill: #4E7A1E; }
+  .bar-sup { fill: #4E7A1E; } .bar-inf { fill: #B8650F; }
+  .dot { fill: #231F20; opacity: 0.55; }
+  .val { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; fill: #231F20; }
+  .heat { display: grid; grid-template-columns: minmax(64px, auto) repeat(8, minmax(0, 1fr)); gap: 3px; font-size: 13px; }
+  .heat-h { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; color: var(--ink-soft); text-align: center; padding: 2px 0; }
+  .heat-row { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; color: var(--ink-soft); display: flex; align-items: center; white-space: nowrap; }
+  .heat-c { border-radius: 4px; text-align: center; padding: 6px 0; font-variant-numeric: tabular-nums; font-weight: 600; color: #231F20; }
+  .heat-c.c-scarso { background: #F4C7BE; } .heat-c.c-discreto { background: #F6DDA4; } .heat-c.c-ottimale { background: #C6DFA8; } .heat-c.c-eccessivo { background: #D5C6E6; }
+  .heat-c.c-vuoto { background: repeating-linear-gradient(45deg, #F4E9E1, #F4E9E1 4px, #FBF7F4 4px, #FBF7F4 8px); color: var(--ink-soft); font-weight: 400; }
+  .heat-sep { grid-column: 1 / -1; height: 6px; }
+  .advice-tag.is-high { background: #F7E6E2; color: #9B3B2F; }
+  .advice-tag.is-mid { background: #FCEFD2; color: #6B4A00; }
+  .draft-note { font-size: 13px; color: var(--ink-soft); background: var(--sand); border-radius: 10px; padding: 8px 12px; }
+  .kpi-class { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; align-self: flex-start; padding: 3px 8px; border-radius: 100px; background: var(--accent-soft); color: var(--accent-strong); }
+  @media (max-width: 560px) { .codes-note { display: none; } .val { font-size: 16px; } .band-label { font-size: 11px; letter-spacing: 0; } .heat { font-size: 11px; } .heat-c { padding: 5px 0; } }
   /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
   img, svg, video, canvas { max-width: 100%; }
   fieldset { min-width: 0; }
@@ -111,218 +133,208 @@
   </header>
 
   <main class="page">
-    <p class="sample-note">Prototipo: intestazione di esempio. Valori, grafici e consigli compariranno quando sarà collegata l’analisi.</p>
+    <p class="sample-note">{{note}}</p>
 
     <section class="summary" aria-label="Dati del rilievo">
-      <span class="rec-code">R-0003 · 15/09/2026</span>
-      <h2>Azienda di prova · Vigneto A</h2>
+      <span class="rec-code">{{head.id}} · {{head.data}}</span>
+      <h2>{{head.azienda}} · {{head.vigneto}}</h2>
       <dl class="facts">
-        <dt>Descrizione</dt><dd>Controllo deriva</dd>
-        <dt>Tipo irroratrice</dt><dd>Torretta · 2 filari a parete intera</dd>
-        <dt>Pareti con cartine</dt><dd>F1 lato SX, F1 lato DX</dd>
-        <dt>Repliche</dt><dd>3</dd>
+        <dt>Descrizione</dt><dd>{{head.descrizione}}</dd>
+        <dt>Tipo irroratrice</dt><dd>{{head.tipo}}</dd>
+        <dt>Pareti con cartine</dt><dd>{{head.pareti}}</dd>
+        <dt>Repliche</dt><dd>{{head.repliche}}</dd>
       </dl>
     </section>
 
     <section class="kpis" aria-label="Indicatori principali">
-      <div class="kpi"><span class="kpi-label">Copertura media</span><span class="kpi-value">—</span><span class="kpi-unit">% superficie</span></div>
-      <div class="kpi"><span class="kpi-label">Densità impatti</span><span class="kpi-value">—</span><span class="kpi-unit">impatti/cm²</span></div>
-      <div class="kpi"><span class="kpi-label">Uniformità</span><span class="kpi-value">—</span><span class="kpi-unit">CV %</span></div>
-      <div class="kpi"><span class="kpi-label">Rapporto sup / inf</span><span class="kpi-value">—</span><span class="kpi-unit">pagina superiore / inferiore</span></div>
+      <div class="kpi"><span class="kpi-label">Copertura media</span><span class="kpi-value">{{kpi.media}}</span><span class="kpi-unit">% superficie</span><span class="kpi-class">{{kpi.mediaCls}}</span></div>
+      <div class="kpi"><span class="kpi-label">Parte bassa (grappoli)</span><span class="kpi-value">{{kpi.bassa}}</span><span class="kpi-unit">% · parte alta {{kpi.alta}} %</span><span class="kpi-class">{{kpi.bassaCls}}</span></div>
+      <div class="kpi"><span class="kpi-label">Pagina inferiore / superiore</span><span class="kpi-value">{{kpi.rapporto}}</span><span class="kpi-unit">sotto {{kpi.inf}} % · sopra {{kpi.sup}} %</span></div>
+      <div class="kpi"><span class="kpi-label">Cartine analizzate</span><span class="kpi-value">{{kpi.n}}</span><span class="kpi-unit">di {{kpi.posti}} posti · {{kpi.vuoti}} vuoti</span></div>
     </section>
 
     <h2 class="section-title">Grafici</h2>
     <div class="charts">
       <figure class="chart">
         <h3 id="ch1">Copertura per posizione nella chioma</h3>
-        <p class="chart-sub">Media delle repliche per ciascuna delle 8 posizioni.</p>
-              <svg viewBox="0 0 520 240" role="img" aria-labelledby="ch1">
-                <line x1="48" y1="20" x2="500" y2="20" class="grid"></line>
-                <text x="40" y="24" text-anchor="end" class="tick">100</text>
-                <line x1="48" y1="62" x2="500" y2="62" class="grid"></line>
-                <text x="40" y="66" text-anchor="end" class="tick">75</text>
-                <line x1="48" y1="105" x2="500" y2="105" class="grid"></line>
-                <text x="40" y="109" text-anchor="end" class="tick">50</text>
-                <line x1="48" y1="148" x2="500" y2="148" class="grid"></line>
-                <text x="40" y="152" text-anchor="end" class="tick">25</text>
-                <line x1="48" y1="190" x2="500" y2="190" class="grid"></line>
-                <text x="40" y="194" text-anchor="end" class="tick">0</text>
-                <text x="76" y="208" text-anchor="middle" class="tick">A-E</text>
-                <text x="76" y="221" text-anchor="middle" class="tick">sup</text>
-                <text x="133" y="208" text-anchor="middle" class="tick">A-E</text>
-                <text x="133" y="221" text-anchor="middle" class="tick">inf</text>
-                <text x="189" y="208" text-anchor="middle" class="tick">A-I</text>
-                <text x="189" y="221" text-anchor="middle" class="tick">sup</text>
-                <text x="246" y="208" text-anchor="middle" class="tick">A-I</text>
-                <text x="246" y="221" text-anchor="middle" class="tick">inf</text>
-                <text x="302" y="208" text-anchor="middle" class="tick">B-E</text>
-                <text x="302" y="221" text-anchor="middle" class="tick">sup</text>
-                <text x="359" y="208" text-anchor="middle" class="tick">B-E</text>
-                <text x="359" y="221" text-anchor="middle" class="tick">inf</text>
-                <text x="415" y="208" text-anchor="middle" class="tick">B-I</text>
-                <text x="415" y="221" text-anchor="middle" class="tick">sup</text>
-                <text x="472" y="208" text-anchor="middle" class="tick">B-I</text>
-                <text x="472" y="221" text-anchor="middle" class="tick">inf</text>
-                <text x="14" y="105" transform="rotate(-90 14 105)" text-anchor="middle" class="axis-lab">Copertura (%)</text>
-                <rect x="54" y="60" width="440" height="90" rx="8" class="nodata"></rect>
-                <text x="274" y="110" text-anchor="middle" class="nodata-text">Dati disponibili dopo l’analisi</text>
-              </svg>
+        <p class="chart-sub">Barre: media delle cartine; punti: ogni cartina (pareti e repliche). Sullo sfondo le classi.</p>
+        <svg viewBox="0 0 520 250" role="img" aria-labelledby="ch1">
+          <sc-for list="{{bands}}" as="b" hint-placeholder-count="4">
+            <rect x="48" y="{{b.y}}" width="392" height="{{b.h}}" class="{{b.cls}}"></rect>
+            <text x="446" y="{{b.ty}}" text-anchor="start" class="band-label">{{b.label}}</text>
+          </sc-for>
+          <sc-for list="{{ticks}}" as="t" hint-placeholder-count="5">
+            <text x="40" y="{{t.y}}" text-anchor="end" class="tick">{{t.v}}</text>
+          </sc-for>
+          <sc-for list="{{posBars}}" as="pb" hint-placeholder-count="8">
+            <rect x="{{pb.x}}" y="{{pb.y}}" width="30" height="{{pb.h}}" rx="3" class="bar"><title>{{pb.tip}}</title></rect>
+            <text x="{{pb.cx}}" y="{{pb.vy}}" text-anchor="middle" class="val">{{pb.v}}</text>
+            <text x="{{pb.cx}}" y="222" text-anchor="middle" class="tick">{{pb.code}}</text>
+          </sc-for>
+          <sc-for list="{{posDots}}" as="d" hint-placeholder-count="20">
+            <circle cx="{{d.x}}" cy="{{d.y}}" r="2.6" class="dot"></circle>
+          </sc-for>
+          <text x="14" y="110" transform="rotate(-90 14 110)" text-anchor="middle" class="axis-lab">Copertura (%)</text>
+          <text x="244" y="242" text-anchor="middle" class="tick codes-note">Lettere: Alta/Bassa · Esterna/Interna · Superiore/Inferiore</text>
+        </svg>
       </figure>
       <figure class="chart">
         <h3 id="ch2">Pagina superiore e inferiore a confronto</h3>
-        <p class="chart-sub">Copertura sopra e sotto la foglia, per posizione.</p>
-              <svg viewBox="0 0 520 240" role="img" aria-labelledby="ch2">
-                <line x1="48" y1="20" x2="500" y2="20" class="grid"></line>
-                <text x="40" y="24" text-anchor="end" class="tick">100</text>
-                <line x1="48" y1="62" x2="500" y2="62" class="grid"></line>
-                <text x="40" y="66" text-anchor="end" class="tick">75</text>
-                <line x1="48" y1="105" x2="500" y2="105" class="grid"></line>
-                <text x="40" y="109" text-anchor="end" class="tick">50</text>
-                <line x1="48" y1="148" x2="500" y2="148" class="grid"></line>
-                <text x="40" y="152" text-anchor="end" class="tick">25</text>
-                <line x1="48" y1="190" x2="500" y2="190" class="grid"></line>
-                <text x="40" y="194" text-anchor="end" class="tick">0</text>
-                <text x="104" y="208" text-anchor="middle" class="tick">A-E</text>
-                <text x="218" y="208" text-anchor="middle" class="tick">A-I</text>
-                <text x="330" y="208" text-anchor="middle" class="tick">B-E</text>
-                <text x="444" y="208" text-anchor="middle" class="tick">B-I</text>
-                <text x="14" y="105" transform="rotate(-90 14 105)" text-anchor="middle" class="axis-lab">Copertura (%)</text>
-                <rect x="54" y="60" width="440" height="90" rx="8" class="nodata"></rect>
-                <text x="274" y="110" text-anchor="middle" class="nodata-text">Dati disponibili dopo l’analisi</text>
-              </svg>
+        <p class="chart-sub">Copertura media sopra e sotto la foglia, per zona della chioma.</p>
+        <div class="chart-legend"><span><i class="sw" style="background:#4E7A1E"></i>Sopra la foglia</span><span><i class="sw" style="background:#B8650F"></i>Sotto la foglia</span></div>
+        <svg viewBox="0 0 520 250" role="img" aria-labelledby="ch2">
+          <sc-for list="{{bands}}" as="b" hint-placeholder-count="4">
+            <rect x="48" y="{{b.y}}" width="452" height="{{b.h}}" class="{{b.cls}}"></rect>
+          </sc-for>
+          <sc-for list="{{ticks}}" as="t" hint-placeholder-count="5">
+            <text x="40" y="{{t.y}}" text-anchor="end" class="tick">{{t.v}}</text>
+          </sc-for>
+          <sc-for list="{{pageBars}}" as="g" hint-placeholder-count="4">
+            <rect x="{{g.x1}}" y="{{g.y1}}" width="40" height="{{g.h1}}" rx="3" class="bar-sup"><title>{{g.tip1}}</title></rect>
+            <rect x="{{g.x2}}" y="{{g.y2}}" width="40" height="{{g.h2}}" rx="3" class="bar-inf"><title>{{g.tip2}}</title></rect>
+            <text x="{{g.c1}}" y="{{g.vy1}}" text-anchor="middle" class="val">{{g.v1}}</text>
+            <text x="{{g.c2}}" y="{{g.vy2}}" text-anchor="middle" class="val">{{g.v2}}</text>
+            <text x="{{g.cx}}" y="222" text-anchor="middle" class="tick">{{g.label}}</text>
+          </sc-for>
+          <text x="14" y="110" transform="rotate(-90 14 110)" text-anchor="middle" class="axis-lab">Copertura (%)</text>
+        </svg>
       </figure>
       <figure class="chart">
-        <h3 id="ch3">Mappa per parete e replica</h3>
-        <p class="chart-sub">Ogni cella è una cartina della scheda, nell’ordine di disposizione.</p>
-              <svg viewBox="0 0 520 240" role="img" aria-labelledby="ch3">
-              <text x="132" y="14" text-anchor="middle" class="tick">A-E</text>
-              <text x="132" y="27" text-anchor="middle" class="tick">sup</text>
-              <text x="180" y="14" text-anchor="middle" class="tick">A-E</text>
-              <text x="180" y="27" text-anchor="middle" class="tick">inf</text>
-              <text x="228" y="14" text-anchor="middle" class="tick">A-I</text>
-              <text x="228" y="27" text-anchor="middle" class="tick">sup</text>
-              <text x="276" y="14" text-anchor="middle" class="tick">A-I</text>
-              <text x="276" y="27" text-anchor="middle" class="tick">inf</text>
-              <text x="324" y="14" text-anchor="middle" class="tick">B-E</text>
-              <text x="324" y="27" text-anchor="middle" class="tick">sup</text>
-              <text x="372" y="14" text-anchor="middle" class="tick">B-E</text>
-              <text x="372" y="27" text-anchor="middle" class="tick">inf</text>
-              <text x="420" y="14" text-anchor="middle" class="tick">B-I</text>
-              <text x="420" y="27" text-anchor="middle" class="tick">sup</text>
-              <text x="468" y="14" text-anchor="middle" class="tick">B-I</text>
-              <text x="468" y="27" text-anchor="middle" class="tick">inf</text>
-              <text x="102" y="53" text-anchor="end" class="tick">F1 DX · R1</text>
-              <rect x="110" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="158" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="206" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="254" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="302" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="350" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="398" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="446" y="34" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <text x="102" y="83" text-anchor="end" class="tick">F1 DX · R2</text>
-              <rect x="110" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="158" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="206" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="254" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="302" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="350" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="398" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="446" y="64" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <text x="102" y="113" text-anchor="end" class="tick">F1 DX · R3</text>
-              <rect x="110" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="158" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="206" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="254" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="302" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="350" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="398" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="446" y="94" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <text x="102" y="143" text-anchor="end" class="tick">F2 SX · R1</text>
-              <rect x="110" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="158" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="206" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="254" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="302" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="350" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="398" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="446" y="124" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <text x="102" y="173" text-anchor="end" class="tick">F2 SX · R2</text>
-              <rect x="110" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="158" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="206" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="254" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="302" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="350" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="398" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="446" y="154" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <text x="102" y="203" text-anchor="end" class="tick">F2 SX · R3</text>
-              <rect x="110" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="158" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="206" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="254" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="302" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="350" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="398" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              <rect x="446" y="184" width="44" height="26" rx="3" class="cell-empty"></rect>
-              </svg>
+        <h3>Mappa per parete e replica</h3>
+        <p class="chart-sub">Ogni cella è una cartina della scheda, nello stesso ordine: righe = repliche, colonne = posizioni.</p>
+        <div class="heat" role="table" aria-label="Copertura di ogni cartina per parete, replica e posizione">
+          <span class="heat-h" role="columnheader"></span>
+          <sc-for list="{{codes}}" as="c" hint-placeholder-count="8"><span class="heat-h" role="columnheader">{{c}}</span></sc-for>
+          <sc-for list="{{heatRows}}" as="hr" hint-placeholder-count="10">
+            <span class="heat-row" role="rowheader">{{hr.label}}</span>
+            <sc-for list="{{hr.cells}}" as="hc" hint-placeholder-count="8"><span class="{{hc.cls}}" role="cell" title="{{hc.tip}}">{{hc.v}}</span></sc-for>
+          </sc-for>
+        </div>
+        <div class="chart-legend"><span><i class="sw" style="background:#F4C7BE"></i>Scarso ≤20</span><span><i class="sw" style="background:#F6DDA4"></i>Discreto ≤40</span><span><i class="sw" style="background:#C6DFA8"></i>Ottimale ≤60</span><span><i class="sw" style="background:#D5C6E6"></i>Eccessivo</span><span><i class="sw" style="background:#F4E9E1"></i>Posto vuoto</span></div>
       </figure>
       <figure class="chart">
         <h3 id="ch4">Distribuzione della dimensione degli impatti</h3>
         <p class="chart-sub">Classi di diametro in µm.</p>
-              <svg viewBox="0 0 520 240" role="img" aria-labelledby="ch4">
-                <line x1="48" y1="20" x2="500" y2="20" class="grid"></line>
-                <text x="40" y="24" text-anchor="end" class="tick">100</text>
-                <line x1="48" y1="62" x2="500" y2="62" class="grid"></line>
-                <text x="40" y="66" text-anchor="end" class="tick">75</text>
-                <line x1="48" y1="105" x2="500" y2="105" class="grid"></line>
-                <text x="40" y="109" text-anchor="end" class="tick">50</text>
-                <line x1="48" y1="148" x2="500" y2="148" class="grid"></line>
-                <text x="40" y="152" text-anchor="end" class="tick">25</text>
-                <line x1="48" y1="190" x2="500" y2="190" class="grid"></line>
-                <text x="40" y="194" text-anchor="end" class="tick">0</text>
-                <text x="93" y="208" text-anchor="middle" class="tick"><100</text>
-                <text x="184" y="208" text-anchor="middle" class="tick">100–200</text>
-                <text x="274" y="208" text-anchor="middle" class="tick">200–300</text>
-                <text x="364" y="208" text-anchor="middle" class="tick">300–400</text>
-                <text x="455" y="208" text-anchor="middle" class="tick">>400</text>
-                <text x="14" y="105" transform="rotate(-90 14 105)" text-anchor="middle" class="axis-lab">Impatti (%)</text>
-                <rect x="54" y="60" width="440" height="90" rx="8" class="nodata"></rect>
-                <text x="274" y="110" text-anchor="middle" class="nodata-text">Dati disponibili dopo l’analisi</text>
-              </svg>
+        <svg viewBox="0 0 520 200" role="img" aria-labelledby="ch4">
+          <rect x="54" y="40" width="440" height="110" rx="8" class="nodata"></rect>
+          <text x="274" y="90" text-anchor="middle" class="nodata-text">Dalle scansioni a 600 dpi:</text>
+          <text x="274" y="112" text-anchor="middle" class="nodata-text">analisi delle gocce in sviluppo</text>
+        </svg>
       </figure>
     </div>
 
     <h2 class="section-title">Consigli per la taratura</h2>
+    <p class="draft-note">Bozza: regole e soglie dei consigli sono di esempio e vanno ancora definite.</p>
     <div class="advice">
-      <article class="advice-card">
-        <span class="advice-tag">Velocità e pressione</span>
-        <h3>[Consiglio dall’analisi]</h3>
-        <p class="placeholder-text">Qui comparirà l’indicazione su velocità di avanzamento, marcia e pressione di esercizio.</p>
-      </article>
-      <article class="advice-card">
-        <span class="advice-tag">Ugelli e orientamento</span>
-        <h3>[Consiglio dall’analisi]</h3>
-        <p class="placeholder-text">Qui comparirà l’indicazione su distanza, altezza, apertura e inclinazione degli ugelli.</p>
-      </article>
-      <article class="advice-card">
-        <span class="advice-tag">Volume distribuito</span>
-        <h3>[Consiglio dall’analisi]</h3>
-        <p class="placeholder-text">Qui comparirà l’indicazione su portata e litri per ettaro in rapporto alla chioma.</p>
-      </article>
+      <sc-for list="{{advice}}" as="a" hint-placeholder-count="3">
+        <article class="advice-card">
+          <span class="{{a.tagCls}}">{{a.tag}}</span>
+          <h3>{{a.title}}</h3>
+          <p class="placeholder-text">{{a.text}}</p>
+        </article>
+      </sc-for>
     </div>
 
     <div class="actions">
       <a class="btn-ghost" href="Rilievi.dc.html">Torna a I miei rilievi</a>
-      <a class="btn-primary" href="Main.dc.html">Nuovo rilievo</a>
+      <a class="btn-primary" href="Scelta.dc.html">Nuovo rilievo</a>
     </div>
   </main>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+// Prototipo: i valori sono quelli della prova in ufficio del 07/10/2026 (schede PRV-0011 e PRV-0012 scansionate a
+// 600 dpi, copertura di tools/analisi_schede.py). Con il backend arrivano dall'analisi delle schede di questo rilievo.
+// Per parete: 5 repliche × 8 posizioni (AES…BII); null = posto vuoto.
+const POS = ['AES', 'AEI', 'AIS', 'AII', 'BES', 'BEI', 'BIS', 'BII'];
+const PROVA = {
+  id: 'Prova in ufficio', data: '07/10/2026', azienda: 'Perleuve', vigneto: 'Schede PRV-0011 e PRV-0012', descrizione: 'Prova del rilievo accurato',
+  tipo: '—', pareti: 'F1 · lato DX, F2 · lato SX', repliche: '5',
+  pareteLabel: ['F1 DX', 'F2 SX'],
+  valori: [
+    [[76.4, 63.7, 0.6, 25.3, 35.9, 9.3, 15.4, 3.8], [36.5, 26.2, 20.3, 5.7, 9.6, 62.0, 39.6, 13.4], [29.5, 11.9, 89.4, 90.9, null, 16.2, 1.9, 3.2],
+     [66.8, 46.4, 4.9, 27.4, 25.6, 17.8, 34.7, 51.1], [85.6, 60.8, 67.4, 64.8, 62.2, 8.8, 83.7, 46.9]],
+    [[8.4, 6.8, 23.9, 68.1, 18.8, 10.8, 60.6, 6.9], [19.7, 2.4, 7.7, 75.8, 80.3, 27.9, 63.3, 6.4], [32.8, 5.2, 6.1, 71.3, 54.0, 4.1, 6.7, 41.1],
+     [null, null, null, null, null, null, null, null], [5.0, 3.5, 33.6, 61.1, 10.9, 78.6, null, 11.8]]
+  ]
+};
+const CLASSI = [[0, 20, 'scarso'], [20, 40, 'discreto'], [40, 60, 'ottimale'], [60, 100, 'eccessivo']];
+const classe = (c) => (c <= 20 ? 'scarso' : c <= 40 ? 'discreto' : c <= 60 ? 'ottimale' : 'eccessivo');
+const fmt = (v) => v.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const media = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
+const Y = (v) => 200 - v * 1.8;   // 0–100 % → y nel grafico (200 in basso, 20 in alto)
+
 class Component extends DCLogic {
   renderVals() {
-    return {};
+    const want = new URLSearchParams(location.search).get('rilievo');
+    const rec = want ? rilieviAccurati().find((r) => r.id === want) : null;
+    const head = rec ? { id: rec.id, data: rec.data, azienda: rec.azienda, vigneto: rec.vigneto, descrizione: rec.descrizione || '—', tipo: rec.tipo || '—',
+      pareti: rec.pareti, repliche: rec.repliche || '—' } : PROVA;
+    const note = rec
+      ? 'Prototipo: l’analisi non gira ancora sul server, quindi i valori qui sotto sono quelli della prova in ufficio del 7 ottobre (schede PRV-0011 e PRV-0012 scansionate a 600 dpi), non quelli di questo rilievo.'
+      : 'Prototipo: valori veri della prova in ufficio del 7 ottobre, schede PRV-0011 e PRV-0012 scansionate a 600 dpi e analizzate come farà il server.';
+
+    const cards = [];   // { parete, replica, pos, v }
+    PROVA.valori.forEach((par, w) => par.forEach((row, r) => row.forEach((v, c) => { if (v != null) cards.push({ w: w, r: r, c: c, v: v }); })));
+    const all = cards.map((x) => x.v);
+    const byPos = POS.map((_, c) => cards.filter((x) => x.c === c).map((x) => x.v));
+    const posMean = byPos.map(media);
+    const low = cards.filter((x) => x.c >= 4).map((x) => x.v), high = cards.filter((x) => x.c < 4).map((x) => x.v);
+    const sup = cards.filter((x) => POS[x.c][2] === 'S').map((x) => x.v), inf = cards.filter((x) => POS[x.c][2] === 'I').map((x) => x.v);
+    const mAll = media(all), mLow = media(low), mHigh = media(high), mSup = media(sup), mInf = media(inf);
+    const posti = PROVA.valori.length * 5 * 8;
+
+    const bands = CLASSI.map(([a, b, k]) => ({ y: Y(b), h: (b - a) * 1.8, cls: 'band-' + k, ty: (Y(a) + Y(b)) / 2 + 3, label: k.toUpperCase() }));
+    const ticks = [0, 20, 40, 60, 80, 100].map((v) => ({ v: v, y: Y(v) + 4 }));
+    const step = 392 / 8;
+    const posBars = POS.map((code, i) => {
+      const cx = 48 + step * (i + 0.5), m = posMean[i];
+      return { code: code, cx: cx, x: cx - 15, y: Y(m), h: m * 1.8, v: fmt(m), vy: Math.max(14, Y(m) - 5),
+        tip: code + ': media ' + fmt(m) + ' % su ' + byPos[i].length + ' cartine (' + classe(m) + ')' };
+    });
+    const posDots = [];
+    byPos.forEach((vals, i) => vals.forEach((v, k) => posDots.push({ x: 48 + step * (i + 0.5) + ((k % 5) - 2) * 4, y: Y(v) })));
+
+    const zones = [['AE', 'Alta esterna'], ['AI', 'Alta interna'], ['BE', 'Bassa esterna'], ['BI', 'Bassa interna']];
+    const gstep = 452 / 4;
+    const pageBars = zones.map(([z, label], i) => {
+      const s1 = media(cards.filter((x) => POS[x.c] === z + 'S').map((x) => x.v)), s2 = media(cards.filter((x) => POS[x.c] === z + 'I').map((x) => x.v));
+      const cx = 48 + gstep * (i + 0.5);
+      return { label: label, cx: cx, x1: cx - 42, x2: cx + 2, c1: cx - 22, c2: cx + 22,
+        y1: Y(s1), h1: s1 * 1.8, y2: Y(s2), h2: s2 * 1.8, v1: fmt(s1), v2: fmt(s2), vy1: Math.max(14, Y(s1) - 5), vy2: Math.max(14, Y(s2) - 5),
+        tip1: label + ', sopra la foglia: ' + fmt(s1) + ' %', tip2: label + ', sotto la foglia: ' + fmt(s2) + ' %' };
+    });
+
+    const heatRows = [];
+    PROVA.valori.forEach((par, w) => par.forEach((row, r) => heatRows.push({
+      label: PROVA.pareteLabel[w] + ' · R' + (r + 1),
+      cells: row.map((v, c) => v == null
+        ? { cls: 'heat-c c-vuoto', v: '—', tip: POS[c] + ': posto vuoto' }
+        : { cls: 'heat-c c-' + classe(v), v: Math.round(v), tip: POS[c] + ', replica ' + (r + 1) + ': ' + fmt(v) + ' % (' + classe(v) + ')' })
+    })));
+
+    // Consigli di esempio (bozza): parte bassa, pagina inferiore, differenze tra repliche.
+    const advice = [];
+    if (mLow < mHigh - 10) advice.push({ tag: 'Priorità alta · zona dei grappoli', tagCls: 'advice-tag is-high', title: 'La parte bassa riceve meno della parte alta',
+      text: 'In basso in media ' + fmt(mLow) + ' %, in alto ' + fmt(mHigh) + ' %. Prova a orientare verso il basso gli ugelli inferiori o ad aumentarne la portata, poi ripeti le 8 posizioni.' });
+    else advice.push({ tag: 'Va bene · zona dei grappoli', tagCls: 'advice-tag', title: 'Parte bassa coperta come la parte alta',
+      text: 'In basso in media ' + fmt(mLow) + ' %, in alto ' + fmt(mHigh) + ' %.' });
+    if (mInf < 0.7 * mSup) advice.push({ tag: 'Priorità media · pagina inferiore', tagCls: 'advice-tag is-mid', title: 'Sotto le foglie arriva poco',
+      text: 'Sotto la foglia in media ' + fmt(mInf) + ' %, sopra ' + fmt(mSup) + ' %. Più aria o un’inclinazione diversa possono aiutare a girare le foglie.' });
+    else advice.push({ tag: 'Va bene · pagina inferiore', tagCls: 'advice-tag', title: 'Pagina inferiore coperta',
+      text: 'Sotto la foglia in media ' + fmt(mInf) + ' %, sopra ' + fmt(mSup) + ' %.' });
+    const spread = POS.map((code, i) => ({ code: code, d: Math.max(...byPos[i]) - Math.min(...byPos[i]) })).sort((a, b) => b.d - a.d);
+    advice.push({ tag: 'Da sapere · repliche', tagCls: 'advice-tag is-mid', title: 'Repliche molto diverse tra loro',
+      text: 'Nella stessa posizione le cartine vanno da poco a molto coperte (in ' + spread[0].code + ' fino a ' + Math.round(spread[0].d) + ' punti di differenza): la media di più repliche è più affidabile della singola cartina.' });
+
+    return {
+      note: note, head: head,
+      kpi: { media: fmt(mAll), mediaCls: classe(mAll), bassa: fmt(mLow), bassaCls: classe(mLow), alta: fmt(mHigh),
+        rapporto: (mInf / mSup).toLocaleString('it-IT', { maximumFractionDigits: 2 }), inf: fmt(mInf), sup: fmt(mSup),
+        n: cards.length, posti: posti, vuoti: posti - cards.length },
+      bands: bands, ticks: ticks, posBars: posBars, posDots: posDots, pageBars: pageBars,
+      codes: POS, heatRows: heatRows, advice: advice
+    };
   }
 }
 </script>

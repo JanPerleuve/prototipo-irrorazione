@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-title" content="Irrorazione">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <title>I miei rilievi</title>
+<script src="./jsQR.js"></script>
+<script src="./schede.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -154,6 +156,35 @@
   }
   /* con due pulsanti l'intestazione va a capo: sui telefoni non resta fissa in alto */
   @media (max-width: 560px) { .topbar { flex-wrap: wrap; position: static; } }
+  /* Schede del rilievo accurato: una riga per parete, come in "Schede e immagini" del modulo */
+  .slots { display: flex; flex-direction: column; gap: 12px; }
+  .slot { border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
+  .slot.is-ok { border-color: var(--accent); }
+  .slot.is-warn { border-color: var(--warn); }
+  .slot-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .slot-title { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .slot-badge { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 100px; background: var(--bg); color: var(--ink-soft); }
+  .slot-badge.is-ok { background: var(--accent-soft); color: var(--accent-strong); }
+  .slot-badge.is-warn { background: var(--warn-soft); color: var(--warn); }
+  .slot-add { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .slot-add .dropzone { width: 100%; }
+  .dropzone-small { min-height: 110px; padding: 18px 14px; }
+  .slot-photo { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 14px; align-items: start; }
+  @media (max-width: 560px) { .slot-photo { grid-template-columns: minmax(0, 1fr); } }
+  .slot-photo-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .slot-photo-info .photo-meta { margin: 0; }
+  .slot-num { flex: 1 1 180px; }
+  .slot-link { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+  .slot-warn { margin: 0; font-size: 14px; color: var(--warn); }
+  .check-ok { margin: 0; font-size: 14px; color: var(--accent-strong); font-weight: 600; }
+  .check-warn { margin: 0; font-size: 14px; color: var(--warn); font-weight: 600; }
+  .check-info { margin: 0; font-size: 14px; color: var(--ink-soft); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .more { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+  .more > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--accent-strong); }
+  .more > summary::-webkit-details-marker { display: none; }
+  .more > summary::before { content: ''; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); margin-right: 2px; }
+  .more[open] > summary::before { transform: rotate(45deg); }
   /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
   img, svg, video, canvas { max-width: 100%; }
   fieldset { min-width: 0; }
@@ -175,7 +206,7 @@
   </header>
 
   <div class="{{pageCls}}">
-    <p class="sample-note">Prototipo: i rilievi accurati in elenco sono dati di esempio; i rilievi semplici sono quelli salvati in questo browser.</p>
+    <p class="sample-note">Prototipo: i rilievi da R-0001 a R-0006 sono esempi; i rilievi semplici e quelli accurati inviati sono quelli salvati in questo browser.</p>
 
     <sc-if value="{{hasDraft}}" hint-placeholder-val="{{true}}">
       <div class="draft-banner">
@@ -231,7 +262,10 @@
             </sc-if>
           </dl>
           <sc-if value="{{sel.isDone}}" hint-placeholder-val="{{false}}">
-            <a class="btn-primary" href="Risultati.dc.html" style="align-self: flex-start; margin-top: 8px">Visualizza risultati</a>
+            <a class="btn-primary" href="{{sel.resultsHref}}" style="align-self: flex-start; margin-top: 8px">Visualizza risultati</a>
+          </sc-if>
+          <sc-if value="{{sel.stored}}" hint-placeholder-val="{{false}}">
+            <button type="button" class="btn-ghost btn-small" style="align-self: flex-start" onClick="{{onRemoveAcc}}">Elimina rilievo di prova</button>
           </sc-if>
           <sc-if value="{{sel.semplice}}" hint-placeholder-val="{{false}}">
             <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px">
@@ -257,43 +291,72 @@
         <sc-if value="{{sel.notDraft}}" hint-placeholder-val="{{true}}">
         <div>
           <div class="photo-head">
-            <h3 class="block-title" style="margin-bottom: 0">Immagine scheda cartine</h3>
+            <h3 class="block-title" style="margin-bottom: 0">Schede e immagini</h3>
             <button type="button" class="btn-ghost btn-small" onClick="{{onToggleHowto}}" aria-expanded="{{howtoExpanded}}" aria-controls="howto-foto">{{howtoLabel}}</button>
           </div>
           <sc-if value="{{showHowto}}" hint-placeholder-val="{{false}}">
             <div class="howto-box" id="howto-foto">
-              <h4>Come scattare la foto</h4>
+              <h4>Come fotografare o scansionare la scheda</h4>
               <ol>
-                <li><strong>Una riga per parete e replica</strong>, dall’alto verso il basso (pareti di questo rilievo: {{sel.pareti}}). Scrivi l’etichetta di ogni riga sul margine sinistro.</li>
-                <li><strong>Da sinistra a destra</strong>, in ogni riga: A-E sup, A-E inf, A-I sup, A-I inf, B-E sup, B-E inf, B-I sup, B-I inf.</li>
-                <li><strong>Posto vuoto se manca una cartina</strong>: non spostare le altre.</li>
-                <li><strong>Sfondo bianco</strong>: un foglio o cartoncino bianco e opaco, senza altre scritte.</li>
-                <li><strong>Spazio tra le cartine</strong>: almeno 1 mm tra una e l’altra, senza sovrapporle né farle toccare. Lato esposto verso l’alto e una freccia sull’angolo in alto a sinistra.</li>
-                <li><strong>Buona luce</strong>: abbondante e uniforme, meglio naturale diffusa. Niente sole diretto, ombre, riflessi o flash.</li>
-                <li><strong>Foto dall’alto</strong>, telefono parallelo alla scheda, tutta la griglia inquadrata e a fuoco.</li>
+                <li><strong>Una scheda per parete</strong>: carica ogni immagine nella sua parete, il QR deve essere quello della scheda collegata (pareti di questo rilievo: {{sel.pareti}}).</li>
+                <li><strong>Una riga per replica</strong>, dall’alto: Replica 1 … 5; <strong>una colonna per posizione</strong>, come stampato sulla scheda: AES, AEI, AIS, AII, BES, BEI, BIS, BII.</li>
+                <li><strong>Posto vuoto se manca una cartina</strong>: le altre restano dove sono.</li>
+                <li><strong>Foto con la fotocamera del telefono</strong>, a piena risoluzione: la scheda riempie la foto, con i 4 quadrati neri agli angoli e il QR interi. Se puoi, luce diffusa, senza flash e senza l’ombra del telefono.</li>
+                <li><strong>Scansione</strong> a colori a 600 dpi (1200 per nebulizzatori e torrette), senza correzioni automatiche, con tutta la scheda sul vetro.</li>
               </ol>
             </div>
           </sc-if>
-          <label for="fotoRilievo" class="dropzone">
-            <sc-if value="{{sel.showUpload}}" hint-placeholder-val="{{true}}">
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#4E7A1E" stroke-width="1.6" aria-hidden="true">
-                <path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"></path>
-                <circle cx="12" cy="13" r="3.5"></circle>
-              </svg>
-              <span class="dropzone-text">Tocca per scattare o caricare la foto</span>
-              <span class="dropzone-hint">Cartine nell’ordine dello schema, su sfondo bianco, distanziate tra loro e con buona luce</span>
-            </sc-if>
-            <sc-if value="{{sel.hasPhoto}}" hint-placeholder-val="{{false}}">
-              <img src="{{sel.photo}}" alt="Foto della scheda cartine" class="photo-img">
-            </sc-if>
-            <sc-if value="{{sel.hasSamplePhoto}}" hint-placeholder-val="{{false}}">
-              <span class="photo-sample">Foto già caricata (esempio)</span>
-            </sc-if>
-          </label>
-          <input id="fotoRilievo" type="file" accept="image/*" capture="environment" class="visually-hidden" onChange="{{onPhoto}}">
-          <sc-if value="{{sel.anyPhoto}}" hint-placeholder-val="{{false}}">
-            <div class="photo-meta"><span>{{sel.photoName}}</span><span>Tocca l’immagine per sostituirla</span></div>
-          </sc-if>
+          <div class="slots">
+            <sc-for list="{{sel.slots}}" as="sl" hint-placeholder-count="2">
+              <div class="{{sl.cls}}">
+                <div class="slot-head">
+                  <span class="slot-title">{{sl.title}}</span>
+                  <span class="{{sl.badgeCls}}">{{sl.badge}}</span>
+                </div>
+                <sc-if value="{{sl.noPhoto}}" hint-placeholder-val="{{true}}">
+                  <div class="slot-add">
+                    <label for="{{sl.camId}}" class="dropzone dropzone-small">
+                      <span class="dropzone-text">Fotografa la scheda {{sl.numero}}</span>
+                      <span class="dropzone-hint">La scheda riempie la foto, con i 4 quadrati neri agli angoli e il QR interi</span>
+                    </label>
+                    <label for="{{sl.fileId}}" class="btn-ghost btn-small">Carica una foto o una scansione</label>
+                  </div>
+                </sc-if>
+                <input id="{{sl.camId}}" type="file" accept="image/*" capture="environment" class="visually-hidden" onChange="{{sl.onPhoto}}">
+                <input id="{{sl.fileId}}" type="file" accept="image/*" class="visually-hidden" onChange="{{sl.onPhoto}}">
+                <sc-if value="{{sl.reading}}" hint-placeholder-val="{{false}}"><p class="send-hint" role="status">Leggo il QR della scheda…</p></sc-if>
+                <sc-if value="{{sl.hasPhoto}}" hint-placeholder-val="{{false}}">
+                  <div class="slot-photo">
+                    <sc-if value="{{sl.thumb}}" hint-placeholder-val="{{true}}"><img src="{{sl.thumb}}" alt="{{sl.photoAlt}}" class="photo-img"></sc-if>
+                    <sc-if value="{{sl.noThumb}}" hint-placeholder-val="{{false}}"><span class="photo-sample">Immagine caricata</span></sc-if>
+                    <div class="slot-photo-info">
+                      <p class="{{sl.checkCls}}">{{sl.checkText}}</p>
+                      <sc-if value="{{sl.mismatch}}" hint-placeholder-val="{{false}}">
+                        <div class="actions">
+                          <button type="button" class="btn-ghost btn-small" onClick="{{sl.onConfirm}}">È la foto giusta: usala lo stesso</button>
+                          <label for="{{sl.camId}}" class="btn-ghost btn-small">Cambia foto</label>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{sl.canEdit}}" hint-placeholder-val="{{true}}">
+                        <details class="more" open="{{sl.manualOpen}}">
+                          <summary>Scrivi a mano il numero della scheda nella foto</summary>
+                          <div class="slot-link">
+                            <div class="field slot-num">
+                              <label for="{{sl.manualId}}">Numero che vedi sulla scheda</label>
+                              <input id="{{sl.manualId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. VEN-0042" value="{{sl.manualText}}" onChange="{{sl.onManualInput}}">
+                            </div>
+                            <button type="button" class="btn-ghost" onClick="{{sl.onManual}}">Conferma</button>
+                          </div>
+                          <sc-if value="{{sl.err}}" hint-placeholder-val="{{false}}"><p class="slot-warn" role="alert">{{sl.err}}</p></sc-if>
+                        </details>
+                        <p class="photo-meta"><span>{{sl.photoName}}</span><button type="button" class="btn-ghost btn-small" onClick="{{sl.onClear}}">Rimuovi</button></p>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
         </div>
 
         <div>
@@ -322,11 +385,11 @@
 
         <div class="send-box">
           <sc-if value="{{sel.canSend}}" hint-placeholder-val="{{false}}">
-            <p class="send-hint">Foto caricata: puoi inviare il rilievo per l’elaborazione.</p>
-            <a class="btn-primary" href="Elaborazione.dc.html">Invia per elaborazione</a>
+            <p class="send-hint">Immagini caricate e controllate: puoi inviare il rilievo per l’elaborazione.</p>
+            <button type="button" class="btn-primary" onClick="{{onSend}}">Invia per elaborazione</button>
           </sc-if>
           <sc-if value="{{sel.needsPhoto}}" hint-placeholder-val="{{true}}">
-            <p class="send-hint">Carica l’immagine della scheda cartine per inviare il rilievo all’elaborazione.</p>
+            <p class="send-hint">{{sel.missingText}}</p>
             <button type="button" class="btn-primary" disabled="{{true}}">Invia per elaborazione</button>
           </sc-if>
           <sc-if value="{{sel.isSent}}" hint-placeholder-val="{{false}}">
@@ -383,19 +446,26 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
+// Schede di esempio collegate ai rilievi di esempio (con il backend arrivano dal server).
+const sch = (key, title, numero, foto) => ({ key: key, title: title, numero: numero, id: numero, foto: foto ? { esempio: true, nome: 'scheda_' + numero + '.jpg' } : null });
 const SAMPLE_RECORDS = [
   { id: 'R-0006', data: '29/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto C', descrizione: 'Taratura torretta', tipo: 'Torretta · 4 mezze pareti', pareti: 'da definire',
-    stato: 'bozza', progress: 3, bbch: '85', velocita: '', pressione: '', portata: '', litriHa: '', miscela: '', photo: null, photoName: '' },
-  { id: 'R-0005', data: '29/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto A', descrizione: 'Taratura pre-vendemmia', tipo: 'Atomizzatore', pareti: 'F1 lato DX, F2 lato SX',
-    stato: 'foto', bbch: '85', velocita: '6', pressione: '10', portata: '1,2', litriHa: '300', miscela: '', photo: null, photoName: '' },
-  { id: 'R-0004', data: '22/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto B', descrizione: 'Confronto ugelli', tipo: 'Nebulizzatore', pareti: 'F1 lato DX, F2 lato SX',
-    stato: 'elab', bbch: '83', velocita: '5,5', pressione: '2,5', portata: '', litriHa: '250', miscela: '', photo: null, photoName: 'scheda_R-0004.jpg' },
-  { id: 'R-0003', data: '15/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto A', descrizione: 'Controllo deriva', tipo: 'Torretta · 2 filari a parete intera', pareti: 'F1 lato SX, F1 lato DX',
-    stato: 'done', bbch: '81', velocita: '6', pressione: '3', portata: '', litriHa: '220', miscela: '', photo: null, photoName: 'scheda_R-0003.jpg' },
-  { id: 'R-0002', data: '01/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto C', descrizione: 'Verifica recupero', tipo: 'Atomizzatore a recupero', pareti: 'F1 lato DX',
-    stato: 'done', bbch: '79', velocita: '7', pressione: '8', portata: '0,9', litriHa: '180', miscela: '', photo: null, photoName: 'scheda_R-0002.jpg' },
-  { id: 'R-0001', data: '20/08/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto B', descrizione: 'Prova pre-chiusura grappolo', tipo: 'Atomizzatore', pareti: 'F1 lato DX, F2 lato SX',
-    stato: 'foto', bbch: '77', velocita: '6', pressione: '12', portata: '1,4', litriHa: '350', miscela: '', photo: null, photoName: '' }
+    stato: 'bozza', progress: 3, bbch: '85', velocita: '', pressione: '', portata: '', litriHa: '', miscela: '', schede: [] },
+  { id: 'R-0005', data: '29/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto A', descrizione: 'Taratura pre-vendemmia', tipo: 'Atomizzatore', pareti: 'F1 · lato DX, F2 · lato SX',
+    stato: 'foto', bbch: '85', velocita: '6', pressione: '10', portata: '1,2', litriHa: '300', miscela: '',
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0105'), sch('F2SX-1', 'F2 · lato SX', 'VEN-0106')] },
+  { id: 'R-0004', data: '22/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto B', descrizione: 'Confronto ugelli', tipo: 'Nebulizzatore', pareti: 'F1 · lato DX, F2 · lato SX',
+    stato: 'elab', bbch: '83', velocita: '5,5', pressione: '2,5', portata: '', litriHa: '250', miscela: '',
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0103', true), sch('F2SX-1', 'F2 · lato SX', 'VEN-0104', true)] },
+  { id: 'R-0003', data: '15/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto A', descrizione: 'Controllo deriva', tipo: 'Torretta · 2 filari a parete intera', pareti: 'F1 · lato SX, F1 · lato DX',
+    stato: 'done', bbch: '81', velocita: '6', pressione: '3', portata: '', litriHa: '220', miscela: '',
+    schede: [sch('F1SX-1', 'F1 · lato SX', 'VEN-0098', true), sch('F1DX-1', 'F1 · lato DX', 'VEN-0099', true)] },
+  { id: 'R-0002', data: '01/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto C', descrizione: 'Verifica recupero', tipo: 'Atomizzatore a recupero', pareti: 'F1 · lato DX',
+    stato: 'done', bbch: '79', velocita: '7', pressione: '8', portata: '0,9', litriHa: '180', miscela: '',
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0097', true)] },
+  { id: 'R-0001', data: '20/08/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto B', descrizione: 'Prova pre-chiusura grappolo', tipo: 'Atomizzatore', pareti: 'F1 · lato DX, F2 · lato SX',
+    stato: 'foto', bbch: '77', velocita: '6', pressione: '12', portata: '1,4', litriHa: '350', miscela: '',
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0101'), sch('F2SX-1', 'F2 · lato SX', 'VEN-0102')] }
 ];
 
 // Rilievi semplici: quelli salvati da Semplice.dc.html nell'archivio di prova del browser (stessa chiave).
@@ -426,6 +496,11 @@ function simpleRecord(r) {
     href: 'Semplice.dc.html?rilievo=' + encodeURIComponent(r.id),
     pareti: '', miscela: '', photo: null, photoName: ''
   };
+}
+
+// Rilievi accurati inviati da Main.dc.html (schede.js, archivio di prova nel browser).
+function accRecord(r) {
+  return Object.assign({ portata: '', progress: 0 }, r, { stored: true, descrizione: r.descrizione || '' });
 }
 
 const STATI = {
@@ -459,10 +534,19 @@ function progressText(r) {
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    const records = loadRilievi().map(simpleRecord).concat(SAMPLE_RECORDS.map((r) => Object.assign({}, r)));
-    this.state = { records: records, saved: JSON.parse(JSON.stringify(records)), selectedId: null, query: '', filter: 'all', justSaved: false };
-    this.handlePhoto = this.handlePhoto.bind(this);
+    const records = rilieviAccurati().map(accRecord).concat(loadRilievi().map(simpleRecord), SAMPLE_RECORDS.map((r) => JSON.parse(JSON.stringify(r))));
+    // ?rilievo=ID: si apre direttamente quel rilievo (dopo l'invio dal modulo)
+    const want = new URLSearchParams(location.search).get('rilievo');
+    const selectedId = want && records.some((r) => r.id === want) ? want : null;
+    this.state = { records: records, saved: JSON.parse(JSON.stringify(records)), selectedId: selectedId, query: '', filter: 'all', justSaved: false,
+      reading: {}, manualInput: {}, slotErr: {} };
     this.save = this.save.bind(this);
+  }
+
+  setIn(field, key, value) {
+    const next = Object.assign({}, this.state[field]);
+    if (value === undefined) delete next[key]; else next[key] = value;
+    this.setState({ [field]: next });
   }
 
   updateSel(patch) {
@@ -473,12 +557,60 @@ class Component extends DCLogic {
     });
   }
 
-  handlePhoto(e) {
+  // Cambia una scheda del rilievo scelto; per i rilievi salvati nel browser la modifica si conserva subito.
+  patchSlot(key, patch) {
+    const id = this.state.selectedId;
+    const upd = (r) => Object.assign({}, r, { schede: r.schede.map((sc) => (sc.key === key ? Object.assign({}, sc, patch) : sc)) });
+    const records = this.state.records.map((r) => (r.id === id ? upd(r) : r));
+    const saved = this.state.saved.map((r) => (r.id === id ? upd(r) : r));
+    this.setState({ records: records, saved: saved });
+    const rec = records.find((r) => r.id === id);
+    if (rec && rec.stored) this.persistSchede(rec);
+  }
+
+  persistSchede(rec) {
+    const list = rilieviAccurati(), i = list.findIndex((x) => x.id === rec.id);
+    if (i === -1) return;
+    list[i] = Object.assign({}, list[i], { schede: rec.schede, stato: rec.stato });
+    if (!salvaRilieviAccurati(list)) this.setState({ storeNote: 'Lo spazio del browser è pieno: l’immagine resta solo finché non chiudi la pagina.' });
+  }
+
+  // Immagine di una scheda: si legge il QR e si confronta con il numero collegato alla parete.
+  slotPhoto(key, e) {
     const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => this.updateSel({ photo: reader.result, photoName: file.name });
-    reader.readAsDataURL(file);
+    e.target.value = '';
+    const r = this.selRecord();
+    if (!file || !r || r.stato !== 'foto') return;   // rilievo già inviato: le immagini non si cambiano più
+    this.setIn('reading', key, true);
+    Promise.all([leggiQrScheda(file), miniaturaImmagine(file)]).then(([r, thumb]) => {
+      this.setIn('reading', key, undefined);
+      this.setIn('slotErr', key, undefined);
+      this.patchSlot(key, { foto: { nome: file.name, thumb: thumb, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() } });
+    });
+  }
+
+  slotFoto(key, patch) {
+    const sc = (this.selRecord() || { schede: [] }).schede.find((x) => x.key === key);
+    if (sc && sc.foto) this.patchSlot(key, { foto: Object.assign({}, sc.foto, patch) });
+  }
+
+  slotManual(key) {
+    const numero = normalizzaNumero(this.state.manualInput[key]);
+    if (!numero) { this.setIn('slotErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. VEN-0042.'); return; }
+    this.setIn('slotErr', key, undefined);
+    this.slotFoto(key, { manuale: numero, confermata: null });
+  }
+
+  selRecord() {
+    return this.state.records.find((x) => x.id === this.state.selectedId) || null;
+  }
+
+  // Invio per l'elaborazione: tutte le immagini caricate e in ordine.
+  sendSel() {
+    const r = this.selRecord();
+    if (!r || !r.schede.length || !r.schede.every(fotoInOrdine)) return;
+    if (r.stored) { const list = rilieviAccurati(), i = list.findIndex((x) => x.id === r.id); if (i !== -1) { list[i].stato = 'elab'; salvaRilieviAccurati(list); } }
+    location.href = 'Elaborazione.dc.html?rilievo=' + encodeURIComponent(r.id);
   }
 
   // Solo per i rilievi semplici di prova salvati nel browser.
@@ -488,8 +620,49 @@ class Component extends DCLogic {
     this.setState({ records: this.state.records.filter((r) => r.id !== id), saved: this.state.saved.filter((r) => r.id !== id), selectedId: null });
   }
 
+  // Rilievo accurato di prova: si toglie dal browser e le sue schede tornano libere.
+  removeAcc(r) {
+    if (!window.confirm('Eliminare il rilievo di prova ' + r.id + '? Non si potrà recuperare.')) return;
+    r.schede.forEach((sc) => scollegaScheda(sc.id, r.id));
+    salvaRilieviAccurati(rilieviAccurati().filter((x) => x.id !== r.id));
+    this.setState({ records: this.state.records.filter((x) => x.id !== r.id), saved: this.state.saved.filter((x) => x.id !== r.id), selectedId: null });
+  }
+
   save() {
+    const r = this.selRecord();
+    if (r && r.stored) {
+      const list = rilieviAccurati(), i = list.findIndex((x) => x.id === r.id);
+      if (i !== -1) {
+        const keep = {};
+        EDIT_FIELDS.forEach((f) => { keep[f.key] = r[f.key]; });
+        keep.miscela = r.miscela;
+        list[i] = Object.assign({}, list[i], keep);
+        salvaRilieviAccurati(list);
+      }
+    }
     this.setState({ saved: JSON.parse(JSON.stringify(this.state.records)), justSaved: true });
+  }
+
+  slotVals(r, sc) {
+    const s = this.state, key = sc.key, f = sc.foto, chk = controlloFoto(sc), tc = testoControllo(chk, sc);
+    const canEdit = r.stato === 'foto';
+    let badge = 'Scheda ' + sc.id + (f ? '' : ' · immagine da caricare'), badgeCls = 'slot-badge', cls = 'slot';
+    if (chk.stato === 'ok' || chk.stato === 'confermata') { badge = 'Scheda ' + sc.id + ' · immagine ok'; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
+    if (chk.stato === 'diverso' || chk.stato === 'illeggibile') { badge = 'Immagine da controllare'; badgeCls = 'slot-badge is-warn'; cls = 'slot is-warn'; }
+    const uid = (r.id + '-' + key).replace(/[^A-Za-z0-9_-]/g, '');
+    return {
+      title: sc.title, numero: sc.id, cls: cls, badge: badge, badgeCls: badgeCls,
+      camId: 'cam-' + uid, fileId: 'file-' + uid, manualId: 'man-' + uid,
+      noPhoto: !f && canEdit, hasPhoto: !!f, canEdit: canEdit && !!f, reading: !!s.reading[key],
+      thumb: f && f.thumb ? f.thumb : '', noThumb: !!f && !f.thumb, photoAlt: 'Immagine della scheda ' + sc.id, photoName: f ? f.nome : '',
+      checkText: tc.testo, checkCls: tc.cls, mismatch: canEdit && chk.stato === 'diverso',
+      manualOpen: chk.stato === 'illeggibile', manualText: s.manualInput[key] || '', err: s.slotErr[key] || '',
+      onPhoto: (e) => this.slotPhoto(key, e),
+      onConfirm: () => this.slotFoto(key, { confermata: { quando: new Date().toISOString(), visto: chk.visto, atteso: sc.numero } }),
+      onManualInput: (e) => this.setIn('manualInput', key, e.target.value),
+      onManual: () => this.slotManual(key),
+      onClear: () => this.patchSlot(key, { foto: null })
+    };
   }
 
   renderVals() {
@@ -507,23 +680,29 @@ class Component extends DCLogic {
       }));
 
     const draftRec = s.records.find((x) => x.stato === 'bozza') || null;
-    const r = s.records.find((x) => x.id === s.selectedId) || null;
+    const r = this.selRecord();
     const savedR = r ? s.saved.find((x) => x.id === r.id) : null;
     const dirty = !!r && JSON.stringify(r) !== JSON.stringify(savedR);
-    const hasPhoto = !!(r && r.photo);
-    const hasSamplePhoto = !!(r && !r.photo && r.photoName);
-    const anyPhoto = hasPhoto || hasSamplePhoto;
+    const schede = (r && r.schede) || [];
+    const mancano = schede.filter((sc) => !sc.foto).map((sc) => sc.title);
+    const daControllare = schede.filter((sc) => sc.foto && !fotoInOrdine(sc)).map((sc) => sc.title);
+    const allOk = schede.length > 0 && !mancano.length && !daControllare.length;
+    let missingText = '';
+    if (mancano.length) missingText = 'Per inviare il rilievo all’elaborazione manca l’immagine della scheda di: ' + mancano.join(', ') + '.';
+    else if (daControllare.length) missingText = 'Prima di inviare, prova a controllare l’immagine della scheda di: ' + daControllare.join(', ') + '. Se è la foto giusta puoi confermarla, oppure scrivere il numero a mano.';
 
     const sel = r ? {
       id: r.id, data: r.data, azienda: r.azienda, vigneto: r.vigneto, tipo: r.tipo, pareti: r.pareti, miscela: r.miscela,
       statoLabel: STATI[r.stato].label, tagCls: STATI[r.stato].cls,
-      photo: r.photo, photoName: r.photoName,
-      hasPhoto: hasPhoto, hasSamplePhoto: hasSamplePhoto, anyPhoto: anyPhoto, showUpload: !anyPhoto,
-      canSend: r.stato === 'foto' && anyPhoto,
-      needsPhoto: r.stato === 'foto' && !anyPhoto,
+      slots: schede.map((sc) => this.slotVals(r, sc)),
+      canSend: r.stato === 'foto' && allOk,
+      needsPhoto: r.stato === 'foto' && !allOk,
+      missingText: missingText,
       isSent: r.stato === 'elab' || r.stato === 'done',
       isDraft: r.stato === 'bozza',
       isDone: r.stato === 'done' && !r.semplice,
+      resultsHref: 'Risultati.dc.html' + (r.stored ? '?rilievo=' + encodeURIComponent(r.id) : ''),
+      stored: !!r.stored,
       semplice: !!r.semplice,
       notSimple: !r.semplice,
       copertura: r.copertura, posizione: r.posizione, litriHa: r.litriHa, velocita: r.velocita, cartine: r.cartine, href: r.href,
@@ -554,11 +733,12 @@ class Component extends DCLogic {
       sel: sel,
       onBack: () => this.setState({ selectedId: null }),
       onRemoveSimple: () => { if (r) this.removeSimple(r.id); },
+      onRemoveAcc: () => { if (r) this.removeAcc(r); },
+      onSend: () => this.sendSel(),
       showHowto: !!s.showHowto,
       howtoExpanded: s.showHowto ? 'true' : 'false',
-      howtoLabel: s.showHowto ? 'Chiudi istruzioni' : 'Come scattare la foto',
+      howtoLabel: s.showHowto ? 'Chiudi istruzioni' : 'Come fotografare la scheda',
       onToggleHowto: () => this.setState({ showHowto: !s.showHowto }),
-      onPhoto: this.handlePhoto,
       editFields: r ? EDIT_FIELDS.map((f) => ({
         id: 'edit-' + f.key,
         label: f.label,

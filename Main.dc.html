@@ -2198,11 +2198,11 @@ class Component extends DCLogic {
     const previewable = /^image\/(png|jpe?g|webp|gif)$/i.test(file.type || '');
     this.setIn('slotReading', key, true);
     const preview = previewable ? new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(''); fr.readAsDataURL(file); }) : Promise.resolve('');
-    Promise.all([preview, previewable ? leggiQrScheda(file) : Promise.resolve({ numero: '' })]).then(([url, r]) => {
+    Promise.all([preview, previewable ? leggiQrScheda(file) : Promise.resolve({ numero: '' }), previewable ? miniaturaImmagine(file) : Promise.resolve('')]).then(([url, r, thumb]) => {
       this.setIn('slotReading', key, undefined);
       const sc = this.state.schede[key];
       if (!sc) return;
-      const foto = { dataUrl: url, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() };
+      const foto = { dataUrl: url, thumb: thumb, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() };
       this.setState({ schede: Object.assign({}, this.state.schede, { [key]: Object.assign({}, sc, { foto: foto }) }), submitBlock: '' });
     });
   }
@@ -2226,27 +2226,18 @@ class Component extends DCLogic {
     this.slotPhotoPatch(key, { manuale: numero, confermata: null });
   }
 
-  // Stato del controllo dell'immagine: 'nessuna' | 'illeggibile' | 'ok' | 'diverso' | 'confermata'.
+  // Stato del controllo dell'immagine (vedi controlloFoto in schede.js): 'nessuna' | 'illeggibile' | 'ok' | 'diverso' | 'confermata'.
   photoCheck(sc) {
-    const f = sc && sc.foto;
-    if (!f) return { stato: 'nessuna' };
-    const visto = f.manuale || f.qr;
-    if (!visto) return { stato: 'illeggibile' };
-    if (numeroBase(visto) === sc.numero) return { stato: 'ok', visto: visto, manuale: !!f.manuale };
-    return { stato: f.confermata ? 'confermata' : 'diverso', visto: visto, manuale: !!f.manuale };
+    return controlloFoto(sc);
   }
 
   // Valori della riga di una scheda (parete) per la pagina.
   slotVals(d) {
     const s = this.state, key = d.key, sc = s.schede[key], conf = s.schedaConflitto[key], f = sc && sc.foto;
     const chk = this.photoCheck(sc), anchor = 'scheda-' + key;
-    let badge = 'Da collegare', badgeCls = 'slot-badge', cls = 'slot', checkText = '', checkCls = 'check-info';
+    let badge = 'Da collegare', badgeCls = 'slot-badge', cls = 'slot';
     if (sc) { badge = 'Scheda ' + sc.id; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
-    if (chk.stato === 'ok') checkText = (chk.manuale ? 'Numero scritto a mano: ' : 'QR letto: ') + chk.visto + ', è la scheda collegata a questa parete.';
-    if (chk.stato === 'ok') checkCls = 'check-ok';
-    if (chk.stato === 'illeggibile') { checkText = 'Non riesco a leggere il QR in questa foto: prova a scrivere qui sotto il numero che vedi sulla scheda.'; checkCls = 'check-warn'; }
-    if (chk.stato === 'diverso') { checkText = 'Nella foto c’è la scheda ' + chk.visto + ', ma a questa parete è collegata la ' + sc.numero + ': prova a controllare. Se è la foto giusta, puoi usarla lo stesso.'; checkCls = 'check-warn'; }
-    if (chk.stato === 'confermata') { checkText = 'Foto confermata a mano: nella foto c’è la scheda ' + chk.visto + ', a questa parete è collegata la ' + sc.numero + '. Lo annotiamo con il rilievo.'; checkCls = 'check-info'; }
+    const tc = testoControllo(chk, sc), checkText = tc.testo, checkCls = tc.cls;
     if (chk.stato === 'diverso' || chk.stato === 'illeggibile') { badge = 'Immagine da controllare'; badgeCls = 'slot-badge is-warn'; cls = 'slot is-warn'; }
     else if (chk.stato === 'ok' || chk.stato === 'confermata') badge = 'Scheda ' + sc.id + ' · immagine ok';
     if (conf) { cls = 'slot is-warn'; badgeCls = 'slot-badge is-warn'; badge = 'Scheda già usata'; }
@@ -2300,7 +2291,26 @@ class Component extends DCLogic {
     if (missing.length) { this.setState({ submitBlock: 'Prima di inviare, collega una scheda a: ' + missing.join(', ') + '. Puoi inquadrare il QR o scrivere il numero.' }); return; }
     if (toCheck.length) { this.setState({ submitBlock: 'Prima di inviare, prova a controllare l’immagine della scheda di: ' + toCheck.join(', ') + '. Se è la foto giusta puoi confermarla, oppure scrivere il numero a mano.' }); return; }
     this.submitForm();
-    location.href = 'Rilievi.dc.html';
+    const rec = this.sentRecord(slots);
+    salvaRilievoAccurato(rec);
+    // con tutte le immagini in ordine parte l'elaborazione; altrimenti le immagini si caricano da I miei rilievi
+    location.href = (rec.stato === 'elab' ? 'Elaborazione.dc.html' : 'Rilievi.dc.html') + '?rilievo=' + encodeURIComponent(rec.id);
+  }
+
+  // Il rilievo inviato, come lo elenca I miei rilievi (archivio di prova nel browser; con il backend lo tiene il server).
+  sentRecord(slots) {
+    const s = this.state, d = s.dataVerifica || todayIso(), p = d.split('-');
+    const tipo = (SPRAYER_TYPES.find((t) => t.key === s.tipoIrroratrice) || {}).label || '';
+    const schede = slots.map((x) => {
+      const sc = s.schede[x.key], f = sc.foto;
+      return { key: x.key, title: x.title, numero: sc.numero, id: sc.id,
+        foto: f ? { nome: f.nome, thumb: f.thumb || '', qr: f.qr, manuale: f.manuale, confermata: f.confermata, quando: f.quando } : null };
+    });
+    const tutte = schede.every((sc) => sc.foto && fotoInOrdine(sc));
+    return { id: s.rilievoId, data: p[2] + '/' + p[1] + '/' + p[0], inviato: new Date().toISOString(), azienda: s.azienda || ACCOUNT.azienda,
+      vigneto: s.vigneto || 'Vigneto', descrizione: s.descrizioneProva || '', tipo: tipo, pareti: slots.map((x) => x.title).join(', '),
+      repliche: s.repliche, bbch: s.bbch, velocita: s.velocita, pressione: s.pressione, litriHa: s.ugelliLitriHa, miscela: s.miscela,
+      stato: tutte ? 'elab' : 'foto', schede: schede };
   }
 
   submitForm() {
