@@ -6,7 +6,7 @@
  *  - i numeri delle schede sono unici e li assegna il server, a blocchi per cliente; ogni lotto si genera prima del
  *    rilievo e il suo PDF si scarica una volta sola; l'app dice di stamparla una volta sola, senza fotocopie;
  *  - una scheda vale per un solo rilievo: se è già collegata a un altro l'app lo segnala; se l'operatore deve
- *    proprio usarla, si salva con un identificativo distinto (VEN-0042 → VEN-0042-2) e i dati non si mescolano;
+ *    proprio usarla, si salva con un identificativo distinto (ESE-0042 → ESE-0042-2) e i dati non si mescolano;
  *  - al caricamento il QR della foto deve coincidere con il numero collegato; se non coincide l'app avvisa e
  *    l'operatore può confermare lo stesso (la conferma resta con la foto); il numero si può sempre scrivere a mano.
  *
@@ -14,7 +14,7 @@
  * telefono. Con il backend, nuovoLotto() e collegaScheda() diventano chiamate al server.
  */
 const SCHEDE_KEY = 'perleuve.schede';
-const SCHEDE_PREFISSO = 'VEN';     // codice del cliente dell'account (nel prodotto viene dal server)
+const SCHEDE_PREFISSO = 'ESE';     // codice del cliente dell'account (nel prodotto viene dal server)
 const SCHEDE_RIGHE = 5;            // righe della scheda = repliche; con più repliche servono più schede per parete
 
 function schedeRegistro() {
@@ -29,7 +29,7 @@ function schedeSalva(r) {
 }
 const numeroScheda = (prefisso, n) => prefisso + '-' + String(n).padStart(4, '0');
 
-// Numero scritto a mano o letto dal QR → forma normale (VEN-0042, VEN-0042-2); '' se non sembra un numero di scheda.
+// Numero scritto a mano o letto dal QR → forma normale (ESE-0042, ESE-0042-2); '' se non sembra un numero di scheda.
 function normalizzaNumero(t) {
   const m = String(t || '').toUpperCase().replace(/\s+/g, '').match(/^([A-Z]{2,5})-?(\d{1,6})(?:-(\d{1,2}))?$/);
   if (!m) return '';
@@ -55,7 +55,7 @@ function usiScheda(numero) {
 }
 
 // Collega una scheda a un rilievo. Se è già collegata a un altro rilievo restituisce { conflitto, usi };
-// con forza = true la collega lo stesso con un identificativo nuovo (VEN-0042-2…).
+// con forza = true la collega lo stesso con un identificativo nuovo (ESE-0042-2…).
 function collegaScheda(numero, rilievo, parete, forza) {
   const base = numeroBase(normalizzaNumero(numero));
   if (!base) return { errore: 'numero non valido' };

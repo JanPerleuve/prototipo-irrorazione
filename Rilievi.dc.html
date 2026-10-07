@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#4E7A1E">
 <link rel="icon" href="icons/icon-192.png">
@@ -343,7 +344,7 @@
                           <div class="slot-link">
                             <div class="field slot-num">
                               <label for="{{sl.manualId}}">Numero che vedi sulla scheda</label>
-                              <input id="{{sl.manualId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. VEN-0042" value="{{sl.manualText}}" onChange="{{sl.onManualInput}}">
+                              <input id="{{sl.manualId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. ESE-0042" value="{{sl.manualText}}" onChange="{{sl.onManualInput}}">
                             </div>
                             <button type="button" class="btn-ghost" onClick="{{sl.onManual}}">Conferma</button>
                           </div>
@@ -453,19 +454,19 @@ const SAMPLE_RECORDS = [
     stato: 'bozza', progress: 3, bbch: '85', velocita: '', pressione: '', portata: '', litriHa: '', miscela: '', schede: [] },
   { id: 'R-0005', data: '29/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto A', descrizione: 'Taratura pre-vendemmia', tipo: 'Atomizzatore', pareti: 'F1 · lato DX, F2 · lato SX',
     stato: 'foto', bbch: '85', velocita: '6', pressione: '10', portata: '1,2', litriHa: '300', miscela: '',
-    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0105'), sch('F2SX-1', 'F2 · lato SX', 'VEN-0106')] },
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'ESE-0105'), sch('F2SX-1', 'F2 · lato SX', 'ESE-0106')] },
   { id: 'R-0004', data: '22/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto B', descrizione: 'Confronto ugelli', tipo: 'Nebulizzatore', pareti: 'F1 · lato DX, F2 · lato SX',
     stato: 'elab', bbch: '83', velocita: '5,5', pressione: '2,5', portata: '', litriHa: '250', miscela: '',
-    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0103', true), sch('F2SX-1', 'F2 · lato SX', 'VEN-0104', true)] },
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'ESE-0103', true), sch('F2SX-1', 'F2 · lato SX', 'ESE-0104', true)] },
   { id: 'R-0003', data: '15/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto A', descrizione: 'Controllo deriva', tipo: 'Torretta · 2 filari a parete intera', pareti: 'F1 · lato SX, F1 · lato DX',
     stato: 'done', bbch: '81', velocita: '6', pressione: '3', portata: '', litriHa: '220', miscela: '',
-    schede: [sch('F1SX-1', 'F1 · lato SX', 'VEN-0098', true), sch('F1DX-1', 'F1 · lato DX', 'VEN-0099', true)] },
+    schede: [sch('F1SX-1', 'F1 · lato SX', 'ESE-0098', true), sch('F1DX-1', 'F1 · lato DX', 'ESE-0099', true)] },
   { id: 'R-0002', data: '01/09/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto C', descrizione: 'Verifica recupero', tipo: 'Atomizzatore a recupero', pareti: 'F1 · lato DX',
     stato: 'done', bbch: '79', velocita: '7', pressione: '8', portata: '0,9', litriHa: '180', miscela: '',
-    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0097', true)] },
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'ESE-0097', true)] },
   { id: 'R-0001', data: '20/08/2026', azienda: 'Azienda di prova', vigneto: 'Vigneto B', descrizione: 'Prova pre-chiusura grappolo', tipo: 'Atomizzatore', pareti: 'F1 · lato DX, F2 · lato SX',
     stato: 'foto', bbch: '77', velocita: '6', pressione: '12', portata: '1,4', litriHa: '350', miscela: '',
-    schede: [sch('F1DX-1', 'F1 · lato DX', 'VEN-0101'), sch('F2SX-1', 'F2 · lato SX', 'VEN-0102')] }
+    schede: [sch('F1DX-1', 'F1 · lato DX', 'ESE-0101'), sch('F2SX-1', 'F2 · lato SX', 'ESE-0102')] }
 ];
 
 // Rilievi semplici: quelli salvati da Semplice.dc.html nell'archivio di prova del browser (stessa chiave).
@@ -596,7 +597,7 @@ class Component extends DCLogic {
 
   slotManual(key) {
     const numero = normalizzaNumero(this.state.manualInput[key]);
-    if (!numero) { this.setIn('slotErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. VEN-0042.'); return; }
+    if (!numero) { this.setIn('slotErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. ESE-0042.'); return; }
     this.setIn('slotErr', key, undefined);
     this.slotFoto(key, { manuale: numero, confermata: null });
   }

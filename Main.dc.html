@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#4E7A1E">
 <link rel="icon" href="icons/icon-192.png">
@@ -1528,7 +1529,7 @@
                     <div class="slot-link">
                       <div class="field slot-num">
                         <label for="{{sl.inputId}}">Numero della scheda</label>
-                        <input id="{{sl.inputId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. VEN-0042" value="{{sl.inputText}}" onChange="{{sl.onInput}}">
+                        <input id="{{sl.inputId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. ESE-0042" value="{{sl.inputText}}" onChange="{{sl.onInput}}">
                       </div>
                       <button type="button" class="btn-ghost" onClick="{{sl.onLink}}">Collega</button>
                       <label for="{{sl.qrId}}" class="btn-ghost slot-qr">Inquadra il QR</label>
@@ -1573,7 +1574,7 @@
                             <div class="slot-link">
                               <div class="field slot-num">
                                 <label for="{{sl.manualId}}">Numero che vedi sulla scheda</label>
-                                <input id="{{sl.manualId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. VEN-0042" value="{{sl.manualText}}" onChange="{{sl.onManualInput}}">
+                                <input id="{{sl.manualId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. ESE-0042" value="{{sl.manualText}}" onChange="{{sl.onManualInput}}">
                               </div>
                               <button type="button" class="btn-ghost" onClick="{{sl.onManual}}">Conferma</button>
                             </div>
@@ -2158,7 +2159,7 @@ class Component extends DCLogic {
   // Collega la scheda scritta (o letta dal QR) alla parete; forza = usala anche se è già di un altro rilievo.
   slotLink(key, text, forza) {
     const numero = normalizzaNumero(text != null ? text : this.state.schedaInput[key]);
-    if (!numero) { this.setIn('schedaErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. VEN-0042.'); return; }
+    if (!numero) { this.setIn('schedaErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. ESE-0042.'); return; }
     const res = collegaScheda(numero, this.state.rilievoId, key, forza);
     if (res.conflitto) {
       this.setState({ schedaConflitto: Object.assign({}, this.state.schedaConflitto, { [key]: { numero: numeroBase(numero), usi: res.usi } }),
@@ -2221,7 +2222,7 @@ class Component extends DCLogic {
   // Numero nella foto scritto a mano (sempre possibile): vale al posto di quello letto dal QR.
   slotManual(key) {
     const numero = normalizzaNumero(this.state.manualInput[key]);
-    if (!numero) { this.setIn('schedaErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. VEN-0042.'); return; }
+    if (!numero) { this.setIn('schedaErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. ESE-0042.'); return; }
     this.setIn('schedaErr', key, undefined);
     this.slotPhotoPatch(key, { manuale: numero, confermata: null });
   }
