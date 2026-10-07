@@ -11,6 +11,9 @@
 <meta name="apple-mobile-web-app-title" content="Irrorazione">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <title>Rilievo condizioni operative</title>
+<script src="./qrcode.js"></script>
+<script src="./jsQR.js"></script>
+<script src="./schede.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -345,6 +348,46 @@
     .wall-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .card { padding-left: 16px; padding-right: 16px; }
   }
+  /* Schede e immagini (rilievo accurato) */
+  .gen-box { background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .gen-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+  .gen-n { width: 140px; margin: 0; }
+  .lot-list { margin: 6px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+  .notice-ok { font-size: 14px; border-radius: 10px; padding: 10px 12px; background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; margin: 0; }
+  .slots { display: flex; flex-direction: column; gap: 12px; margin: 18px 0; }
+  .slot { border: 1.5px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
+  .slot.is-ok { border-color: var(--accent); }
+  .slot.is-warn { border-color: #9B3B2F; }
+  .slot-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .slot-title { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .slot-badge { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 100px; background: var(--bg); color: var(--ink-soft); }
+  .slot-badge.is-ok { background: var(--accent-soft); color: var(--accent-strong); }
+  .slot-badge.is-warn { background: #F7E6E2; color: #9B3B2F; }
+  .slot-link { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+  .slot-num { flex: 1 1 180px; margin: 0; }
+  .slot-qr { display: inline-flex; align-items: center; justify-content: center; }
+  .slot-linked { margin: 0; font-size: 15px; }
+  .slot-warn { margin: 0; font-size: 14px; color: #9B3B2F; }
+  .slot-warn-box { background: #F7E6E2; color: #6E2A21; border-radius: 12px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; flex-direction: column; gap: 10px; }
+  .slot-warn-box p { margin: 0; }
+  .slot-photo { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 14px; align-items: start; }
+  @media (max-width: 560px) { .slot-photo { grid-template-columns: minmax(0, 1fr); } }
+  .slot-photo-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .slot-photo-info .photo-meta { margin: 0; }
+  .check-ok { margin: 0; font-size: 14px; color: var(--accent-strong); font-weight: 600; }
+  .check-warn { margin: 0; font-size: 14px; color: #9B3B2F; font-weight: 600; }
+  .check-info { margin: 0; font-size: 14px; color: var(--ink-soft); }
+  .dropzone-small { min-height: 110px; padding: 18px 14px; }
+  .sheet-guide-more { margin-top: 4px; }
+  .sheet-cell.is-key { border-color: #1A5FD0; }
+  .sheet-colhead.is-key { color: #1A5FD0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .link-btn { border: 0; background: transparent; color: var(--accent-strong); font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; padding: 6px 2px; min-height: 36px; }
+  .more { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+  .more > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--accent-strong); }
+  .more > summary::-webkit-details-marker { display: none; }
+  .more > summary::before { content: ''; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); margin-right: 2px; }
+  .more[open] > summary::before { transform: rotate(45deg); }
   /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
   img, svg, video, canvas { max-width: 100%; }
   fieldset { min-width: 0; }
@@ -377,7 +420,7 @@
           <a href="#sez-condizioni">Condizioni operative</a>
           <a href="#sez-ugelli">{{term.P}}</a>
           <a href="#sez-misure">Misure per {{term.s}}</a>
-          <a href="#sez-foto">Immagine scheda cartine</a>
+          <a href="#sez-foto">Schede e immagini</a>
           <a href="#sez-invio">Invio</a>
         </nav>
       </div>
@@ -1424,102 +1467,171 @@
         </section>
 
         <section class="card {{acqCls}}" id="sez-foto">
-          <div class="card-header"><h2>Immagine scheda cartine<br></h2></div>
-          <p class="later-note"><strong>Puoi caricarla anche più tardi.</strong> Se ora non hai la foto, invia comunque il rilievo: potrai aggiungere l’immagine in seguito aprendo il rilievo da “I miei rilievi”.</p>
+          <div class="card-header"><h2>Schede e immagini</h2></div>
+          <p class="later-note"><strong>Una scheda per parete</strong> (fino a 5 repliche). Collega ogni scheda alla sua parete prima di iniziare: serve per inviare il rilievo. L’immagine puoi caricarla anche più tardi, da “I miei rilievi”.</p>
 
-          <fieldset class="type-picker">
-            <legend>Metodo di acquisizione</legend>
-            <div class="pass-options">
-              <sc-for list="{{acqOptions}}" as="ao" hint-placeholder-count="2">
-                <label class="{{ao.cls}}">
-                  <input type="radio" name="acquisizione" value="{{ao.key}}" checked="{{ao.checked}}" onChange="{{ao.pick}}">
-                  <span class="wall-text">
-                    <span>{{ao.label}}</span>
-                    <span class="pass-sub">{{ao.sub}}</span>
-                  </span>
-                </label>
+          <sc-if value="{{sheetMissing}}" hint-placeholder-val="{{false}}">
+            <p class="sheet-note">{{sheetMissingText}}</p>
+          </sc-if>
+
+          <sc-if value="{{sheetReady}}" hint-placeholder-val="{{true}}">
+            <!-- Generatore: schede numerate, numeri unici, PDF scaricabile una volta -->
+            <div class="gen-box">
+              <h3 class="sheet-title">Non hai le schede? Generale qui</h3>
+              <p class="sheet-note">Per questo rilievo servono <strong>{{gen.needed}}</strong>. Ogni scheda ha un numero unico: se puoi, stampa il PDF <strong>una sola volta</strong> e non fare fotocopie, così i dati di due rilievi non si mescolano.</p>
+              <div class="gen-row">
+                <div class="field gen-n">
+                  <label for="lottoN">Quante schede</label>
+                  <input id="lottoN" type="number" min="1" max="20" inputmode="numeric" value="{{gen.nText}}" onChange="{{gen.onN}}">
+                </div>
+                <button type="button" class="btn-primary" onClick="{{gen.onGenerate}}">Scarica il PDF delle schede</button>
+              </div>
+              <sc-if value="{{gen.msg}}" hint-placeholder-val="{{false}}">
+                <p class="notice-ok" role="status">{{gen.msg}}</p>
+              </sc-if>
+              <sc-if value="{{gen.hasLots}}" hint-placeholder-val="{{false}}">
+                <details class="more">
+                  <summary>Schede già generate su questo telefono</summary>
+                  <ul class="lot-list">
+                    <sc-for list="{{gen.lots}}" as="l" hint-placeholder-count="2"><li>{{l.text}}</li></sc-for>
+                  </ul>
+                  <p class="sheet-note">Un PDF già scaricato non si scarica di nuovo: se ti servono altre schede, generane di nuove.</p>
+                </details>
+              </sc-if>
+            </div>
+
+            <fieldset class="type-picker">
+              <legend>Come acquisirai le immagini</legend>
+              <div class="pass-options">
+                <sc-for list="{{acqOptions}}" as="ao" hint-placeholder-count="2">
+                  <label class="{{ao.cls}}">
+                    <input type="radio" name="acquisizione" value="{{ao.key}}" checked="{{ao.checked}}" onChange="{{ao.pick}}">
+                    <span class="wall-text">
+                      <span>{{ao.label}}</span>
+                      <span class="pass-sub">{{ao.sub}}</span>
+                    </span>
+                  </label>
+                </sc-for>
+              </div>
+            </fieldset>
+
+            <!-- Una riga per scheda: collegamento alla parete e immagine -->
+            <div class="slots">
+              <sc-for list="{{slots}}" as="sl" hint-placeholder-count="2">
+                <div class="{{sl.cls}}" id="{{sl.anchor}}">
+                  <div class="slot-head">
+                    <span class="slot-title">{{sl.title}}</span>
+                    <span class="{{sl.badgeCls}}">{{sl.badge}}</span>
+                  </div>
+
+                  <sc-if value="{{sl.unlinked}}" hint-placeholder-val="{{true}}">
+                    <div class="slot-link">
+                      <div class="field slot-num">
+                        <label for="{{sl.inputId}}">Numero della scheda</label>
+                        <input id="{{sl.inputId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. VEN-0042" value="{{sl.inputText}}" onChange="{{sl.onInput}}">
+                      </div>
+                      <button type="button" class="btn-ghost" onClick="{{sl.onLink}}">Collega</button>
+                      <label for="{{sl.qrId}}" class="btn-ghost slot-qr">Inquadra il QR</label>
+                      <input id="{{sl.qrId}}" type="file" accept="image/*" capture="environment" class="visually-hidden" onChange="{{sl.onQr}}">
+                    </div>
+                    <sc-if value="{{sl.err}}" hint-placeholder-val="{{false}}"><p class="slot-warn" role="alert">{{sl.err}}</p></sc-if>
+                  </sc-if>
+
+                  <sc-if value="{{sl.conflict}}" hint-placeholder-val="{{false}}">
+                    <div class="slot-warn-box" role="alert">
+                      <p>{{sl.conflictText}}</p>
+                      <div class="actions">
+                        <button type="button" class="btn-ghost btn-small" onClick="{{sl.onCancelConflict}}">Uso un’altra scheda</button>
+                        <button type="button" class="btn-ghost btn-small" onClick="{{sl.onForce}}">{{sl.forceLabel}}</button>
+                      </div>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{sl.linked}}" hint-placeholder-val="{{false}}">
+                    <p class="slot-linked">{{sl.linkedText}} <button type="button" class="link-btn" onClick="{{sl.onUnlink}}">Cambia scheda</button></p>
+                    <sc-if value="{{sl.noPhoto}}" hint-placeholder-val="{{true}}">
+                      <label for="{{sl.photoId}}" class="dropzone dropzone-small">
+                        <span class="dropzone-text">{{acqDropText}}</span>
+                        <span class="dropzone-hint">{{acqDropHint}}</span>
+                      </label>
+                    </sc-if>
+                    <input id="{{sl.photoId}}" type="file" accept="{{acqAccept}}" capture="{{acqCapture}}" class="visually-hidden" onChange="{{sl.onPhoto}}">
+                    <sc-if value="{{sl.reading}}" hint-placeholder-val="{{false}}"><p class="sheet-note" role="status">Leggo il QR della scheda…</p></sc-if>
+                    <sc-if value="{{sl.hasPhoto}}" hint-placeholder-val="{{false}}">
+                      <div class="slot-photo">
+                        <sc-if value="{{sl.preview}}" hint-placeholder-val="{{true}}"><img src="{{sl.preview}}" alt="{{sl.photoAlt}}" class="photo-img"></sc-if>
+                        <div class="slot-photo-info">
+                          <p class="{{sl.checkCls}}">{{sl.checkText}}</p>
+                          <sc-if value="{{sl.mismatch}}" hint-placeholder-val="{{false}}">
+                            <div class="actions">
+                              <button type="button" class="btn-ghost btn-small" onClick="{{sl.onConfirm}}">È la foto giusta: usala lo stesso</button>
+                              <label for="{{sl.photoId}}" class="btn-ghost btn-small slot-qr">Cambia foto</label>
+                            </div>
+                          </sc-if>
+                          <details class="more" open="{{sl.manualOpen}}">
+                            <summary>Scrivi a mano il numero della scheda nella foto</summary>
+                            <div class="slot-link">
+                              <div class="field slot-num">
+                                <label for="{{sl.manualId}}">Numero che vedi sulla scheda</label>
+                                <input id="{{sl.manualId}}" type="text" autocomplete="off" autocapitalize="characters" placeholder="es. VEN-0042" value="{{sl.manualText}}" onChange="{{sl.onManualInput}}">
+                              </div>
+                              <button type="button" class="btn-ghost" onClick="{{sl.onManual}}">Conferma</button>
+                            </div>
+                            <sc-if value="{{sl.err}}" hint-placeholder-val="{{false}}"><p class="slot-warn" role="alert">{{sl.err}}</p></sc-if>
+                          </details>
+                          <p class="photo-meta"><span class="photo-name">{{sl.photoName}}</span><button type="button" class="btn-ghost btn-small" onClick="{{sl.onClearPhoto}}">Rimuovi</button></p>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                </div>
               </sc-for>
             </div>
-          </fieldset>
 
-          <div class="sheet-guide">
-            <h3 class="sheet-title">Come disporre le cartine sulla scheda</h3>
-            <sc-if value="{{sheetMissing}}" hint-placeholder-val="{{true}}">
-              <p class="sheet-note">{{sheetMissingText}}</p>
-            </sc-if>
-            <sc-if value="{{sheetReady}}" hint-placeholder-val="{{false}}">
-              <ol class="howto">
-                <li><strong>Stampa il modello della scheda</strong> generato per questo rilievo: griglia già numerata, marcatori agli angoli e codice QR del rilievo. {{sheetSizeText}}
-                  <div class="template-row">
-                    <button type="button" class="btn-ghost btn-small" disabled="{{true}}">Scarica modello (PDF)</button>
-                    <span class="send-hint">[Disponibile con il backend]</span>
-                  </div>
-                </li>
-                <li><strong>Una riga per parete e replica</strong>, dall’alto verso il basso nell’ordine dello schema qui sotto. Scrivi l’etichetta della riga (es. <em>{{sheetFirstLabel}}</em>) sul margine sinistro.</li>
-                <li><strong>Da sinistra a destra</strong>, in ogni riga: A-E sup, A-E inf, A-I sup, A-I inf, B-E sup, B-E inf, B-I sup, B-I inf.</li>
-                <li><strong>Posto vuoto se manca una cartina.</strong> Se una cartina è persa o danneggiata lascia libero il suo posto: non spostare le altre.</li>
-                <li class="only-photo"><strong>Sfondo bianco.</strong> Appoggia le cartine su un foglio o un cartoncino bianco, opaco e senza scritte oltre alle etichette delle righe.</li>
-                <li><strong>Spazio tra le cartine.</strong> Lascia almeno 1 mm libero tra una cartina e l’altra, senza sovrapporle né farle toccare: ogni cartina deve essere circondata dallo sfondo bianco. Lato esposto verso l’alto e una freccia sull’angolo in alto a sinistra della scheda.</li>
-                <li class="only-photo"><strong>Marcatori visibili.</strong> I quattro marcatori agli angoli e il codice QR devono essere interi nella foto: servono a raddrizzare l’immagine e a riconoscere il rilievo.</li>
-                <li class="only-photo"><strong>Buona luce.</strong> Fotografa con luce abbondante e uniforme, meglio naturale diffusa: niente sole diretto, ombre (anche del telefono o della mano) o riflessi. Evita il flash.</li>
-                <li class="only-photo"><strong>Foto dall’alto</strong>, con il telefono parallelo alla scheda, tutta la griglia inquadrata e a fuoco.</li>
-                <li class="only-scan"><strong>Scansiona a colori</strong> con lo scanner piano, risoluzione di almeno 600 dpi [da confermare con lo script di analisi], senza miglioramenti automatici di colore o contrasto.</li>
-                <li class="only-scan"><strong>Scheda intera e dritta</strong> sul vetro, con marcatori e codice QR dentro l’area di scansione. Se la scheda è più grande del vetro, scansionala in più parti, una riga completa per volta.</li>
-                <li class="only-scan"><strong>Salva il file</strong> in TIFF, PNG o PDF (JPG solo alla qualità massima) e caricalo qui sotto.</li>
-              </ol>
-              <div class="sheet-scroll">
-                <div class="sheet" role="table" aria-label="Schema di disposizione delle cartine sulla scheda">
-                  <span class="sheet-marker m-tl" aria-hidden="true"></span><span class="sheet-marker m-tr" aria-hidden="true"></span><span class="sheet-marker m-bl" aria-hidden="true"></span><span class="sheet-marker m-br" aria-hidden="true"></span>
-                  <div class="sheet-qr" aria-hidden="true"><span class="qr-box"></span><span>QR rilievo</span></div>
-                  <div class="sheet-row sheet-head" role="row">
-                    <span class="sheet-label" role="columnheader">Riga</span>
-                    <sc-for list="{{sheetCols}}" as="col" hint-placeholder-count="8">
-                      <span class="sheet-colhead" role="columnheader">{{col.pos}}<br>{{col.face}}</span>
-                    </sc-for>
-                  </div>
-                  <sc-for list="{{sheetRows}}" as="row" hint-placeholder-count="2">
-                    <div class="sheet-row" role="row">
-                      <span class="sheet-label" role="rowheader"><span class="sheet-n">{{row.n}}</span> {{row.label}}</span>
+            <details class="more sheet-guide-more">
+              <summary>Come disporre le cartine sulla scheda</summary>
+              <div class="sheet-guide">
+                <ol class="howto">
+                  <li><strong>Una riga per replica</strong>, dall’alto: Replica 1 … 5. Con più di 5 repliche la stessa parete continua su una seconda scheda (la riga 1 diventa la replica 6).</li>
+                  <li><strong>Una colonna per posizione</strong>, come stampato sulla scheda: AES, AEI, AIS, AII (alta) e BES, BEI, BIS, BII (bassa, la zona dei grappoli).</li>
+                  <li><strong>Posto vuoto se manca una cartina.</strong> Se una cartina è persa o danneggiata, lascia libero il suo posto: le altre restano dove sono.</li>
+                  <li class="only-photo"><strong>Foto con la fotocamera del telefono</strong>, a piena risoluzione: la scheda riempie la foto, con i 4 quadrati neri agli angoli e il QR interi. Se puoi, luce diffusa, senza flash e senza l’ombra del telefono.</li>
+                  <li class="only-scan"><strong>Scansione a colori</strong> a 600 dpi (1200 per nebulizzatori e torrette), senza correzioni automatiche, con tutta la scheda sul vetro.</li>
+                </ol>
+                <div class="sheet-scroll">
+                  <div class="sheet" role="table" aria-label="Disposizione delle cartine sulla scheda">
+                    <span class="sheet-marker m-tl" aria-hidden="true"></span><span class="sheet-marker m-tr" aria-hidden="true"></span><span class="sheet-marker m-bl" aria-hidden="true"></span><span class="sheet-marker m-br" aria-hidden="true"></span>
+                    <div class="sheet-qr" aria-hidden="true"><span class="qr-box"></span><span>N. scheda</span></div>
+                    <div class="sheet-row sheet-head" role="row">
+                      <span class="sheet-label" role="columnheader">Replica</span>
                       <sc-for list="{{sheetCols}}" as="col" hint-placeholder-count="8">
-                        <span class="sheet-cell" role="cell" aria-label="{{row.label}} {{col.pos}} {{col.face}}"></span>
+                        <span class="{{col.cls}}" role="columnheader">{{col.pos}}<br>{{col.face}}</span>
                       </sc-for>
                     </div>
-                  </sc-for>
+                    <sc-for list="{{sheetRows}}" as="row" hint-placeholder-count="5">
+                      <div class="sheet-row" role="row">
+                        <span class="sheet-label" role="rowheader"><span class="sheet-n">{{row.n}}</span></span>
+                        <sc-for list="{{sheetCols}}" as="col" hint-placeholder-count="8">
+                          <span class="{{col.cellCls}}" role="cell" aria-label="Replica {{row.n}} {{col.pos}}"></span>
+                        </sc-for>
+                      </div>
+                    </sc-for>
+                  </div>
                 </div>
               </div>
-            </sc-if>
-          </div>
-          <label for="{{acqInputId}}" class="dropzone">
-            <sc-if value="{{noPhoto}}" hint-placeholder-val="{{true}}">
-              <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-                <path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"></path>
-                <circle cx="12" cy="13" r="3.5"></circle>
-              </svg>
-              <span class="dropzone-text">{{acqDropText}}</span>
-              <span class="dropzone-hint">{{acqDropHint}}</span>
-            </sc-if>
-            <sc-if value="{{hasPhoto}}" hint-placeholder-val="{{false}}">
-              <img src="{{photoDataUrl}}" alt="Anteprima della scheda cartine" class="photo-img">
-            </sc-if>
-            <sc-if value="{{hasFileOnly}}" hint-placeholder-val="{{false}}">
-              <span class="dropzone-text">File caricato: {{photoName}}</span>
-              <span class="dropzone-hint">Anteprima non disponibile per questo formato. Tocca per sostituirlo.</span>
-            </sc-if>
-          </label>
-          <input id="photoInput" type="file" accept="image/*" capture="environment" onChange="{{onPhoto}}" class="visually-hidden">
-          <input id="scanInput" type="file" accept="image/png,image/jpeg,image/tiff,.tif,.tiff,application/pdf,.pdf" onChange="{{onPhoto}}" class="visually-hidden">
-          <sc-if value="{{hasAnyFile}}" hint-placeholder-val="{{false}}">
-            <div class="photo-meta">
-              <span class="photo-name">{{photoName}}</span>
-              <button type="button" class="btn-ghost" onClick="{{onClearPhoto}}">Rimuovi file</button>
-            </div>
+            </details>
           </sc-if>
         </section>
 
         <section class="card submit-card" id="sez-invio">
           <div class="card-header" style="width: 100%"><h2>Invio rilievo</h2></div>
-          <p class="submit-hint">Verifica i dati inseriti prima di inviare. Il rilievo verrà salvato in “I miei rilievi”: se non hai ancora la foto della scheda cartine potrai caricarla da lì in un secondo momento.</p>
-          <a class="btn-primary" href="Rilievi.dc.html" style="display: inline-flex; align-items: center; text-decoration: none">Invia rilievo</a>
+          <p class="submit-hint">Verifica i dati inseriti prima di inviare. Il rilievo verrà salvato in “I miei rilievi”: se non hai ancora le immagini delle schede potrai caricarle da lì in un secondo momento.</p>
+          <sc-if value="{{submitBlock}}" hint-placeholder-val="{{false}}">
+            <div class="slot-warn-box" role="alert">
+              <p>{{submitBlock}}</p>
+            </div>
+          </sc-if>
+          <button type="button" class="btn-primary" onClick="{{onSend}}">Invia rilievo</button>
         </section>
       </sc-if>
 
@@ -1869,12 +1981,9 @@ function sprayerGeometry(type, row, walls) {
   return g;
 }
 
-const SHEET_COLS = [
-  { pos: 'A-E', face: 'sup' }, { pos: 'A-E', face: 'inf' },
-  { pos: 'A-I', face: 'sup' }, { pos: 'A-I', face: 'inf' },
-  { pos: 'B-E', face: 'sup' }, { pos: 'B-E', face: 'inf' },
-  { pos: 'B-I', face: 'sup' }, { pos: 'B-I', face: 'inf' }
-];
+// Colonne della scheda standard, come stampate (tools/genera_scheda.py, schede.js); qui con la descrizione, che sulla
+// scheda non c'è (le spiegazioni stanno nell'app).
+const SHEET_COLS = SCH.POSIZIONI.map(([pos, face]) => ({ pos: pos, face: face, cls: 'sheet-colhead', cellCls: 'sheet-cell' }));
 
 function treatedFaces(type, alterni) {
   const faces = {};
@@ -1917,6 +2026,9 @@ function initialState() {
   Object.assign(state, { prevMachine: null, prevSettings: false, prevUndo: null });
   // vigneto: già inserito (vyKnown) o nuovo; vyEdit = l'utente vuole vedere e cambiare sesto e allevamento
   Object.assign(state, { vyKnown: null, vyEdit: false, vyOpen: false, vyActive: -1 });
+  // schede: id del rilievo in corso (per collegarle), schede collegate per parete, campi e avvisi del collegamento
+  Object.assign(state, { rilievoId: 'R-' + Date.now().toString(36).toUpperCase(), schede: {}, schedaInput: {}, schedaErr: {}, schedaConflitto: {},
+    slotReading: {}, manualInput: {}, lottoN: '', lottoMsg: '', submitBlock: '' });
   return state;
 }
 
@@ -2036,6 +2148,161 @@ class Component extends DCLogic {
     this.setState({ photoDataUrl: null, photoName: '' });
   }
 
+  // ---- Schede del rilievo (vedi schede.js): una per parete ogni 5 repliche ----
+  setIn(field, key, value) {
+    const next = Object.assign({}, this.state[field]);
+    if (value === undefined) delete next[key]; else next[key] = value;
+    this.setState({ [field]: next });
+  }
+
+  // Collega la scheda scritta (o letta dal QR) alla parete; forza = usala anche se è già di un altro rilievo.
+  slotLink(key, text, forza) {
+    const numero = normalizzaNumero(text != null ? text : this.state.schedaInput[key]);
+    if (!numero) { this.setIn('schedaErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. VEN-0042.'); return; }
+    const res = collegaScheda(numero, this.state.rilievoId, key, forza);
+    if (res.conflitto) {
+      this.setState({ schedaConflitto: Object.assign({}, this.state.schedaConflitto, { [key]: { numero: numeroBase(numero), usi: res.usi } }),
+        schedaErr: Object.assign({}, this.state.schedaErr, { [key]: undefined }) });
+      return;
+    }
+    const conf = Object.assign({}, this.state.schedaConflitto), err = Object.assign({}, this.state.schedaErr);
+    delete conf[key]; delete err[key];
+    this.setState({ schede: Object.assign({}, this.state.schede, { [key]: { numero: numeroBase(numero), id: res.id, riusata: !!res.riusata, foto: null } }),
+      schedaConflitto: conf, schedaErr: err, submitBlock: '' });
+  }
+
+  slotUnlink(key) {
+    const sc = this.state.schede[key];
+    if (sc) scollegaScheda(sc.id, this.state.rilievoId);
+    this.setIn('schede', key, undefined);
+  }
+
+  // "Inquadra il QR": una foto del QR (o di tutta la scheda) per leggere il numero e collegarla.
+  slotQr(key, e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    this.setIn('slotReading', key, true);
+    leggiQrScheda(file).then((r) => {
+      this.setIn('slotReading', key, undefined);
+      if (r.numero) { this.setIn('schedaInput', key, r.numero); this.slotLink(key, r.numero); }
+      else this.setIn('schedaErr', key, 'Non riesco a leggere il QR: prova ad avvicinarti, con più luce, oppure scrivi il numero.');
+    });
+  }
+
+  // Immagine della scheda (foto o scansione): si legge il QR e si confronta con la scheda collegata.
+  slotPhoto(key, e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    const previewable = /^image\/(png|jpe?g|webp|gif)$/i.test(file.type || '');
+    this.setIn('slotReading', key, true);
+    const preview = previewable ? new Promise((res) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => res(''); fr.readAsDataURL(file); }) : Promise.resolve('');
+    Promise.all([preview, previewable ? leggiQrScheda(file) : Promise.resolve({ numero: '' })]).then(([url, r]) => {
+      this.setIn('slotReading', key, undefined);
+      const sc = this.state.schede[key];
+      if (!sc) return;
+      const foto = { dataUrl: url, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() };
+      this.setState({ schede: Object.assign({}, this.state.schede, { [key]: Object.assign({}, sc, { foto: foto }) }), submitBlock: '' });
+    });
+  }
+
+  slotPhotoPatch(key, patch) {
+    const sc = this.state.schede[key];
+    if (!sc || !sc.foto) return;
+    this.setState({ schede: Object.assign({}, this.state.schede, { [key]: Object.assign({}, sc, { foto: Object.assign({}, sc.foto, patch) }) }), submitBlock: '' });
+  }
+
+  slotClearPhoto(key) {
+    const sc = this.state.schede[key];
+    if (sc) this.setState({ schede: Object.assign({}, this.state.schede, { [key]: Object.assign({}, sc, { foto: null }) }), submitBlock: '' });
+  }
+
+  // Numero nella foto scritto a mano (sempre possibile): vale al posto di quello letto dal QR.
+  slotManual(key) {
+    const numero = normalizzaNumero(this.state.manualInput[key]);
+    if (!numero) { this.setIn('schedaErr', key, 'Questo non sembra il numero di una scheda: prova a scriverlo come sulla scheda, es. VEN-0042.'); return; }
+    this.setIn('schedaErr', key, undefined);
+    this.slotPhotoPatch(key, { manuale: numero, confermata: null });
+  }
+
+  // Stato del controllo dell'immagine: 'nessuna' | 'illeggibile' | 'ok' | 'diverso' | 'confermata'.
+  photoCheck(sc) {
+    const f = sc && sc.foto;
+    if (!f) return { stato: 'nessuna' };
+    const visto = f.manuale || f.qr;
+    if (!visto) return { stato: 'illeggibile' };
+    if (numeroBase(visto) === sc.numero) return { stato: 'ok', visto: visto, manuale: !!f.manuale };
+    return { stato: f.confermata ? 'confermata' : 'diverso', visto: visto, manuale: !!f.manuale };
+  }
+
+  // Valori della riga di una scheda (parete) per la pagina.
+  slotVals(d) {
+    const s = this.state, key = d.key, sc = s.schede[key], conf = s.schedaConflitto[key], f = sc && sc.foto;
+    const chk = this.photoCheck(sc), anchor = 'scheda-' + key;
+    let badge = 'Da collegare', badgeCls = 'slot-badge', cls = 'slot', checkText = '', checkCls = 'check-info';
+    if (sc) { badge = 'Scheda ' + sc.id; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
+    if (chk.stato === 'ok') checkText = (chk.manuale ? 'Numero scritto a mano: ' : 'QR letto: ') + chk.visto + ', è la scheda collegata a questa parete.';
+    if (chk.stato === 'ok') checkCls = 'check-ok';
+    if (chk.stato === 'illeggibile') { checkText = 'Non riesco a leggere il QR in questa foto: prova a scrivere qui sotto il numero che vedi sulla scheda.'; checkCls = 'check-warn'; }
+    if (chk.stato === 'diverso') { checkText = 'Nella foto c’è la scheda ' + chk.visto + ', ma a questa parete è collegata la ' + sc.numero + ': prova a controllare. Se è la foto giusta, puoi usarla lo stesso.'; checkCls = 'check-warn'; }
+    if (chk.stato === 'confermata') { checkText = 'Foto confermata a mano: nella foto c’è la scheda ' + chk.visto + ', a questa parete è collegata la ' + sc.numero + '. Lo annotiamo con il rilievo.'; checkCls = 'check-info'; }
+    if (chk.stato === 'diverso' || chk.stato === 'illeggibile') { badge = 'Immagine da controllare'; badgeCls = 'slot-badge is-warn'; cls = 'slot is-warn'; }
+    else if (chk.stato === 'ok' || chk.stato === 'confermata') badge = 'Scheda ' + sc.id + ' · immagine ok';
+    if (conf) { cls = 'slot is-warn'; badgeCls = 'slot-badge is-warn'; badge = 'Scheda già usata'; }
+    const altro = conf && conf.usi[conf.usi.length - 1];
+    const nextId = conf ? conf.numero + '-' + (conf.usi.length + 1) : '';
+    return {
+      key: key, anchor: anchor, title: d.title, cls: cls, badge: badge, badgeCls: badgeCls,
+      unlinked: !sc && !conf, linked: !!sc, conflict: !!conf,
+      inputId: 'num-' + key, qrId: 'qr-' + key, photoId: 'img-' + key, manualId: 'man-' + key,
+      inputText: s.schedaInput[key] || '', onInput: (e) => this.setIn('schedaInput', key, e.target.value),
+      onLink: () => this.slotLink(key), onQr: (e) => this.slotQr(key, e),
+      err: s.schedaErr[key] || '',
+      conflictText: conf ? 'La scheda ' + conf.numero + ' è già collegata a un altro rilievo (' + altro.rilievo + ', ' + itDate(altro.quando) + '). Una scheda vale per un solo rilievo: se puoi, usane una nuova. Se devi proprio usare questa, la salviamo come ' + nextId + ', così i dati dei due rilievi non si mescolano.' : '',
+      forceLabel: conf ? 'Usala come ' + nextId : '',
+      onForce: () => this.slotLink(key, conf.numero, true),
+      onCancelConflict: () => this.setIn('schedaConflitto', key, undefined),
+      linkedText: sc ? (sc.riusata ? 'Scheda ' + sc.numero + ' già usata in un altro rilievo: qui è salvata come ' + sc.id + '.' : 'Scheda ' + sc.id + ' collegata a questa parete.') : '',
+      onUnlink: () => this.slotUnlink(key),
+      noPhoto: !!sc && !f, hasPhoto: !!f, reading: !!s.slotReading[key],
+      onPhoto: (e) => this.slotPhoto(key, e),
+      preview: f ? f.dataUrl : '', photoAlt: 'Immagine della scheda di ' + d.title, photoName: f ? f.nome : '',
+      checkText: checkText, checkCls: checkCls,
+      mismatch: chk.stato === 'diverso',
+      onConfirm: () => this.slotPhotoPatch(key, { confermata: { quando: new Date().toISOString(), visto: chk.visto, atteso: sc.numero } }),
+      manualOpen: chk.stato === 'illeggibile',
+      manualText: s.manualInput[key] || '', onManualInput: (e) => this.setIn('manualInput', key, e.target.value),
+      onManual: () => this.slotManual(key),
+      onClearPhoto: () => this.slotClearPhoto(key)
+    };
+  }
+
+  // Nuovo lotto di schede: numeri mai usati, PDF scaricato subito e una volta sola.
+  generateLot(needed, freeKeys) {
+    const n = Math.max(1, Math.min(20, parseInt(this.state.lottoN, 10) || needed || 1));
+    const lotto = nuovoLotto(n), blob = pdfSchede(lotto.numeri);
+    const name = 'schede_' + lotto.numeri[0] + (n > 1 ? '_' + lotto.numeri[n - 1] : '') + '.pdf';
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    // i numeri nuovi si propongono, nell'ordine, alle pareti ancora senza scheda (si collegano con "Collega")
+    const input = Object.assign({}, this.state.schedaInput);
+    freeKeys.forEach((k, i) => { if (lotto.numeri[i]) input[k] = lotto.numeri[i]; });
+    this.setState({ schedaInput: input, lottoMsg: 'Scaricato ' + name + ' (' + n + (n === 1 ? ' scheda' : ' schede') + '). Se puoi, stampalo una sola volta e senza fotocopie; poi collega ogni scheda alla sua parete qui sotto.' });
+  }
+
+  // Invio: ogni parete deve avere la sua scheda; un'immagine che non torna va controllata (o confermata).
+  send(slots) {
+    const missing = slots.filter((x) => !this.state.schede[x.key]).map((x) => x.title);
+    const toCheck = slots.filter((x) => { const c = this.photoCheck(this.state.schede[x.key]).stato; return c === 'diverso' || c === 'illeggibile'; }).map((x) => x.title);
+    if (!slots.length) { this.setState({ submitBlock: 'Prima di inviare, prova a indicare in “Condizioni operative” le pareti con cartine e il numero di repliche.' }); return; }
+    if (missing.length) { this.setState({ submitBlock: 'Prima di inviare, collega una scheda a: ' + missing.join(', ') + '. Puoi inquadrare il QR o scrivere il numero.' }); return; }
+    if (toCheck.length) { this.setState({ submitBlock: 'Prima di inviare, prova a controllare l’immagine della scheda di: ' + toCheck.join(', ') + '. Se è la foto giusta puoi confermarla, oppure scrivere il numero a mano.' }); return; }
+    this.submitForm();
+    location.href = 'Rilievi.dc.html';
+  }
+
   submitForm() {
     const data = this.state.dataVerifica || todayIso();
     saveToHistory(Object.assign({}, this.state, { dataVerifica: data }));
@@ -2044,6 +2311,7 @@ class Component extends DCLogic {
   }
 
   resetForm() {
+    Object.values(this.state.schede || {}).forEach((sc) => scollegaScheda(sc.id, this.state.rilievoId));
     this.setState(initialState());
   }
 
@@ -2333,6 +2601,7 @@ class Component extends DCLogic {
         const id = 'F' + (k + 1) + w[0];
         const checked = !!s.walls[id];
         wallOptions.push({
+          id: id,
           label: 'F' + (k + 1) + ' · ' + w[1],
           checked: checked,
           treated: !!faces[w[2]],
@@ -2349,17 +2618,20 @@ class Component extends DCLogic {
     const nSel = wallOptions.filter((w) => w.checked).length;
     const nRep = parseInt(s.repliche, 10);
     const selWalls = wallOptions.filter((w) => w.checked);
-    const sheetRows = [];
-    if (nRep > 0) {
-      selWalls.forEach((w) => {
-        for (let k = 1; k <= nRep; k++) sheetRows.push({ n: sheetRows.length + 1, label: w.label.replace(' · ', ' ') + ' · R' + k });
-      });
-    }
-    const sheetReady = sheetRows.length > 0;
+    const sheetRows = nRep > 0 ? Array.from({ length: Math.min(SCHEDE_RIGHE, nRep) }, (_, i) => ({ n: i + 1 })) : [];
+    const sheetReady = selWalls.length > 0 && nRep > 0;
+    // schede del rilievo: una per parete ogni 5 repliche
+    const perWall = nRep > 0 ? Math.ceil(nRep / SCHEDE_RIGHE) : 0, slotDefs = [];
+    selWalls.forEach((w) => {
+      for (let k = 1; k <= perWall; k++) {
+        const r0 = (k - 1) * SCHEDE_RIGHE + 1, r1 = Math.min(nRep, k * SCHEDE_RIGHE);
+        slotDefs.push({ key: w.id + '-' + k, title: w.label + (perWall > 1 ? ' · repliche ' + r0 + '–' + r1 : '') });
+      }
+    });
     let sheetMissingText = '';
-    if (!selWalls.length && !(nRep > 0)) sheetMissingText = 'Seleziona le pareti con cartine e il numero di repliche in “Condizioni operative”: qui comparirà lo schema della scheda.';
-    else if (!selWalls.length) sheetMissingText = 'Seleziona le pareti con cartine in “Condizioni operative” per vedere lo schema della scheda.';
-    else if (!(nRep > 0)) sheetMissingText = 'Inserisci il numero di repliche in “Condizioni operative” per vedere lo schema della scheda.';
+    if (!selWalls.length && !(nRep > 0)) sheetMissingText = 'Prova a indicare in “Condizioni operative” le pareti con cartine e il numero di repliche: qui compariranno le schede da collegare.';
+    else if (!selWalls.length) sheetMissingText = 'Prova a indicare in “Condizioni operative” le pareti con cartine: qui compariranno le schede da collegare.';
+    else if (!(nRep > 0)) sheetMissingText = 'Prova a indicare in “Condizioni operative” il numero di repliche: qui compariranno le schede da collegare.';
     let wallSummary = nSel === 0 ? 'Nessuna parete selezionata.' : nSel + (nSel === 1 ? ' parete selezionata' : ' pareti selezionate') + ' · ' + (nSel * 8) + ' cartine per replica (8 per parete)';
     if (nSel > 0) wallSummary += nRep > 0 ? ' × ' + nRep + (nRep === 1 ? ' replica' : ' repliche') + ' = ' + (nSel * 8 * nRep) + ' cartine in totale.' : '.';
 
@@ -2430,12 +2702,14 @@ class Component extends DCLogic {
       hasAnyFile: !!s.photoName,
       acqCls: s.acquisizione === 'scansione' ? 'acq-scan' : 'acq-photo',
       acqInputId: s.acquisizione === 'scansione' ? 'scanInput' : 'photoInput',
-      acqDropText: s.acquisizione === 'scansione' ? 'Carica il file della scansione' : 'Tocca per scattare o caricare la foto',
+      acqDropText: s.acquisizione === 'scansione' ? 'Carica il file della scansione' : 'Tocca per fotografare la scheda',
       acqDropHint: s.acquisizione === 'scansione'
-        ? 'TIFF, PNG, PDF o JPG ad alta qualità, con tutta la scheda e i marcatori visibili'
-        : 'Scheda stampata vista dall’alto, con i quattro marcatori e il codice QR visibili',
+        ? 'PNG, TIFF o JPG ad alta qualità, con tutta la scheda, i quattro marcatori e il QR'
+        : 'Si apre la fotocamera del telefono: la scheda riempie la foto, con i quattro marcatori e il QR interi',
+      acqAccept: s.acquisizione === 'scansione' ? 'image/png,image/jpeg,image/tiff,.tif,.tiff' : 'image/*',
+      acqCapture: s.acquisizione === 'scansione' ? '' : 'environment',
       acqOptions: [
-        { key: 'foto', label: 'Foto con modello stampato', sub: 'In campo, con lo smartphone: misura la copertura (% area)' },
+        { key: 'foto', label: 'Foto della scheda', sub: 'In campo, con la fotocamera del telefono: misura la copertura (% area)' },
         { key: 'scansione', label: 'Scansione', sub: 'In ufficio, con scanner piano: copertura e, se la risoluzione basta, densità e dimensione delle gocce' }
       ].map((o) => ({
         key: o.key, label: o.label, sub: o.sub,
@@ -2545,8 +2819,22 @@ class Component extends DCLogic {
       sheetMissingText: sheetMissingText,
       sheetRows: sheetRows,
       sheetCols: SHEET_COLS,
-      sheetFirstLabel: sheetReady ? sheetRows[0].label : '',
-      sheetSizeText: sheetReady ? ('Servono ' + sheetRows.length + (sheetRows.length === 1 ? ' riga' : ' righe') + ' da 8 cartine: ' + selWalls.length + (selWalls.length === 1 ? ' parete' : ' pareti') + ' × ' + nRep + (nRep === 1 ? ' replica' : ' repliche') + ', ' + (sheetRows.length * 8) + ' cartine in totale.') : '',
+      slots: slotDefs.map((d) => this.slotVals(d)),
+      gen: (() => {
+        const lots = schedeRegistro().lotti.slice().reverse(), free = slotDefs.filter((d) => !s.schede[d.key]).map((d) => d.key);
+        return {
+          needed: slotDefs.length + (slotDefs.length === 1 ? ' scheda' : ' schede'),
+          nText: s.lottoN || String(Math.max(1, slotDefs.length)),
+          onN: (e) => this.setState({ lottoN: e.target.value }),
+          onGenerate: () => this.generateLot(slotDefs.length, free),
+          msg: s.lottoMsg,
+          hasLots: lots.length > 0,
+          lots: lots.map((l) => ({ text: l.numeri[0] + (l.numeri.length > 1 ? ' … ' + l.numeri[l.numeri.length - 1] : '') + ' · '
+            + l.numeri.length + (l.numeri.length === 1 ? ' scheda' : ' schede') + ' · scaricate il ' + itDate(l.creato) }))
+        };
+      })(),
+      submitBlock: s.submitBlock,
+      onSend: () => this.send(slotDefs),
       onRepliche: this.handleField('repliche'),
       onRepMinus: () => { const v = parseInt(this.state.repliche, 10); this.setState({ repliche: String(Math.max(1, (isNaN(v) ? 1 : v) - 1)) }); },
       onRepPlus: () => { const v = parseInt(this.state.repliche, 10); this.setState({ repliche: String(isNaN(v) ? 1 : v + 1) }); },
