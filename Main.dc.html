@@ -1563,7 +1563,6 @@
                         <sc-if value="{{sl.preview}}" hint-placeholder-val="{{true}}"><img src="{{sl.preview}}" alt="{{sl.photoAlt}}" class="photo-img"></sc-if>
                         <div class="slot-photo-info">
                           <p class="{{sl.checkCls}}">{{sl.checkText}}</p>
-                          <sc-if value="{{sl.dpiText}}" hint-placeholder-val="{{false}}"><p class="{{sl.dpiCls}}">{{sl.dpiText}}</p></sc-if>
                           <sc-if value="{{sl.mismatch}}" hint-placeholder-val="{{false}}">
                             <div class="actions">
                               <button type="button" class="btn-ghost btn-small" onClick="{{sl.onConfirm}}">È la foto giusta: usala lo stesso</button>
@@ -2204,7 +2203,7 @@ class Component extends DCLogic {
       this.setIn('slotReading', key, undefined);
       const sc = this.state.schede[key];
       if (!sc) return;
-      const foto = { dataUrl: url, thumb: thumb, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', dpi: r.dpi || null, manuale: '', confermata: null, quando: new Date().toISOString() };
+      const foto = { dataUrl: url, thumb: thumb, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() };
       this.setState({ schede: Object.assign({}, this.state.schede, { [key]: Object.assign({}, sc, { foto: foto }) }), submitBlock: '' });
     });
   }
@@ -2234,13 +2233,12 @@ class Component extends DCLogic {
   }
 
   // Valori della riga di una scheda (parete) per la pagina.
-  // prop: numero proposto (una scheda già generata su questo telefono e non ancora usata), finché non si scrive altro.
-  slotVals(d, prop) {
+  slotVals(d) {
     const s = this.state, key = d.key, sc = s.schede[key], conf = s.schedaConflitto[key], f = sc && sc.foto;
     const chk = this.photoCheck(sc), anchor = 'scheda-' + key;
     let badge = 'Da collegare', badgeCls = 'slot-badge', cls = 'slot';
     if (sc) { badge = 'Scheda ' + sc.id; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
-    const tc = testoControllo(chk, sc), checkText = tc.testo, checkCls = tc.cls, td = testoDpi(f);
+    const tc = testoControllo(chk, sc), checkText = tc.testo, checkCls = tc.cls;
     if (chk.stato === 'diverso' || chk.stato === 'illeggibile') { badge = 'Immagine da controllare'; badgeCls = 'slot-badge is-warn'; cls = 'slot is-warn'; }
     else if (chk.stato === 'ok' || chk.stato === 'confermata') badge = 'Scheda ' + sc.id + ' · immagine ok';
     if (conf) { cls = 'slot is-warn'; badgeCls = 'slot-badge is-warn'; badge = 'Scheda già usata'; }
@@ -2250,8 +2248,8 @@ class Component extends DCLogic {
       key: key, anchor: anchor, title: d.title, cls: cls, badge: badge, badgeCls: badgeCls,
       unlinked: !sc && !conf, linked: !!sc, conflict: !!conf,
       inputId: 'num-' + key, qrId: 'qr-' + key, photoId: 'img-' + key, manualId: 'man-' + key,
-      inputText: s.schedaInput[key] != null ? s.schedaInput[key] : prop || '', onInput: (e) => this.setIn('schedaInput', key, e.target.value),
-      onLink: () => this.slotLink(key, s.schedaInput[key] == null && prop ? prop : undefined), onQr: (e) => this.slotQr(key, e),
+      inputText: s.schedaInput[key] || '', onInput: (e) => this.setIn('schedaInput', key, e.target.value),
+      onLink: () => this.slotLink(key), onQr: (e) => this.slotQr(key, e),
       err: s.schedaErr[key] || '',
       conflictText: conf ? 'La scheda ' + conf.numero + ' è già collegata a un altro rilievo (' + altro.rilievo + ', ' + itDate(altro.quando) + '). Una scheda vale per un solo rilievo: se puoi, usane una nuova. Se devi proprio usare questa, la salviamo come ' + nextId + ', così i dati dei due rilievi non si mescolano.' : '',
       forceLabel: conf ? 'Usala come ' + nextId : '',
@@ -2262,7 +2260,7 @@ class Component extends DCLogic {
       noPhoto: !!sc && !f, hasPhoto: !!f, reading: !!s.slotReading[key],
       onPhoto: (e) => this.slotPhoto(key, e),
       preview: f ? f.dataUrl : '', photoAlt: 'Immagine della scheda di ' + d.title, photoName: f ? f.nome : '',
-      checkText: checkText, checkCls: checkCls, dpiText: td ? td.testo : '', dpiCls: td ? td.cls : 'check-info',
+      checkText: checkText, checkCls: checkCls,
       mismatch: chk.stato === 'diverso',
       onConfirm: () => this.slotPhotoPatch(key, { confermata: { quando: new Date().toISOString(), visto: chk.visto, atteso: sc.numero } }),
       manualOpen: chk.stato === 'illeggibile',
@@ -2275,7 +2273,11 @@ class Component extends DCLogic {
   // Nuovo lotto di schede: numeri mai usati, PDF scaricato subito e una volta sola.
   generateLot(needed, freeKeys) {
     const n = Math.max(1, Math.min(20, parseInt(this.state.lottoN, 10) || needed || 1));
-    const { lotto, nome: name } = scaricaLotto(n);
+    const lotto = nuovoLotto(n), blob = pdfSchede(lotto.numeri);
+    const name = 'schede_' + lotto.numeri[0] + (n > 1 ? '_' + lotto.numeri[n - 1] : '') + '.pdf';
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
     // i numeri nuovi si propongono, nell'ordine, alle pareti ancora senza scheda (si collegano con "Collega")
     const input = Object.assign({}, this.state.schedaInput);
     freeKeys.forEach((k, i) => { if (lotto.numeri[i]) input[k] = lotto.numeri[i]; });
@@ -2303,7 +2305,7 @@ class Component extends DCLogic {
     const schede = slots.map((x) => {
       const sc = s.schede[x.key], f = sc.foto;
       return { key: x.key, title: x.title, numero: sc.numero, id: sc.id,
-        foto: f ? { nome: f.nome, thumb: f.thumb || '', qr: f.qr, dpi: f.dpi || null, manuale: f.manuale, confermata: f.confermata, quando: f.quando } : null };
+        foto: f ? { nome: f.nome, thumb: f.thumb || '', qr: f.qr, manuale: f.manuale, confermata: f.confermata, quando: f.quando } : null };
     });
     const tutte = schede.every((sc) => sc.foto && fotoInOrdine(sc));
     return { id: s.rilievoId, data: p[2] + '/' + p[1] + '/' + p[0], inviato: new Date().toISOString(), azienda: s.azienda || ACCOUNT.azienda,
@@ -2828,13 +2830,7 @@ class Component extends DCLogic {
       sheetMissingText: sheetMissingText,
       sheetRows: sheetRows,
       sheetCols: SHEET_COLS,
-      slots: (() => {
-        // schede già generate (anche da I miei rilievi) e non ancora usate: si propongono in ordine alle pareti senza scheda
-        const linked = Object.keys(s.schede).map((k) => s.schede[k] && numeroBase(s.schede[k].id));
-        const libere = schedeLibere().filter((n) => linked.indexOf(n) === -1), prop = {};
-        slotDefs.forEach((d) => { if (!s.schede[d.key] && s.schedaInput[d.key] == null && libere.length) prop[d.key] = libere.shift(); });
-        return slotDefs.map((d) => this.slotVals(d, prop[d.key]));
-      })(),
+      slots: slotDefs.map((d) => this.slotVals(d)),
       gen: (() => {
         const lots = schedeRegistro().lotti.slice().reverse(), free = slotDefs.filter((d) => !s.schede[d.key]).map((d) => d.key);
         return {

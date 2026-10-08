@@ -49,23 +49,6 @@ function nuovoLotto(n) {
   return lotto;
 }
 
-// Nuovo lotto di n schede e download del suo PDF (una volta sola): { lotto, nome }.
-function scaricaLotto(n) {
-  const lotto = nuovoLotto(n), blob = pdfSchede(lotto.numeri);
-  const nome = 'schede_' + lotto.numeri[0] + (n > 1 ? '_' + lotto.numeri[n - 1] : '') + '.pdf';
-  const url = URL.createObjectURL(blob), a = document.createElement('a');
-  a.href = url; a.download = nome; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 60000);
-  return { lotto: lotto, nome: nome };
-}
-
-// Schede generate su questo telefono e non ancora collegate a nessun rilievo, in ordine di numero.
-function schedeLibere() {
-  const r = schedeRegistro(), out = [];
-  r.lotti.forEach((l) => l.numeri.forEach((n) => { if (!(r.usi[n] && r.usi[n].length)) out.push(n); }));
-  return out;
-}
-
 // Usi di una scheda (per numero stampato): [{ id, rilievo, parete, quando }].
 function usiScheda(numero) {
   return (schedeRegistro().usi[numeroBase(numero)] || []).slice();
@@ -97,32 +80,7 @@ function scollegaScheda(id, rilievo) {
 }
 
 // ---- QR della scheda in una foto o scansione ----
-// Risoluzione: il QR stampato è largo SCH.QR mm con 2 moduli di margine per lato, quindi dalla sua larghezza in pixel
-// si ricavano i dpi della foto (circa: è la scala nel punto del QR). Sotto DPI_MIN le cartine non si riconoscono bene
-// (stessa soglia di tools/analisi_schede.py); da DPI_GOCCE in su (scansione) si misurano anche numero e dimensione delle gocce.
-const DPI_MIN = 150;
-const DPI_GOCCE = 550;
-// versione: quella letta da jsQR; se manca (BarcodeDetector) si ricalcola dal testo con qrcode.js, come nel PDF.
-function dpiDaQr(testo, angoli, versione) {
-  if (!testo || !angoli || angoli.length !== 4) return null;
-  let n = versione ? 17 + 4 * versione : 0;
-  if (!n && typeof qrcode === 'function') { const q = qrcode(0, 'L'); q.addData(testo); q.make(); n = q.getModuleCount(); }
-  if (!n) return null;
-  const mm = SCH.QR * n / (n + 4);
-  let lato = 0;
-  for (let i = 0; i < 4; i++) { const a = angoli[i], b = angoli[(i + 1) % 4]; lato += Math.hypot(b.x - a.x, b.y - a.y) / 4; }
-  return lato > 0 ? Math.round(lato / mm * 25.4) : null;
-}
-// Frase sulla risoluzione per l'operatore ({ testo, cls }), o null se non si sa.
-function testoDpi(foto) {
-  const d = foto && foto.dpi;
-  if (!d) return null;
-  if (d < DPI_MIN) return { testo: 'Risoluzione circa ' + d + ' dpi: è poca per riconoscere bene le cartine. Se puoi, prova ad avvicinarti finché la scheda riempie la foto, oppure a scansionarla.', cls: 'check-warn' };
-  if (d >= DPI_GOCCE) return { testo: 'Risoluzione circa ' + d + ' dpi: va bene per la copertura e anche per numero e dimensione delle gocce.', cls: 'check-info' };
-  return { testo: 'Risoluzione circa ' + d + ' dpi: va bene per la copertura. Per numero e dimensione delle gocce serve una scansione a 600 dpi.', cls: 'check-info' };
-}
 // Prima il lettore del browser (BarcodeDetector, su Android), poi jsQR su copie ridotte dell'immagine.
-// { testo, numero, metodo, larghezza, altezza, dpi }.
 function leggiQrScheda(file) {
   const fromBitmap = (src, w, h) => {
     const tries = [1600, 2400, 1000];
@@ -133,27 +91,20 @@ function leggiQrScheda(file) {
       const ctx = c.getContext('2d', { willReadFrequently: true });
       ctx.drawImage(src, 0, 0, cw, ch);
       const res = typeof jsQR === 'function' ? jsQR(ctx.getImageData(0, 0, cw, ch).data, cw, ch, { inversionAttempts: 'dontInvert' }) : null;
-      if (res && res.data) {
-        const L = res.location, k = 1 / s;
-        return { t: res.data, versione: res.version, angoli: [L.topLeftCorner, L.topRightCorner, L.bottomRightCorner, L.bottomLeftCorner].map((p) => ({ x: p.x * k, y: p.y * k })) };
-      }
+      if (res && res.data) return res.data;
       if (s === 1) break;
     }
-    return { t: '' };
+    return '';
   };
   return new Promise((resolve) => {
     const img = new Image(), url = URL.createObjectURL(file);
     img.onload = () => {
       const w = img.naturalWidth, h = img.naturalHeight;
-      const viaJs = () => {
-        const r = fromBitmap(img, w, h);
-        URL.revokeObjectURL(url);
-        resolve({ testo: r.t, numero: normalizzaNumero(r.t), metodo: r.t ? 'jsQR' : '', larghezza: w, altezza: h, dpi: dpiDaQr(r.t, r.angoli, r.versione) });
-      };
+      const viaJs = () => { const t = fromBitmap(img, w, h); URL.revokeObjectURL(url); resolve({ testo: t, numero: normalizzaNumero(t), metodo: t ? 'jsQR' : '', larghezza: w, altezza: h }); };
       if ('BarcodeDetector' in window) {
         new window.BarcodeDetector({ formats: ['qr_code'] }).detect(img).then((codes) => {
           const t = codes && codes[0] && codes[0].rawValue;
-          if (t) { URL.revokeObjectURL(url); resolve({ testo: t, numero: normalizzaNumero(t), metodo: 'BarcodeDetector', larghezza: w, altezza: h, dpi: dpiDaQr(t, codes[0].cornerPoints) }); } else viaJs();
+          if (t) { URL.revokeObjectURL(url); resolve({ testo: t, numero: normalizzaNumero(t), metodo: 'BarcodeDetector', larghezza: w, altezza: h }); } else viaJs();
         }).catch(viaJs);
       } else viaJs();
     };
@@ -205,7 +156,7 @@ const fotoInOrdine = (sc) => ['ok', 'confermata'].indexOf(controlloFoto(sc).stat
 
 // ---- Rilievi accurati inviati (archivio di prova nel browser; con il backend li tiene il server) ----
 // { id, data, azienda, vigneto, descrizione, tipo, pareti, repliche, bbch, velocita, pressione, litriHa, miscela,
-//   stato: 'foto' | 'elab' | 'done', schede: [{ key, title, numero, id, foto: { nome, thumb, qr, dpi, manuale, confermata } | null }] }
+//   stato: 'foto' | 'elab' | 'done', schede: [{ key, title, numero, id, foto: { nome, thumb, qr, manuale, confermata } | null }] }
 const RILIEVI_ACC_KEY = 'perleuve.rilieviAccurati';
 function rilieviAccurati() {
   try { return JSON.parse(localStorage.getItem(RILIEVI_ACC_KEY) || '[]'); } catch (e) { return []; }

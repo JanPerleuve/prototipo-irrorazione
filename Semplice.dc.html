@@ -83,15 +83,7 @@
   .clip-note { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 14px; line-height: 1.45; border-radius: 10px; padding: 10px 12px; background: #FBEBDD; color: #7A3D0E; }
   .clip-text { flex: 1 1 220px; }
   .clip-btn { padding: 4px 0; min-height: 36px; }
-  .lasso { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
-  .lasso-help { margin: 0; font-size: 15px; line-height: 1.45; }
-  .lasso-help:focus { outline: none; }
-  .lasso-box { position: relative; width: 100%; max-width: 480px; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
-  .lasso-box img { display: block; width: 100%; height: 100%; border-radius: 10px; border: 2px solid var(--green, #4E7A1E); pointer-events: none; }
-  .lasso-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .lasso-svg path { fill: rgba(224, 123, 36, 0.18); stroke: #E07B24; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
-  .lasso-actions { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; }
-  .clip-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .tap-img { cursor: crosshair; }
   .clip-key { flex-shrink: 0; width: 14px; height: 14px; border-radius: 3px; background: #E07B24; }
   .cloud-head h3 { font-size: 16px; }
   .cloud-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-soft); margin: 0; padding: 0; list-style: none; }
@@ -297,10 +289,6 @@
   .more-trust .more-body { border-left-color: #1A5FD0; }
   .opt-sub { display: block; font-family: 'Barlow', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: var(--ink-soft); margin-top: 2px; }
   .pic-cap { font-size: 12px; }
-  .dup-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-  .dup-actions .btn-small { margin-top: 0; }
-  .blur-note .btn-small { margin-top: 0; }
-  .blur-note { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; font-size: 14px; line-height: 1.45; border-radius: 10px; padding: 8px 12px; background: #FBEBDD; color: #7A3D0E; }
   .row-note { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; font-size: 14px; line-height: 1.45; border-radius: 10px; padding: 8px 12px; background: var(--sand); }
   .row-note .btn-small { margin-top: 0; }
   .drag-hint { display: none; }
@@ -438,21 +426,6 @@
                 <p class="hint">Tocca il punto della pianta.</p>
               </div>
             </div>
-            <sc-if value="{{askDup}}" hint-placeholder-val="{{false}}">
-              <div class="blur-note" role="status">
-                <span>{{askDupText}}</span>
-                <span class="dup-actions">
-                  <button type="button" class="btn-ghost btn-small" onClick="{{onAskDupOk}}">È un’altra cartina</button>
-                  <button type="button" class="btn-ghost btn-small" onClick="{{onDeleteAsk}}">Eliminala</button>
-                </span>
-              </div>
-            </sc-if>
-            <sc-if value="{{askBlur}}" hint-placeholder-val="{{false}}">
-              <div class="blur-note" role="status">
-                <span>La foto sembra un po’ sfocata. Se puoi, rifalla tenendo fermo il telefono, a una spanna dalla cartina.</span>
-                <button type="button" class="btn-ghost btn-small" onClick="{{onDeleteAsk}}">Rifalla</button>
-              </div>
-            </sc-if>
             <div class="pick" role="group" aria-label="{{askTitle}}">
               <span class="pick-col" style="grid-column: 2; grid-row: 1">Esterna<small>verso l’interfila</small></span>
               <span class="pick-col" style="grid-column: 3; grid-row: 1">Interna<small>dentro la chioma</small></span>
@@ -644,9 +617,6 @@
         <div class="bar" aria-hidden="true"><span style="{{barStyle}}"></span></div>
         <sc-if value="{{viewMedia}}" hint-placeholder-val="{{false}}">
           <p class="hint">Da {{cards.min}}% a {{cards.max}}% · tocca una cartina per i dettagli.</p>
-          <sc-for list="{{dupNotes}}" as="dn" hint-placeholder-count="0">
-            <div class="blur-note" role="status"><span>{{dn.text}}</span><button type="button" class="btn-ghost btn-small" onClick="{{dn.open}}">Controlla</button></div>
-          </sc-for>
           <div class="thumbs">
             <sc-for list="{{thumbs}}" as="th" hint-placeholder-count="3">
               <button type="button" class="thumb" onClick="{{th.open}}"><img src="{{th.src}}" alt="{{th.alt}}">{{th.label}}</button>
@@ -654,65 +624,23 @@
           </div>
         </sc-if>
         <sc-if value="{{showPics}}" hint-placeholder-val="{{true}}">
-        <sc-if value="{{clipDrawOff}}" hint-placeholder-val="{{true}}">
         <div class="pics">
-          <div class="pic"><img src="{{cropUrl}}" alt="Cartina fotografata">Foto</div>
-          <div class="pic"><img src="{{maskUrl}}" alt="Macchie rilevate sulla cartina"><span class="pic-cap">Più scuro: più macchiato · verde: foglia · arancio: graffetta o zona esclusa · azzurro e lilla: riflessi e bordi (esclusi)</span></div>
+          <div class="pic"><img class="tap-img" src="{{cropUrl}}" alt="Cartina fotografata: tocca dove si trova la graffetta" onClick="{{onMarkClip}}">Foto</div>
+          <div class="pic"><img class="tap-img" src="{{maskUrl}}" alt="Macchie rilevate sulla cartina: tocca dove si trova la graffetta" onClick="{{onMarkClip}}"><span class="pic-cap">Più scuro: più macchiato · verde: foglia · arancio: graffetta · azzurro e lilla: riflessi e bordi (esclusi)</span></div>
         </div>
-        </sc-if>
-        <sc-if value="{{clipDraw}}" hint-placeholder-val="{{false}}">
-          <div class="lasso">
-            <p class="lasso-help" id="lasso-help" tabindex="-1">Traccia con il dito o con il mouse un cerchio attorno alla graffetta: la cerco lì dentro. Va bene anche un tocco sopra.</p>
-            <div class="lasso-box" style="{{lassoBoxStyle}}" onPointerDown="{{onLassoDown}}" onPointerMove="{{onLassoMove}}" onPointerUp="{{onLassoUp}}" onPointerCancel="{{onLassoCancel}}">
-              <img src="{{cropUrl}}" alt="Cartina: traccia un cerchio attorno alla graffetta" draggable="false">
-              <svg class="lasso-svg" viewBox="{{lassoViewBox}}" preserveAspectRatio="none" aria-hidden="true"><path id="lasso-path" d="" vector-effect="non-scaling-stroke"></path></svg>
-            </div>
-            <div class="lasso-actions"><button type="button" class="btn-ghost btn-small" onClick="{{onCancelDraw}}">Annulla</button></div>
-          </div>
-        </sc-if>
-        <sc-if value="{{clipPendingOn}}" hint-placeholder-val="{{false}}">
-          <div class="clip-note" role="status">
-            <span class="clip-key" aria-hidden="true"></span>
-            <span class="clip-text">Nella zona cerchiata non trovo la graffetta. Se vuoi, puoi escludere tutta la zona dal calcolo.</span>
-            <div class="clip-actions">
-              <button type="button" class="link-btn clip-btn" onClick="{{onExcludeZone}}">Escludi la zona cerchiata dal calcolo</button>
-              <button type="button" class="link-btn clip-btn" onClick="{{onStartDraw}}">Riprova a cerchiarla</button>
-              <button type="button" class="link-btn clip-btn" onClick="{{onKeepClip}}">Lascia com’era</button>
-            </div>
-          </div>
-        </sc-if>
         <sc-if value="{{hasClip}}" hint-placeholder-val="{{false}}">
           <div class="clip-note" role="status">
             <span class="clip-key" aria-hidden="true"></span>
-            <span class="clip-text">{{clipNoteText}} ({{clipText}}% della cartina). {{clipHelp}}</span>
-            <sc-if value="{{canEditClip}}" hint-placeholder-val="{{true}}">
-              <div class="clip-actions">
-                <button type="button" class="link-btn clip-btn" onClick="{{onStartDraw}}">{{drawLabel}}</button>
-                <button type="button" class="link-btn clip-btn" onClick="{{onNoClip}}">Nessuna graffetta</button>
-              </div>
-            </sc-if>
-          </div>
-        </sc-if>
-        <sc-if value="{{selDup}}" hint-placeholder-val="{{false}}">
-          <div class="blur-note" role="status">
-            <span>{{selDupText}}</span>
-            <span class="dup-actions">
-              <button type="button" class="btn-ghost btn-small" onClick="{{onSelDupOk}}">È un’altra cartina</button>
-              <sc-if value="{{canRemoveSel}}" hint-placeholder-val="{{true}}"><button type="button" class="btn-ghost btn-small" onClick="{{onRemoveSel}}">Elimina questa foto</button></sc-if>
+            <span class="clip-text">
+              <sc-if value="{{clipByTap}}" hint-placeholder-val="{{false}}">Graffetta indicata da te</sc-if>
+              <sc-if value="{{clipAuto}}" hint-placeholder-val="{{true}}">Graffetta trovata</sc-if>
+              ed esclusa ({{clipText}}%). {{clipHelp}}
             </span>
-          </div>
-        </sc-if>
-        <sc-if value="{{selBlur}}" hint-placeholder-val="{{false}}">
-          <div class="blur-note" role="status">
-            <span>La foto sembra un po’ sfocata: la copertura resta un’indicazione, ma graffetta e macchie piccole si riconoscono peggio. Se puoi, rifalla tenendo fermo il telefono.</span>
-            <button type="button" class="btn-ghost btn-small" onClick="{{onRetake}}">{{retakeLabel}}</button>
+            <sc-if value="{{canEditClip}}" hint-placeholder-val="{{true}}"><button type="button" class="link-btn clip-btn" onClick="{{onNoClip}}">Nessuna graffetta</button></sc-if>
           </div>
         </sc-if>
         <sc-if value="{{noClipFound}}" hint-placeholder-val="{{false}}">
-          <div class="row-note">
-            <span>{{noClipText}} {{noClipHelp}}</span>
-            <sc-if value="{{canEditClip}}" hint-placeholder-val="{{true}}"><button type="button" class="btn-ghost btn-small" onClick="{{onStartDraw}}">C’è una graffetta? Cerchiala</button></sc-if>
-          </div>
+          <p class="hint">{{noClipText}} {{noClipHelp}}</p>
         </sc-if>
         <sc-if value="{{resCode}}" hint-placeholder-val="{{true}}">
           <div class="code-row"><span class="code-chip">{{resCode}}</span><span>{{resText}}</span></div>
@@ -1258,18 +1186,7 @@ function today() {
 
 // Risultato di una cartina; i dati dell'irroratrice restano tra una cartina e l'altra (stessa macchina).
 // ask: foto appena scattata che aspetta "dov'era?" (indice nella sessione); flash: conferma dopo la risposta.
-// Graffetta cerchiata: un segno più piccolo di LASSO_MIN (rispetto al lato della cartina) vale come un tocco,
-// cioè un cerchio di raggio LASSO_TAP intorno al punto.
-const LASSO_MIN = 0.06;
-// Avviso di foto doppia (findDuplicate in analisi.js): con quale foto e quanto è sicuro.
-function dupText(dup, cards) {
-  const j = cards.findIndex((c) => c.id === dup.id);
-  if (j < 0) return '';
-  const other = 'foto ' + (j + 1) + (cards[j].code ? ' (' + cards[j].code + ')' : '');
-  return dup.kind === 'same' ? 'Sembra la stessa immagine della ' + other + '.' : 'Sembra la stessa cartina della ' + other + ': forse l’hai fotografata due volte.';
-}
-const LASSO_TAP = 0.12;
-const NO_RESULT = { clipDraw: null, clipPending: null, ask: null, flash: '', errors: [], dragging: false, hover: null, clipMode: 'auto', coverage: 0, clipFrac: 0, cropUrl: '', maskUrl: '', savedDate: '' };
+const NO_RESULT = { ask: null, flash: '', errors: [], dragging: false, hover: null, clipMode: 'auto', coverage: 0, clipFrac: 0, cropUrl: '', maskUrl: '', savedDate: '' };
 // Archivio di prova: i rilievi semplici salvati restano nel browser (localStorage), solo per il prototipo,
 // così si riaprono da I miei rilievi (Rilievi.dc.html legge la stessa chiave). Nel prodotto vanno sul server.
 const STORE_KEY = 'perleuve.rilieviSemplici';
@@ -1662,7 +1579,7 @@ class Component extends DCLogic {
   cardEntry(code, r, clipMode, prev) {
     const id = prev ? prev.id : 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     return Object.assign({ id: id, code: code, cov: r.coverage, clipFrac: r.clipFrac, clipMode: clipMode, cropUrl: r.cropUrl, maskUrl: r.maskUrl,
-      sig: r.sig, hash: r.hash, sharp: r.sharp != null ? r.sharp : prev && prev.sharp != null ? prev.sharp : null }, prev && prev.dup ? { dup: prev.dup } : {});
+      sig: r.sig, hash: r.hash }, prev && prev.dup ? { dup: prev.dup } : {});
   }
 
   // Cartina acquisita: si aggiunge alle altre (i risultati si vedono alla fine). true = era una foto rifatta.
@@ -1718,19 +1635,6 @@ class Component extends DCLogic {
       ask: ask == null || ask === i ? null : ask > i ? ask - 1 : ask });
   }
 
-  // "È un'altra cartina": l'avviso di foto doppia non si mostra più per quella foto.
-  dupOk(i) {
-    this.setState({ session: this.state.session.map((c, j) => (j === i && c.dup ? Object.assign({}, c, { dup: Object.assign({}, c.dup, { ok: true }) }) : c)) });
-  }
-  // Elimina dai risultati la cartina mostrata (per esempio una foto doppia).
-  removeSel() {
-    const s = this.state, i = s.sel;
-    if (s.session.length < 2) return;
-    this.preps.splice(i, 1);
-    const session = s.session.filter((c, j) => j !== i);
-    this.setState({ session: session, sel: Math.min(i, session.length - 1), view: session.length > 1 ? s.view : 'card', clipDraw: null, clipPending: null });
-  }
-
   // Graffetta corretta sulla cartina mostrata.
   updateSel(clip, clipMode) {
     const s = this.state, prep = this.preps[s.sel];
@@ -1740,72 +1644,21 @@ class Component extends DCLogic {
     this.setState({ session: session });
   }
 
-  // Graffetta da cerchiare: la foto si apre grande e si traccia un cerchio attorno (dito o mouse).
-  startDraw() {
-    if (!this.preps[this.state.sel]) return;
-    this.setState({ clipDraw: this.state.sel, clipPending: null });
-    requestAnimationFrame(() => { const h = document.getElementById('lasso-help'); if (h) h.focus(); });
-  }
-  lassoPoint(e) {
-    const prep = this.preps[this.state.sel], box = e.currentTarget.getBoundingClientRect();
-    return [Math.min(prep.cw, Math.max(0, (e.clientX - box.left) / box.width * prep.cw)), Math.min(prep.ch, Math.max(0, (e.clientY - box.top) / box.height * prep.ch))];
-  }
-  lassoDraw() {
-    const path = document.getElementById('lasso-path');
-    if (path) path.setAttribute('d', this.lasso && this.lasso.length ? 'M' + this.lasso.map((q) => q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' L') + ' Z' : '');
-  }
-  lassoDown(e) {
-    if (!this.preps[this.state.sel] || (e.button != null && e.button > 0)) return;
-    e.preventDefault();
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* non serve */ }
-    this.lasso = [this.lassoPoint(e)];
-    this.lassoDraw();
-  }
-  lassoMove(e) {
-    if (!this.lasso) return;
-    const q = this.lassoPoint(e), last = this.lasso[this.lasso.length - 1], prep = this.preps[this.state.sel];
-    if (Math.hypot(q[0] - last[0], q[1] - last[1]) < 0.005 * Math.max(prep.cw, prep.ch)) return;
-    this.lasso.push(q);
-    this.lassoDraw();
-  }
-  lassoUp() {
-    const pts = this.lasso;
-    this.lasso = null;
-    if (pts) this.finishLasso(pts);
-  }
-  lassoCancel() { this.lasso = null; this.lassoDraw(); }
-
-  // Zona cerchiata: si cerca la graffetta lì dentro. Un tocco (o un segno piccolo) vale come un cerchio intorno.
-  finishLasso(pts) {
-    const i = this.state.sel, prep = this.preps[i];
+  // Tocco sulla foto o sulla maschera: la graffetta è lì. Si ricalcola subito.
+  markClip(e) {
+    const prep = this.preps[this.state.sel];
     if (!prep) return;
-    const side = Math.max(prep.cw, prep.ch), xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
-    let poly = pts;
-    if (pts.length < 3 || Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)) < LASSO_MIN * side) {
-      const cx = xs.reduce((a, v) => a + v, 0) / xs.length, cy = ys.reduce((a, v) => a + v, 0) / ys.length, r = LASSO_TAP * side;
-      poly = Array.from({ length: 24 }, (_, k) => [cx + r * Math.cos(k * Math.PI / 12), cy + r * Math.sin(k * Math.PI / 12)]);
-    }
-    const res = clipZones(prep, poly);
-    if (res.found) {
-      this.updateSel(res.clip, 'lasso');
-      this.setState({ clipDraw: null, clipPending: null });
-    } else {
-      this.setState({ clipDraw: null, clipPending: { sel: i, poly: poly } });
-    }
-  }
-
-  // La graffetta non si trova nemmeno nella zona cerchiata: si esclude tutta la zona.
-  excludeZone() {
-    const s = this.state, prep = this.preps[s.sel];
-    if (!prep || !s.clipPending || s.clipPending.sel !== s.sel) return;
-    const zone = polygonMask(s.clipPending.poly, prep.cw, prep.ch);
-    this.setState({ clipPending: null });
-    this.updateSel(zone, 'zone');
+    const r = e.currentTarget.getBoundingClientRect();
+    const { cw, ch } = prep;
+    // le immagini sono quadrate con object-fit: contain
+    const sc = Math.min(r.width / cw, r.height / ch);
+    const x = (e.clientX - r.left - (r.width - cw * sc) / 2) / sc, y = (e.clientY - r.top - (r.height - ch * sc) / 2) / sc;
+    if (x < 0 || y < 0 || x >= cw || y >= ch) return;
+    this.updateSel(clipZones(prep, { x: x, y: y }), 'tap');
   }
 
   noClip() {
     const prep = this.preps[this.state.sel];
-    this.setState({ clipPending: null, clipDraw: null });
     if (prep) this.updateSel(new Uint8Array(prep.cw * prep.ch), 'none');
   }
 
@@ -1876,8 +1729,6 @@ class Component extends DCLogic {
     const cards = s.session, multi = cards.length > 1;
     const viewMedia = multi && s.view === 'media';
     const selCard = cards[Math.min(s.sel, cards.length - 1)] || null;
-    const selIdx = Math.min(s.sel, cards.length - 1), selPrep = selCard && this.preps ? this.preps[selIdx] || null : null;
-    const clipDraw = !!selPrep && !viewMedia && s.clipDraw === selIdx, clipPending = !!selPrep && !viewMedia && !!s.clipPending && s.clipPending.sel === selIdx;
     const meanCov = cards.length ? cards.reduce((a, c) => a + c.cov, 0) / cards.length : 0;
     const cov = Math.min(100, Math.max(0, viewMedia ? meanCov : selCard ? selCard.cov : 0));
     const covClass = coverageClass(cov);
@@ -2177,18 +2028,6 @@ class Component extends DCLogic {
     return {
       isCamera: s.step === 'camera',
       asking: !!askCard,
-      askBlur: !!askCard && askCard.sharp != null && askCard.sharp < SHARP_MIN,
-      askDup: !!askCard && !!askCard.dup && !askCard.dup.ok && !!dupText(askCard.dup, sess),
-      askDupText: askCard && askCard.dup ? dupText(askCard.dup, sess) : '',
-      onAskDupOk: () => this.dupOk(s.ask),
-      selDup: !!selCard && !viewMedia && !!selCard.dup && !selCard.dup.ok && !!dupText(selCard.dup, cards),
-      selDupText: selCard && selCard.dup ? dupText(selCard.dup, cards) : '',
-      onSelDupOk: () => this.dupOk(selIdx),
-      canRemoveSel: cards.length > 1,
-      onRemoveSel: () => this.removeSel(),
-      dupNotes: cards.map((c, i) => ({ c: c, i: i })).filter((x) => x.c.dup && !x.c.dup.ok && dupText(x.c.dup, cards))
-        .map((x) => ({ text: 'Foto ' + (x.i + 1) + ': ' + dupText(x.c.dup, cards).replace(/^S/, 's'), open: () => this.setState({ view: 'card', sel: x.i, hover: null }) })),
-      selBlur: !!selCard && !viewMedia && selCard.sharp != null && selCard.sharp < SHARP_MIN,
       notAsking: !askCard,
       askTitle: askCard ? 'Cartina ' + (s.ask + 1) + ': dov’era?' : '',
       askSrc: askCard ? askCard.cropUrl : '',
@@ -2250,8 +2089,8 @@ class Component extends DCLogic {
       reopenedText: s.savedId ? 'Rilievo ' + s.savedId + ' del ' + (s.savedDate || '') + ', riaperto da I miei rilievi.' : '',
       storeNote: s.storeNote,
       canEditClip: !!(this.preps && this.preps[s.sel]),
-      clipHelp: this.preps && this.preps[s.sel] ? '' : 'Per correggerla, rifai la foto.',
-      noClipHelp: '',
+      clipHelp: this.preps && this.preps[s.sel] ? 'Non è lì? Tocca la foto dove si trova.' : 'Per correggerla, rifai la foto.',
+      noClipHelp: this.preps && this.preps[s.sel] ? 'Se c’è, tocca la foto dove si trova.' : '',
       viewMedia: viewMedia,
       showPics: !viewMedia && !!selCard,
       showCardPicker: multi && !viewMedia,
@@ -2288,25 +2127,12 @@ class Component extends DCLogic {
         + ': confronto con tutte le cartine.',
       allHaveCode: noCode === 0 && cards.length > 0,
       resText: selCard && selCard.code ? codeText(selCard.code) : '',
-      hasClip: !!selCard && selCard.clipFrac > 0 && !clipDraw && !clipPending,
-      noClipFound: !!selCard && !(selCard.clipFrac > 0) && !clipDraw && !clipPending,
-      clipNoteText: !selCard ? '' : selCard.clipMode === 'zone' ? 'Zona cerchiata esclusa dal calcolo'
-        : selCard.clipMode === 'lasso' || selCard.clipMode === 'tap' ? 'Graffetta trovata nella zona cerchiata ed esclusa' : 'Graffetta trovata ed esclusa',
-      drawLabel: selCard && selCard.clipMode === 'zone' ? 'Cerchia di nuovo' : 'Non è giusta? Cerchiala',
+      hasClip: !!selCard && selCard.clipFrac > 0,
+      noClipFound: !!selCard && !(selCard.clipFrac > 0),
+      clipByTap: !!selCard && selCard.clipMode === 'tap',
+      clipAuto: !selCard || selCard.clipMode !== 'tap',
       noClipText: selCard && selCard.clipMode === 'none' ? 'Graffetta tolta: tutta la cartina è nel calcolo.' : 'Nessuna graffetta trovata.',
-      clipDraw: clipDraw,
-      clipDrawOff: !clipDraw,
-      clipPendingOn: clipPending,
-      lassoBoxStyle: selPrep ? 'aspect-ratio: ' + selPrep.cw + ' / ' + selPrep.ch : '',
-      lassoViewBox: selPrep ? '0 0 ' + selPrep.cw + ' ' + selPrep.ch : '0 0 1 1',
-      onStartDraw: () => this.startDraw(),
-      onCancelDraw: () => { this.lasso = null; this.setState({ clipDraw: null }); },
-      onLassoDown: (e) => this.lassoDown(e),
-      onLassoMove: (e) => this.lassoMove(e),
-      onLassoUp: (e) => this.lassoUp(e),
-      onLassoCancel: () => this.lassoCancel(),
-      onExcludeZone: () => this.excludeZone(),
-      onKeepClip: () => this.setState({ clipPending: null }),
+      onMarkClip: (e) => this.markClip(e),
       onNoClip: () => this.noClip(),
       clipText: fmt(selCard ? selCard.clipFrac : 0, 1),
 
