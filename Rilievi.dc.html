@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Irrorazione">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <title>I miei rilievi</title>
+<script src="./qrcode.js"></script>
 <script src="./jsQR.js"></script>
 <script src="./schede.js"></script>
 <script src="./support.js"></script>
@@ -121,6 +122,13 @@
   .detail-empty { color: var(--ink-soft); text-align: center; padding: 48px 12px; }
   .detail-empty h2 { font-size: 18px; color: var(--ink); margin-bottom: 6px; }
 
+  .print-panel { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 22px; margin-top: 8px; }
+  .print-box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+  .gen-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+  .gen-n { width: 140px; margin: 0; }
+  .lot-list { margin: 6px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+  .notice-ok { font-size: 14px; border-radius: 10px; padding: 10px 12px; background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; margin: 0; }
+  .free-list { font-weight: 700; }
   .shop-panel { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 22px; margin-top: 8px; }
   .shop-head h2 { font-size: 20px; margin-bottom: 4px; }
   .shop-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -129,6 +137,7 @@
   .shop-search { background: var(--accent-soft); border-color: var(--accent-soft); }
   .shop-links { display: flex; flex-wrap: wrap; gap: 8px; }
   .is-selected .shop-panel { display: none; }
+  .is-selected .print-panel { display: none; }
   .is-selected .list-panel { display: none; }
   .no-selection .detail-panel { display: none; }
 
@@ -142,6 +151,8 @@
     .draft-banner { grid-column: 1 / -1; }
     .shop-panel { grid-column: 1 / -1; }
     .is-selected .shop-panel { display: flex; }
+    .print-panel { grid-column: 1 / -1; }
+    .is-selected .print-panel { display: flex; }
     .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .is-selected .list-panel { display: flex; }
     .no-selection .detail-panel { display: flex; }
@@ -332,6 +343,7 @@
                     <sc-if value="{{sl.noThumb}}" hint-placeholder-val="{{false}}"><span class="photo-sample">Immagine caricata</span></sc-if>
                     <div class="slot-photo-info">
                       <p class="{{sl.checkCls}}">{{sl.checkText}}</p>
+                      <sc-if value="{{sl.dpiText}}" hint-placeholder-val="{{false}}"><p class="{{sl.dpiCls}}">{{sl.dpiText}}</p></sc-if>
                       <sc-if value="{{sl.mismatch}}" hint-placeholder-val="{{false}}">
                         <div class="actions">
                           <button type="button" class="btn-ghost btn-small" onClick="{{sl.onConfirm}}">È la foto giusta: usala lo stesso</button>
@@ -406,6 +418,34 @@
           <p>Scegli un rilievo dall’elenco per vederne i dati, modificare i parametri o caricare l’immagine, oppure inizia un nuovo rilievo.</p>
         </div>
       </sc-if>
+    </section>
+
+    <section class="print-panel" aria-labelledby="print-title">
+      <div class="shop-head">
+        <h2 id="print-title">Schede da stampare</h2>
+        <p class="send-hint">Puoi preparare le schede prima di uscire in vigneto: ne serve una per parete ogni 5 repliche (un rilievo standard ne usa 2).</p>
+      </div>
+      <div class="print-box">
+        <p>{{print.freeText}} <sc-if value="{{print.hasFree}}" hint-placeholder-val="{{true}}"><span class="free-list">{{print.freeList}}</span></sc-if></p>
+        <div class="gen-row">
+          <div class="field gen-n">
+            <label for="lottoN">Quante schede</label>
+            <input id="lottoN" type="number" min="1" max="20" inputmode="numeric" value="{{print.nText}}" onChange="{{print.onN}}">
+          </div>
+          <button type="button" class="btn-primary" onClick="{{print.onGenerate}}">Scarica il PDF delle schede</button>
+        </div>
+        <sc-if value="{{print.msg}}" hint-placeholder-val="{{false}}"><p class="notice-ok" role="status">{{print.msg}}</p></sc-if>
+        <p class="send-hint">Ogni scheda ha un numero unico: se puoi, stampa il PDF <strong>una sola volta</strong>, in A4 e in scala 100%, e non fare fotocopie, così i dati di due rilievi non si mescolano. Nel rilievo accurato le schede libere ti vengono proposte da sole.</p>
+        <sc-if value="{{print.hasLots}}" hint-placeholder-val="{{false}}">
+          <details class="more">
+            <summary>Schede già generate su questo telefono</summary>
+            <ul class="lot-list">
+              <sc-for list="{{print.lots}}" as="l" hint-placeholder-count="2"><li>{{l.text}}</li></sc-for>
+            </ul>
+            <p class="send-hint">Un PDF già scaricato non si scarica di nuovo: se ti servono altre schede, generane di nuove.</p>
+          </details>
+        </sc-if>
+      </div>
     </section>
 
     <section class="shop-panel" aria-labelledby="shop-title">
@@ -586,7 +626,7 @@ class Component extends DCLogic {
     Promise.all([leggiQrScheda(file), miniaturaImmagine(file)]).then(([r, thumb]) => {
       this.setIn('reading', key, undefined);
       this.setIn('slotErr', key, undefined);
-      this.patchSlot(key, { foto: { nome: file.name, thumb: thumb, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() } });
+      this.patchSlot(key, { foto: { nome: file.name, thumb: thumb, qr: r.numero || '', metodoQr: r.metodo || '', dpi: r.dpi || null, manuale: '', confermata: null, quando: new Date().toISOString() } });
     });
   }
 
@@ -645,7 +685,7 @@ class Component extends DCLogic {
   }
 
   slotVals(r, sc) {
-    const s = this.state, key = sc.key, f = sc.foto, chk = controlloFoto(sc), tc = testoControllo(chk, sc);
+    const s = this.state, key = sc.key, f = sc.foto, chk = controlloFoto(sc), tc = testoControllo(chk, sc), td = testoDpi(f);
     const canEdit = r.stato === 'foto';
     let badge = 'Scheda ' + sc.id + (f ? '' : ' · immagine da caricare'), badgeCls = 'slot-badge', cls = 'slot';
     if (chk.stato === 'ok' || chk.stato === 'confermata') { badge = 'Scheda ' + sc.id + ' · immagine ok'; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
@@ -656,7 +696,7 @@ class Component extends DCLogic {
       camId: 'cam-' + uid, fileId: 'file-' + uid, manualId: 'man-' + uid,
       noPhoto: !f && canEdit, hasPhoto: !!f, canEdit: canEdit && !!f, reading: !!s.reading[key],
       thumb: f && f.thumb ? f.thumb : '', noThumb: !!f && !f.thumb, photoAlt: 'Immagine della scheda ' + sc.id, photoName: f ? f.nome : '',
-      checkText: tc.testo, checkCls: tc.cls, mismatch: canEdit && chk.stato === 'diverso',
+      checkText: tc.testo, checkCls: tc.cls, dpiText: td ? td.testo : '', dpiCls: td ? td.cls : 'check-info', mismatch: canEdit && chk.stato === 'diverso',
       manualOpen: chk.stato === 'illeggibile', manualText: s.manualInput[key] || '', err: s.slotErr[key] || '',
       onPhoto: (e) => this.slotPhoto(key, e),
       onConfirm: () => this.slotFoto(key, { confermata: { quando: new Date().toISOString(), visto: chk.visto, atteso: sc.numero } }),
@@ -664,6 +704,13 @@ class Component extends DCLogic {
       onManual: () => this.slotManual(key),
       onClear: () => this.patchSlot(key, { foto: null })
     };
+  }
+
+  // Nuovo lotto di schede da stampare: numeri mai usati, PDF scaricato subito e una volta sola.
+  generateLot() {
+    const n = Math.max(1, Math.min(20, parseInt(this.state.lottoN, 10) || 2));
+    const { nome } = scaricaLotto(n);
+    this.setState({ lottoMsg: 'Scaricato ' + nome + ' (' + n + (n === 1 ? ' scheda' : ' schede') + '). Se puoi, stampalo una sola volta e senza fotocopie.' });
   }
 
   renderVals() {
@@ -715,8 +762,29 @@ class Component extends DCLogic {
         : 'Rilievo elaborato. Le modifiche salvate richiederanno una nuova elaborazione.'
     } : {};
 
+    // Schede da stampare: libere = generate su questo telefono e non ancora collegate a un rilievo
+    const lots = schedeRegistro().lotti.slice().reverse(), libere = schedeLibere(), reg = schedeRegistro();
+    const giorno = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('it-IT'); };
+    const print = {
+      hasFree: libere.length > 0,
+      freeText: libere.length ? 'Su questo telefono ' + (libere.length === 1 ? 'c’è 1 scheda generata e non ancora usata:' : 'ci sono ' + libere.length + ' schede generate e non ancora usate:')
+        : 'Nessuna scheda pronta su questo telefono: puoi generarne di nuove qui sotto.',
+      freeList: libere.join(', '),
+      nText: s.lottoN || '2',
+      onN: (e) => this.setState({ lottoN: e.target.value }),
+      onGenerate: () => this.generateLot(),
+      msg: s.lottoMsg || '',
+      hasLots: lots.length > 0,
+      lots: lots.map((l) => {
+        const used = l.numeri.filter((n) => reg.usi[n] && reg.usi[n].length).length;
+        return { text: l.numeri[0] + (l.numeri.length > 1 ? ' … ' + l.numeri[l.numeri.length - 1] : '') + ' · ' + l.numeri.length + (l.numeri.length === 1 ? ' scheda' : ' schede')
+          + ' · scaricate il ' + giorno(l.creato) + ' · ' + (used ? used + ' già usat' + (used === 1 ? 'a' : 'e') : 'nessuna usata') };
+      })
+    };
+
     return {
       pageCls: r ? 'page is-selected' : 'page no-selection',
+      print: print,
       hasDraft: !!draftRec,
       draft: draftRec ? { id: draftRec.id, data: draftRec.data, azienda: draftRec.azienda, vigneto: draftRec.vigneto, progressText: progressText(draftRec) } : {},
       query: s.query,

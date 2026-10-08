@@ -2,8 +2,8 @@
 // Tiene in cache tutti i file dell'app, così si apre anche senza rete in vigneto.
 // File dell'app: prima la rete (così dopo una pubblicazione si vede subito la versione nuova), e la copia
 // in cache se la rete manca o non risponde entro NET_TIMEOUT. Font di Google: cache dopo il primo uso.
-const CACHE = 'irrorazione-fb1d0d266464';
-const FILES = ["./", "Elaborazione.dc.html", "Login.dc.html", "Main.dc.html", "Rilievi.dc.html", "Risultati.dc.html", "Scelta.dc.html", "Schede.dc.html", "Semplice.dc.html", "Taratura.dc.html", "analisi.js", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "index.html", "jsQR.js", "manifest.webmanifest", "qrcode.js", "schede.js", "support.js"];
+const CACHE = 'irrorazione-f593abb29802';
+const FILES = ["./", "Elaborazione.dc.html", "Login.dc.html", "Main.dc.html", "Rilievi.dc.html", "Risultati.dc.html", "Scelta.dc.html", "Schede.dc.html", "Semplice.dc.html", "Taratura.dc.html", "analisi.js", "esempi_dubbie.js", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "index.html", "jsQR.js", "manifest.webmanifest", "qrcode.js", "schede.js", "support.js"];
 const NET_TIMEOUT = 4000;
 
 self.addEventListener('install', (e) => {

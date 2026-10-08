@@ -13,6 +13,8 @@
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <title>Risultati rilievo</title>
 <script src="./schede.js"></script>
+<script src="./analisi.js"></script>
+<script src="./esempi_dubbie.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -115,6 +117,26 @@
   .advice-tag.is-mid { background: #FCEFD2; color: #6B4A00; }
   .draft-note { font-size: 13px; color: var(--ink-soft); background: var(--sand); border-radius: 10px; padding: 8px 12px; }
   .kpi-class { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; align-self: flex-start; padding: 3px 8px; border-radius: 100px; background: var(--accent-soft); color: var(--accent-strong); }
+  .check-list { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .dub-card { background: var(--surface); border: 1.5px solid #E9B98E; border-radius: var(--radius); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .dub-card.is-done { border-color: var(--line); }
+  .dub-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+  .dub-head h3 { font-size: 15px; }
+  .dub-tag { font-family: 'Montserrat', system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 100px; background: #FBEBDD; color: #7A3D0E; }
+  .dub-tag.is-done { background: var(--accent-soft); color: var(--accent-strong); }
+  .dub-box { position: relative; width: 100%; max-width: 360px; aspect-ratio: 1 / 1; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .dub-box img { display: block; width: 100%; height: 100%; border-radius: 10px; pointer-events: none; }
+  .dub-box svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .dub-auto { fill: none; stroke: #E07B24; stroke-width: 2.5; stroke-dasharray: 8 6; }
+  .dub-quad { fill: rgba(78, 122, 30, 0.12); stroke: #4E7A1E; stroke-width: 2.5; }
+  .dub-handle { fill: #FFFFFF; stroke: #4E7A1E; stroke-width: 3; }
+  .dub-box.is-edit { cursor: grab; }
+  .dub-text { font-size: 14px; line-height: 1.45; margin: 0; }
+  .dub-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn-small { padding: 8px 16px; min-height: 40px; font-size: 13px; cursor: pointer; }
+  button.btn-ghost { background: transparent; cursor: pointer; }
+  button.btn-primary { border: 0; cursor: pointer; }
+  @media (min-width: 900px) { .check-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 560px) { .codes-note { display: none; } .val { font-size: 16px; } .band-label { font-size: 11px; letter-spacing: 0; } .heat { font-size: 11px; } .heat-c { padding: 5px 0; } }
   /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
   img, svg, video, canvas { max-width: 100%; }
@@ -146,6 +168,44 @@
         <dt>Repliche</dt><dd>{{head.repliche}}</dd>
       </dl>
     </section>
+
+    <sc-if value="{{dub.has}}" hint-placeholder-val="{{true}}">
+    <section aria-labelledby="check-title">
+      <h2 class="section-title" id="check-title">{{dub.title}}</h2>
+      <p class="chart-sub">{{dub.intro}}</p>
+      <div class="check-list">
+        <sc-for list="{{dub.items}}" as="d" hint-placeholder-count="2">
+          <article class="{{d.cls}}">
+            <div class="dub-head"><h3>{{d.title}}</h3><span class="{{d.tagCls}}">{{d.tag}}</span></div>
+            <div class="{{d.boxCls}}" onPointerDown="{{d.onDown}}" onPointerMove="{{d.onMove}}" onPointerUp="{{d.onUp}}" onPointerCancel="{{d.onUp}}">
+              <img src="{{d.img}}" alt="{{d.alt}}" draggable="false">
+              <svg viewBox="{{d.viewBox}}" preserveAspectRatio="none" aria-hidden="true">
+                <sc-if value="{{d.showAuto}}" hint-placeholder-val="{{true}}"><polygon class="dub-auto" points="{{d.autoPts}}" vector-effect="non-scaling-stroke"></polygon></sc-if>
+                <sc-if value="{{d.showQuad}}" hint-placeholder-val="{{false}}">
+                  <polygon class="dub-quad" id="{{d.polyId}}" points="{{d.quadPts}}" vector-effect="non-scaling-stroke"></polygon>
+                  <sc-for list="{{d.handles}}" as="h" hint-placeholder-count="4"><circle class="dub-handle" id="{{h.id}}" cx="{{h.x}}" cy="{{h.y}}" r="{{h.r}}" vector-effect="non-scaling-stroke"></circle></sc-for>
+                </sc-if>
+              </svg>
+            </div>
+            <p class="dub-text">{{d.text}}</p>
+            <sc-if value="{{d.editing}}" hint-placeholder-val="{{false}}">
+              <div class="dub-actions">
+                <button type="button" class="btn-primary btn-small" onClick="{{d.onConfirm}}">Usa questo ritaglio</button>
+                <button type="button" class="btn-ghost btn-small" onClick="{{d.onCancel}}">Annulla</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{d.idle}}" hint-placeholder-val="{{true}}">
+              <div class="dub-actions">
+                <button type="button" class="btn-primary btn-small" onClick="{{d.onEdit}}">{{d.editLabel}}</button>
+                <sc-if value="{{d.canOk}}" hint-placeholder-val="{{true}}"><button type="button" class="btn-ghost btn-small" onClick="{{d.onOk}}">Va bene così</button></sc-if>
+                <sc-if value="{{d.canEmpty}}" hint-placeholder-val="{{true}}"><button type="button" class="btn-ghost btn-small" onClick="{{d.onEmpty}}">Il posto è vuoto</button></sc-if>
+              </div>
+            </sc-if>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
 
     <section class="kpis" aria-label="Indicatori principali">
       <div class="kpi"><span class="kpi-label">Copertura media</span><span class="kpi-value">{{kpi.media}}</span><span class="kpi-unit">% superficie</span><span class="kpi-class">{{kpi.mediaCls}}</span></div>
@@ -265,8 +325,71 @@ const fmt = (v) => v.toLocaleString('it-IT', { minimumFractionDigits: 1, maximum
 const media = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
 const Y = (v) => 200 - v * 1.8;   // 0–100 % → y nel grafico (200 in basso, 20 in alto)
 
+// Cartine "da controllare" (ritaglio fuori misura, stato 'dubbio' di tools/analisi_schede.py): prima di dare i
+// risultati il server chiede all'operatore di controllarle. Qui gli esempi veri di esempi_dubbie.js.
+const DUB_HANDLE = 0.03;     // raggio della maniglia, rispetto al lato dell'immagine
+const DUB_GRAB = 0.12;       // un tocco entro questa distanza da un angolo lo prende, rispetto al lato
+const quadPts = (q) => q.map((p) => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+const quadSide = (q, ppm) => q.reduce((a, p, i) => a + Math.hypot(q[(i + 1) % 4][0] - p[0], q[(i + 1) % 4][1] - p[1]), 0) / 4 / ppm;
+
 class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const list = typeof ESEMPI_DUBBIE !== 'undefined' ? ESEMPI_DUBBIE : [];
+    // stato di ogni cartina: 'open' | 'manual' (ritagliata a mano) | 'ok' (va bene così) | 'empty' (posto vuoto)
+    this.state = Object.assign({}, this.state, { dub: list.map(() => ({ stato: 'open', quad: null, cov: null, lato: null })), dubEdit: null, dubQuad: null, dubCov: null });
+    this.dubImgs = list.map((e) => { const im = new Image(); im.src = e.img; return im; });
+  }
+
+  // Ritaglio a mano: si parte dal posto stampato ristretto di 1 mm per lato (la cartina è 25 mm, il posto 27).
+  dubStart(i) {
+    const e = ESEMPI_DUBBIE[i], cur = this.state.dub[i], m = e.px_mm;
+    const q = cur.quad ? cur.quad.map((p) => p.slice()) : e.posto.map((p, k) => [p[0] + (k === 0 || k === 3 ? m : -m), p[1] + (k < 2 ? m : -m)]);
+    this.setState({ dubEdit: i, dubQuad: q, dubCov: null });
+    this.dubMeasure(i, q);
+  }
+  dubMeasure(i, q) {
+    const im = this.dubImgs[i];
+    const run = () => { const r = analyzeQuad(im, q); this.setState({ dubCov: r.result.coverage }); };
+    if (im.complete && im.naturalWidth) setTimeout(run, 0); else im.onload = run;
+  }
+  dubPoint(i, e) {
+    const ex = ESEMPI_DUBBIE[i], b = e.currentTarget.getBoundingClientRect();
+    return [(e.clientX - b.left) / b.width * ex.larghezza, (e.clientY - b.top) / b.height * ex.altezza];
+  }
+  dubDown(i, e) {
+    if (this.state.dubEdit !== i) return;
+    const p = this.dubPoint(i, e), q = this.state.dubQuad, ex = ESEMPI_DUBBIE[i];
+    let best = -1, bd = DUB_GRAB * ex.larghezza;
+    q.forEach((c, k) => { const d = Math.hypot(c[0] - p[0], c[1] - p[1]); if (d < bd) { bd = d; best = k; } });
+    if (best < 0) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* non serve */ }
+    this.drag = { i: i, k: best, q: q.map((c) => c.slice()) };
+  }
+  dubMove(i, e) {
+    const d = this.drag;
+    if (!d || d.i !== i) return;
+    const ex = ESEMPI_DUBBIE[i], p = this.dubPoint(i, e);
+    d.q[d.k] = [Math.min(ex.larghezza, Math.max(0, p[0])), Math.min(ex.altezza, Math.max(0, p[1]))];
+    // durante il trascinamento si aggiorna solo il disegno; la copertura al rilascio
+    const poly = document.getElementById('dub-poly-' + i), h = document.getElementById('dub-h-' + i + '-' + d.k);
+    if (poly) poly.setAttribute('points', quadPts(d.q));
+    if (h) { h.setAttribute('cx', d.q[d.k][0].toFixed(1)); h.setAttribute('cy', d.q[d.k][1].toFixed(1)); }
+  }
+  dubUp(i) {
+    const d = this.drag;
+    this.drag = null;
+    if (!d || d.i !== i) return;
+    this.setState({ dubQuad: d.q, dubCov: null });
+    this.dubMeasure(i, d.q);
+  }
+  dubSet(i, patch) {
+    this.setState({ dub: this.state.dub.map((x, j) => (j === i ? Object.assign({}, x, patch) : x)), dubEdit: null, dubQuad: null, dubCov: null });
+  }
+
   renderVals() {
+    const s = this.state;
     const want = new URLSearchParams(location.search).get('rilievo');
     const rec = want ? rilieviAccurati().find((r) => r.id === want) : null;
     const head = rec ? { id: rec.id, data: rec.data, azienda: rec.azienda, vigneto: rec.vigneto, descrizione: rec.descrizione || '—', tipo: rec.tipo || '—',
@@ -328,7 +451,48 @@ class Component extends DCLogic {
     advice.push({ tag: 'Da sapere · repliche', tagCls: 'advice-tag is-mid', title: 'Repliche molto diverse tra loro',
       text: 'Nella stessa posizione le cartine vanno da poco a molto coperte (in ' + spread[0].code + ' fino a ' + Math.round(spread[0].d) + ' punti di differenza): la media di più repliche è più affidabile della singola cartina.' });
 
+    // cartine da controllare
+    const ex = typeof ESEMPI_DUBBIE !== 'undefined' ? ESEMPI_DUBBIE : [];
+    const nOpen = s.dub.filter((x) => x.stato === 'open').length;
+    const dub = {
+      has: ex.length > 0,
+      title: nOpen ? 'Cartine da controllare (' + nOpen + ')' : 'Cartine controllate',
+      intro: ex.length ? 'Nell’immagine di ' + ex[0].parete + ' (scheda ' + ex[0].scheda + ') il ritaglio automatico di ' + (ex.length === 1 ? 'una cartina' : ex.length + ' cartine')
+        + ' è più grande del normale (lato ' + ex.map((e) => fmt(e.lato_mm)).join(' e ') + ' mm invece di 25): forse ha preso anche il bordo del posto o una cartina vicina. Prova a controllarle. Prototipo: sono due cartine vere di una foto della prova in ufficio del 7 ottobre; i grafici qui sotto restano quelli delle scansioni.' : '',
+      items: ex.map((e, i) => {
+        const st = s.dub[i], editing = s.dubEdit === i, ppm = e.px_mm;
+        const q = editing ? s.dubQuad : st.quad;
+        let text = 'Ritaglio automatico (tratteggiato): lato ' + fmt(e.lato_mm) + ' mm, copertura ' + fmt(e.copertura) + ' %.';
+        if (editing) text = 'Trascina i 4 angoli sugli angoli della cartina. ' + (s.dubCov == null ? 'Calcolo la copertura…' : 'Con questo ritaglio: lato ' + fmt(quadSide(q, ppm)) + ' mm, copertura ' + fmt(s.dubCov) + ' % (automatico: ' + fmt(e.copertura) + ' %).');
+        else if (st.stato === 'manual') text = 'Ritagliata a mano: lato ' + fmt(st.lato) + ' mm, copertura ' + fmt(st.cov) + ' % (il ritaglio automatico dava ' + fmt(e.copertura) + ' %).';
+        else if (st.stato === 'ok') text = 'Tenuto il ritaglio automatico: copertura ' + fmt(e.copertura) + ' %.';
+        else if (st.stato === 'empty') text = 'Posto vuoto: la cartina non entra nei risultati.';
+        const tags = { open: 'Da controllare', manual: 'Ritagliata a mano', ok: 'Va bene così', empty: 'Posto vuoto' };
+        return {
+          title: e.parete + ' · replica ' + e.replica + ' · ' + e.posizione,
+          cls: 'dub-card' + (st.stato !== 'open' && !editing ? ' is-done' : ''),
+          tag: editing ? 'Ritaglio a mano' : tags[st.stato], tagCls: 'dub-tag' + (st.stato !== 'open' && !editing ? ' is-done' : ''),
+          img: e.img, alt: 'Zona del posto ' + e.posizione + ', replica ' + e.replica + ' nella foto della scheda ' + e.scheda,
+          viewBox: '0 0 ' + e.larghezza + ' ' + e.altezza,
+          boxCls: 'dub-box' + (editing ? ' is-edit' : ''),
+          showAuto: !editing && st.stato !== 'manual' && st.stato !== 'empty', autoPts: quadPts(e.angoli),
+          showQuad: !!q && st.stato !== 'empty', quadPts: q ? quadPts(q) : '', polyId: 'dub-poly-' + i,
+          handles: editing && q ? q.map((p, k) => ({ id: 'dub-h-' + i + '-' + k, x: p[0].toFixed(1), y: p[1].toFixed(1), r: (DUB_HANDLE * e.larghezza).toFixed(1) })) : [],
+          text: text, editing: editing, idle: !editing,
+          editLabel: st.stato === 'manual' ? 'Cambia il ritaglio' : 'Ritaglia a mano',
+          canOk: st.stato !== 'ok', canEmpty: st.stato !== 'empty',
+          onEdit: () => this.dubStart(i),
+          onOk: () => this.dubSet(i, { stato: 'ok', quad: null }),
+          onEmpty: () => this.dubSet(i, { stato: 'empty', quad: null }),
+          onConfirm: () => { if (s.dubCov != null) this.dubSet(i, { stato: 'manual', quad: s.dubQuad, cov: s.dubCov, lato: quadSide(s.dubQuad, ppm) }); },
+          onCancel: () => this.setState({ dubEdit: null, dubQuad: null, dubCov: null }),
+          onDown: (ev) => this.dubDown(i, ev), onMove: (ev) => this.dubMove(i, ev), onUp: () => this.dubUp(i)
+        };
+      })
+    };
+
     return {
+      dub: dub,
       note: note, head: head,
       kpi: { media: fmt(mAll), mediaCls: classe(mAll), bassa: fmt(mLow), bassaCls: classe(mLow), alta: fmt(mHigh),
         rapporto: (mInf / mSup).toLocaleString('it-IT', { maximumFractionDigits: 2 }), inf: fmt(mInf), sup: fmt(mSup),
