@@ -51,7 +51,7 @@
   .logo { display: flex; align-items: baseline; gap: 4px; font-family: 'Montserrat', system-ui, sans-serif; text-decoration: none; color: var(--ink); }
   .logo-4 { font-size: 24px; font-weight: 800; color: var(--accent); line-height: 1; }
   .logo-name { font-size: 13px; font-weight: 600; letter-spacing: 0.3em; line-height: 1; }
-  .avatar { width: 44px; height: 44px; border-radius: 100px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; }
+  .avatar { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; width: 44px; height: 44px; border-radius: 100px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; }
   .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #70a030; font-weight: 700; }
   .page-title { font-size: 28px; font-weight: 800; }
   .bottomnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: calc(72px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--surface); border-top: 1px solid var(--sand); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; }
@@ -236,7 +236,7 @@
 <div>
   <header class="topbar">
     <span class="logo" role="img" aria-label="4Sprayers"><span class="logo-4">4</span><span class="logo-name">SPRAYERS</span></span>
-    <button type="button" class="avatar" aria-label="Profilo e impostazioni" onClick="{{onMenu}}">GV</button>
+    <a class="avatar" href="Profilo.dc.html" aria-label="Il tuo profilo">GV</a>
   </header>
 
   <div class="{{pageCls}}">
@@ -539,22 +539,6 @@
     </div>
   </sc-if>
 
-  <sc-if value="{{showMenu}}" hint-placeholder-val="{{false}}">
-    <button type="button" class="sheet-backdrop" aria-label="Chiudi" onClick="{{onCloseSheet}}"></button>
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="menu-title">
-      <div style="display: flex; flex-direction: column; gap: 4px">
-        <span class="eyebrow">— Account</span>
-        <h2 id="menu-title">Azienda di prova</h2>
-        <span class="menu-note">giulia@venica.it · tecnico del cliente (esempio)</span>
-      </div>
-      <div class="menu-list">
-        <a href="Taratura.dc.html">Prove in ufficio: raccolta dati per la taratura</a>
-        <a href="Schede.dc.html">Prove in ufficio: foto delle schede con le cartine</a>
-        <a href="Login.dc.html">Esci</a>
-      </div>
-      <button type="button" class="sheet-close" onClick="{{onCloseSheet}}">Chiudi</button>
-    </div>
-  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
@@ -657,6 +641,22 @@ class Component extends DCLogic {
       tab: qs.get('tab') === 'schede' ? 'schede' : 'rilievi', sheet: qs.get('nuovo') ? 'nuovo' : null,
       reading: {}, manualInput: {}, slotErr: {} };
     this.save = this.save.bind(this);
+  }
+
+  // Indietro del telefono: il pannello aperto e il dettaglio di un rilievo hanno una voce nella cronologia, così
+  // "indietro" li chiude invece di uscire dall'app.
+  openSub(patch) {
+    if (!(history.state && history.state.sub)) history.pushState({ sub: true }, '');
+    this.setState(patch);
+  }
+  closeSub(patch) {
+    if (history.state && history.state.sub) history.back();   // popstate chiude
+    else this.setState(patch);
+  }
+  componentDidMount() {
+    if (history.state && history.state.sub) history.replaceState(null, '');
+    this.onPop = () => { if (!(history.state && history.state.sub)) this.setState({ sheet: null, selectedId: null }); };
+    window.addEventListener('popstate', this.onPop);
   }
 
   setIn(field, key, value) {
@@ -799,7 +799,7 @@ class Component extends DCLogic {
         statoLabel: STATI[r.stato].label, tagCls: STATI[r.stato].cls,
         cls: r.id === s.selectedId ? 'rec is-on' : 'rec',
         pressed: r.id === s.selectedId ? 'true' : 'false',
-        select: () => this.setState({ selectedId: r.id, justSaved: false })
+        select: () => (s.selectedId ? this.setState({ selectedId: r.id, justSaved: false }) : this.openSub({ selectedId: r.id, justSaved: false }))
       }));
 
     const draftRec = s.records.find((x) => x.stato === 'bozza') || null;
@@ -868,11 +868,9 @@ class Component extends DCLogic {
       schedeCurrent: s.tab === 'schede' ? 'page' : 'false',
       onTabRilievi: () => { this.setState({ tab: 'rilievi', selectedId: null }); window.scrollTo(0, 0); },
       onTabSchede: () => { this.setState({ tab: 'schede', selectedId: null }); window.scrollTo(0, 0); },
-      onNuovo: () => this.setState({ sheet: 'nuovo' }),
-      onMenu: () => this.setState({ sheet: 'menu' }),
-      onCloseSheet: () => this.setState({ sheet: null }),
+      onNuovo: () => this.openSub({ sheet: 'nuovo' }),
+      onCloseSheet: () => this.closeSub({ sheet: null }),
       showNuovo: s.sheet === 'nuovo',
-      showMenu: s.sheet === 'menu',
       print: print,
       hasDraft: !!draftRec,
       draft: draftRec ? { id: draftRec.id, data: draftRec.data, azienda: draftRec.azienda, vigneto: draftRec.vigneto, progressText: progressText(draftRec) } : {},
@@ -889,7 +887,7 @@ class Component extends DCLogic {
       hasSel: !!r,
       noSel: !r,
       sel: sel,
-      onBack: () => this.setState({ selectedId: null }),
+      onBack: () => this.closeSub({ selectedId: null }),
       onRemoveSimple: () => { if (r) this.removeSimple(r.id); },
       onRemoveAcc: () => { if (r) this.removeAcc(r); },
       onSend: () => this.sendSel(),

@@ -12,6 +12,10 @@
 <meta name="apple-mobile-web-app-title" content="4Sprayers">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
 <title>4Sprayers</title>
+<script>
+  // Prototipo: la sessione dura 30 giorni (come nel backend); se c'è già, si va diretti a I miei rilievi.
+  try { if (Number(localStorage.getItem('perleuve.sessione')) > Date.now()) location.replace('Rilievi.dc.html'); } catch (e) {}
+</script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -47,7 +51,7 @@
   .field label { display: block; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
   .field input { width: 100%; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 17px; background: var(--surface); color: var(--ink); height: 54px; }
   .field input:focus { outline: 2px solid var(--accent-strong); outline-offset: 1px; border-color: var(--accent-strong); }
-  .btn-primary { display: flex; align-items: center; justify-content: center; text-decoration: none; background: var(--accent); color: var(--ink); padding: 0 32px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 17px; font-weight: 700; min-height: 56px; }
+  .btn-primary { width: 100%; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; background: var(--accent); color: var(--ink); padding: 0 32px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 17px; font-weight: 700; min-height: 56px; }
   .btn-primary:hover { background: var(--accent-hover); color: var(--ink); }
   .btn-toggle { border: 0; background: transparent; color: var(--accent-strong); font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 4px; }
   .pw-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
@@ -83,7 +87,7 @@
 
     <p class="help">Resti collegato per 30 giorni su questo telefono. Non hai un account? Chiedilo al tuo tecnico Perleuve.</p>
 
-    <a class="btn-primary" href="Rilievi.dc.html">Accedi</a>
+    <button type="button" class="btn-primary" onClick="{{onLogin}}">Accedi</button>
   </main>
 </div>
 </x-dc>
@@ -108,7 +112,11 @@ class Component extends DCLogic {
       onPassword: (e) => this.setState({ password: e.target.value }),
       pwType: s.showPw ? 'text' : 'password',
       pwToggleLabel: s.showPw ? 'Nascondi' : 'Mostra',
-      onTogglePw: this.togglePw
+      onTogglePw: this.togglePw,
+      onLogin: () => {
+        try { localStorage.setItem('perleuve.sessione', String(Date.now() + 30 * 24 * 3600 * 1000)); } catch (e) {}
+        location.replace('Rilievi.dc.html');
+      }
     };
   }
 }

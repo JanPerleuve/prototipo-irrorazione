@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBF7F4">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="4Sprayers">
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
+<title>4Sprayers · Profilo</title>
+<script src="./schede.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;family=Barlow:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F4; --surface: #FFFFFF; --ink: #231F20; --ink-soft: #5E5856; --line: #EDDCCF; --sand: #F4E9E1;
+    --accent: #8BC53E; --accent-hover: #9ECE5D; --accent-strong: #4E7A1E; --accent-soft: #EFF6E4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3 { font-family: 'Montserrat', system-ui, sans-serif; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--accent-strong); }
+  /* Profilo (14/10/2026): una schermata del menu del profilo, con freccia indietro verso I miei rilievi. */
+  .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg); }
+  .back { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 100px; border: 0; background: none; cursor: pointer; }
+  .title { font: 700 16px 'Montserrat', sans-serif; }
+  .page { max-width: 640px; margin: 0 auto; padding: 8px 20px calc(32px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 26px; }
+  .who { display: flex; align-items: center; gap: 14px; }
+  .avatar { width: 64px; height: 64px; border-radius: 100px; background: var(--accent); display: flex; align-items: center; justify-content: center; font: 800 22px 'Montserrat', sans-serif; flex-shrink: 0; }
+  .who h1 { font-size: 24px; font-weight: 800; }
+  .muted { color: var(--ink-soft); font-size: 15px; }
+  .eyebrow { font: 700 11px 'Montserrat', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #70a030; }
+  section { display: flex; flex-direction: column; gap: 10px; }
+  .list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+  .row { min-height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--sand); }
+  .row:last-child { border-bottom: 0; }
+  .row dt, .row .k { color: var(--ink-soft); font-size: 15px; }
+  .row dd, .row .v { margin: 0; font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+  .row-link { width: 100%; background: none; border: 0; border-bottom: 1px solid var(--sand); font: 600 15px 'Montserrat', sans-serif; color: var(--ink); text-align: left; cursor: pointer; text-decoration: none; }
+  .row-link:last-child { border-bottom: 0; }
+  .chev { flex-shrink: 0; }
+  .plan { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .plan-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .plan h3 { font-size: 20px; font-weight: 800; }
+  .badge { font: 700 11px 'Montserrat', sans-serif; letter-spacing: .08em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; background: var(--accent); color: var(--ink); white-space: nowrap; }
+  .plan .muted { color: #D8D2CC; }
+  .meter { display: flex; flex-direction: column; gap: 6px; }
+  .meter-top { display: flex; justify-content: space-between; font-size: 15px; }
+  .bar { height: 8px; border-radius: 100px; background: #4A4442; }
+  .bar span { display: block; height: 8px; border-radius: 100px; background: var(--accent); }
+  .note { font-size: 13px; color: var(--ink-soft); background: var(--sand); border-radius: 10px; padding: 8px 12px; }
+  .item { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-bottom: 1px solid var(--sand); }
+  .item:last-child { border-bottom: 0; }
+  .item-title { font: 700 15px 'Montserrat', sans-serif; }
+  .btn-secondary { min-height: 52px; border-radius: 100px; background: transparent; color: var(--ink); border: 1.5px solid var(--ink); font: 700 15px 'Montserrat', sans-serif; cursor: pointer; width: 100%; }
+  img, svg { max-width: 100%; }
+  h1, h2, h3, p, span, dd, dt { overflow-wrap: break-word; }
+</style>
+</helmet>
+
+<div>
+  <header class="topbar">
+    <button type="button" class="back" aria-label="Torna a I miei rilievi" onClick="{{onBack}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+    <span class="title">Profilo</span>
+  </header>
+
+  <main class="page">
+    <p class="note">Prototipo: dati di esempio. Con il backend arrivano dall'account; abbonamenti e piani sono ancora da decidere.</p>
+
+    <div class="who">
+      <span class="avatar" aria-hidden="true">GV</span>
+      <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+        <h1>Giulia Bianchi</h1>
+        <span class="muted">Tecnico del cliente · Azienda di prova</span>
+      </div>
+    </div>
+
+    <section aria-labelledby="t-profilo">
+      <h2 id="t-profilo" class="eyebrow">— Il tuo profilo</h2>
+      <dl class="list" style="margin: 0">
+        <div class="row"><dt>Email</dt><dd>giulia.bianchi@esempio.it</dd></div>
+        <div class="row"><dt>Ruolo</dt><dd>Tecnico del cliente</dd></div>
+        <div class="row"><dt>Collegato su questo telefono fino al</dt><dd>{{sessionEnd}}</dd></div>
+      </dl>
+      <div class="list">
+        <button type="button" class="row row-link" onClick="{{onPassword}}">Cambia la password<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></button>
+      </div>
+      <sc-if value="{{pwMsg}}" hint-placeholder-val="{{false}}"><p class="muted" role="status">{{pwMsg}}</p></sc-if>
+    </section>
+
+    <section aria-labelledby="t-abbonamento">
+      <h2 id="t-abbonamento" class="eyebrow">— Abbonamento</h2>
+      <div class="plan">
+        <div class="plan-head">
+          <h3>Piano Vigneto</h3>
+          <span class="badge">Attivo</span>
+        </div>
+        <span class="muted">Rinnovo il 31/03/2027 · pagato da Azienda di prova</span>
+        <div class="meter">
+          <div class="meter-top"><span>Rilievi accurati</span><span><strong>3</strong> di 10 nell'anno</span></div>
+          <div class="bar"><span style="width: 30%"></span></div>
+        </div>
+        <div class="meter">
+          <div class="meter-top"><span>Rilievi semplici</span><span><strong>{{semplici}}</strong> · senza limite</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="t-azienda">
+      <h2 id="t-azienda" class="eyebrow">— L'azienda</h2>
+      <dl class="list" style="margin: 0">
+        <div class="row"><dt>Azienda</dt><dd>Azienda di prova</dd></div>
+        <div class="row"><dt>Codice delle schede</dt><dd>{{prefisso}}</dd></div>
+        <div class="row"><dt>Tecnico Perleuve</dt><dd>Marco Rossi</dd></div>
+        <div class="row"><dt>Utenti dell'azienda</dt><dd>2</dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="t-vigneti">
+      <h2 id="t-vigneti" class="eyebrow">— Vigneti ({{vigneti.length}})</h2>
+      <div class="list">
+        <sc-for list="{{vigneti}}" as="v" hint-placeholder-count="3">
+          <div class="item"><span class="item-title">{{v.nome}}</span><span class="muted">{{v.info}}</span></div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-labelledby="t-macchine">
+      <h2 id="t-macchine" class="eyebrow">— Macchine ({{macchine.length}})</h2>
+      <div class="list">
+        <sc-for list="{{macchine}}" as="m" hint-placeholder-count="2">
+          <div class="item"><span class="item-title">{{m.nome}}</span><span class="muted">{{m.info}}</span></div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section aria-labelledby="t-altro">
+      <h2 id="t-altro" class="eyebrow">— Altro</h2>
+      <div class="list">
+        <a class="row row-link" href="Rilievi.dc.html?tab=schede">Schede da stampare e dove comprare le cartine<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+        <a class="row row-link" href="Taratura.dc.html">Prove in ufficio: raccolta dati per la taratura<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+        <a class="row row-link" href="Schede.dc.html">Prove in ufficio: foto delle schede con le cartine<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+      </div>
+    </section>
+
+    <button type="button" class="btn-secondary" onClick="{{onEsci}}">Esci</button>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+// Prototipo: profilo, azienda e abbonamento di esempio. Con il backend: GET /api/accesso/io e GET /api/aziende/{id}
+// (vigneti e macchine dall'ultimo rilievo); l'abbonamento non esiste ancora nel backend.
+const VIGNETI_ESEMPIO = [
+  { nome: 'Stalla', info: 'Chardonnay · 2,4 × 0,9 m · Guyot' },
+  { nome: 'Bernizza', info: 'Friulano · 2,5 × 0,8 m · Guyot' },
+  { nome: 'Ronco', info: 'Sauvignon · 2,3 × 0,8 m · Cordone speronato' }
+];
+const MACCHINE_ESEMPIO = [
+  { nome: 'Esempio AT 1000', info: 'Atomizzatore · trattrice Esempio T 90 · ultimo rilievo 29/09/2026' },
+  { nome: 'Nebulizzatore generico', info: 'Nebulizzatore · solo dai rilievi semplici' }
+];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pwMsg: '' };
+  }
+
+  renderVals() {
+    let fine = null, semplici = 0;
+    try { fine = Number(localStorage.getItem('perleuve.sessione')) || null; } catch (e) {}
+    try { semplici = JSON.parse(localStorage.getItem('perleuve.rilieviSemplici') || '[]').length; } catch (e) {}
+    return {
+      sessionEnd: fine ? new Date(fine).toLocaleDateString('it-IT') : '—',
+      semplici: semplici,
+      prefisso: typeof SCHEDE_PREFISSO !== 'undefined' ? SCHEDE_PREFISSO : 'VEN',
+      vigneti: VIGNETI_ESEMPIO,
+      macchine: MACCHINE_ESEMPIO,
+      pwMsg: this.state.pwMsg,
+      onPassword: () => this.setState({ pwMsg: 'Nel prototipo la password non si cambia: con il backend arriverà un’email per sceglierne una nuova.' }),
+      // indietro: se si arriva da I miei rilievi si torna lì nella cronologia, così "indietro" dalla home chiude l'app
+      onBack: () => { if (/Rilievi\.dc\.html/.test(document.referrer) && history.length > 1) history.back(); else location.replace('Rilievi.dc.html'); },
+      onEsci: () => {
+        try { localStorage.removeItem('perleuve.sessione'); } catch (e) {}
+        location.replace('Login.dc.html');
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

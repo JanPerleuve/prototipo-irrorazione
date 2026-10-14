@@ -293,6 +293,16 @@
     window.__dc = comp; // comodo per il debug da console
   }
 
+  // Indietro del telefono (14/10/2026): i collegamenti verso la home (I miei rilievi) e verso l'accesso sostituiscono la
+  // pagina nella cronologia invece di aggiungerne una, così "indietro" dalla home chiude l'app e non torna all'accesso
+  // né dentro un rilievo già finito.
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest && e.target.closest('a[href]');
+    if (!a || a.target || e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const href = a.getAttribute('href');
+    if (/^(Rilievi|Login)\.dc\.html(\?|#|$)/.test(href)) { e.preventDefault(); location.replace(href); }
+  });
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
