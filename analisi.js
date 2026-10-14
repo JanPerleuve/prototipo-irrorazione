@@ -14,10 +14,10 @@
  *   3. Ritaglio raddrizzato con la prospettiva, dall'immagine a piena risoluzione, senza un margine ai bordi.
  *   4. Copertura frazionaria: v = ((R+G)/2 − B) / luminosità del fondo, con la luce della carta stimata zona per zona
  *      (ombre); un pixel a metà tra carta e macchia (goccia più piccola del pixel, foto sfocata) conta per metà.
- *      Si escludono foglia, riflessi, strisce di fondo lungo i bordi e la graffetta.
+ *      Si escludono foglia, riflessi, strisce di fondo lungo i bordi e la graffetta (vedi findClip).
  */
 // Cambia quando cambia l'analisi: finisce nei dati raccolti, per sapere con che versione sono state fatte le foto.
-const ANALISI_VERSIONE = '2026-10-05-b';
+const ANALISI_VERSIONE = '2026-10-08';
 
 const GUIDE = 0.7;          // lato del riquadro guida rispetto al lato del mirino (vedi .guide in CSS)
 // Ritrovamento (come in tools/analisi_cartine.py)
@@ -48,35 +48,44 @@ const STRIP_SIZE = [0.25, 0.3];    // ...larghe al massimo e lunghe almeno quest
 const STRIP_DENSE = 0.6;    // ...e compatte: riempiono almeno questa frazione del loro riquadro (non la rete grigia delle cartine molto macchiate)
 const GLARE_CHROMA = 0.15;  // riflessi e nastro: meno colorati di così...
 const GLARE_LUM = 1.05;     // ...e più chiari della carta
-// Graffetta automatica (al massimo una): il segmento dritto di pixel grigi, scuri o lucidi, più lungo.
-// È ancora imprecisa: se sbaglia si tocca la foto dove si trova (ricerca guidata, vedi clipZones).
-const STAPLE_GREY = 0.35;   // pixel poco colorati...
-const STAPLE_DARK = 0.7;    // ...e più scuri di questa frazione della carta, oppure...
-const STAPLE_SHINY = 1.0;   // ...più chiari della carta (metallo lucido)
-const STAPLE_LEN = [0.12, 0.75];   // lunghezza rispetto al lato della cartina
-const STAPLE_WIDTH = 0.03;  // i pixel stanno quasi tutti entro questa distanza dall'asse, rispetto al lato
-const STAPLE_STRAIGHT = 0.75;      // frazione dei pixel vicini all'asse (le punte piegate restano fuori)
-const STAPLE_FULL = 0.25;   // pixel / (lunghezza × 2 × STAPLE_WIDTH): una riga continua, non una nuvola di macchie
-const STAPLE_BUFFER = 0.015;       // margine escluso intorno alla graffetta, rispetto al lato
-// Graffetta indicata con un tocco: si cerca una barra dritta di larghezza fissa che contenga "metallo" (grigio,
-// chiaro o scuro) o "scuro non viola" più dei suoi due lati, solo intorno al tocco.
-const CLIP_GREY = 0.3;      // (max−min)/max sotto questo valore: grigio, cioè metallo
-const CLIP_DARK = 0.8;      // più scura di questa frazione della luminosità mediana della cartina
-const CLIP_VIOLET = 10;     // blu − (rosso+verde)/2 non oltre questo valore: non è una macchia viola
-const CLIP_GRID = 120;      // la ricerca si fa su una griglia ridotta di questo lato
-const CLIP_LENS = [0.18, 0.28, 0.4];  // lunghezze provate, rispetto al lato (le graffette ne coprono il 25-50%)
-const CLIP_WIDTH = 0.025;   // larghezza della barra, rispetto al lato
-const CLIP_ANGLES = 18;     // inclinazioni provate su 180°
-const CLIP_TAP_RESP = 0.12; // contrasto minimo dentro/fuori per dire "c'è una graffetta" vicino al tocco
-const CLIP_TAP_RADIUS = 0.12; // la ricerca guidata guarda entro questa distanza dal tocco, rispetto al lato
-const CLIP_TAP_DISC = 0.05; // se lì non trova una barra, esclude un cerchio di questo raggio intorno al tocco
-const CLIP_EDGE = 0.04;     // (ricerca guidata) bordo della griglia, rispetto al lato
-const CLIP_BUFFER = 0.015;  // margine escluso intorno alla graffetta, rispetto al lato
-// Stessa cartina due volte (vedi findDuplicate)
-const SIG_GRID = 16;        // lato della griglia dell'impronta
+// Graffetta (08/10/2026, come graffetta() di tools/analisi_cartine.py; banco in tools/banco_graffetta/). Ogni pixel come
+// a·carta + b·macchia (colori stimati sulla cartina): carta, macchie e i loro misti sfocati hanno a + b vicino alla luce
+// locale, la graffetta no (metallo scuro, riflessi chiari). Si cercano tratti dritti e continui di pixel "anomali".
+// Sulla prova in ufficio trova 56 graffette su 76 (prima 4) e sbaglia zona su poche foto (prima più di metà).
+const CLIP_GRID = 300;      // la ricerca si fa su una copia del ritaglio con questo lato massimo
+const CLIP_LIGHT = 0.05;    // luce locale: media su questo raggio, rispetto al lato
+const CLIP_ODD = 0.3;       // |ln(luce del pixel / luce locale)| oltre cui il pixel è anomalo
+const CLIP_SEG = 0.08;      // segmento di prova, rispetto al lato...
+const CLIP_SIDES = 0.035;   // ...e le due righe parallele ai suoi lati, a questa distanza
+const CLIP_ANGLES = 16;     // inclinazioni provate su 180°
+const CLIP_FULL = 0.8;      // il segmento è anomalo almeno per questa frazione...
+const CLIP_SIDES_MAX = 0.5; // ...e le righe ai lati al massimo per questa (non una macchia larga)
+const CLIP_LEN = [0.1, 0.8];  // lunghezza della graffetta rispetto al lato
+const CLIP_BLUE = 0.6;      // colore della parte scura tra carta (0) e macchia (1): oltre, è una macchia
+const CLIP_EDGE = 0.03;     // fascia lungo i bordi del ritaglio dove non si cerca (fondo, ombre)
+const CLIP_SIDE = 0.08;     // linea parallela a un lato ed entro questa distanza: è il bordo della cartina
+const CLIP_JOIN = [0.15, 0.06];  // pezzi della stessa graffetta: distanza lungo l'asse e di lato, rispetto al lato
+const CLIP_HALF = 0.012;    // mezza larghezza della barra esclusa, rispetto al lato
+const CLIP_BUFFER = 0.008;  // margine escluso intorno, rispetto al lato
+const CLIP_GUIDED = { full: 0.65, odd: 0.25, len: [0.05, 0.9] };   // dentro la zona cerchiata dall'operatore
+// Nitidezza (08/10/2026): sui bordi netti delle macchie il gradiente fine resta più alto di quello su una copia sfocata;
+// in una foto mossa o fuori fuoco i due si avvicinano. Rapporto mediano sui bordi più forti, sul ritaglio portato a
+// SHARP_SIDE px. Prova in ufficio (JS): telefoni a fuoco mediana 1,28–1,43, Samsung S24 (foto sfocate) 1,13–1,18.
+const SHARP_SIDE = 400;     // lato su cui si misura
+const SHARP_BLUR = 2;       // sfocatura di confronto, in px
+const SHARP_MIN = 1.18;     // sotto: la foto sembra sfocata (si invita a rifarla, non si blocca): segnala le 23 foto del S24 e 3 delle altre 143
+// Stessa cartina due volte (vedi findDuplicate; 08/10/2026, tarato sulla prova in ufficio con js_impronta.html:
+// coppie della stessa cartina fotografata da telefoni diversi e coppie di cartine diverse). Con DUP_SIMILAR riconosce
+// il 90% delle coppie della stessa cartina che si possono confrontare (85% di tutte: le cartine quasi pulite o tutte
+// macchiate si confrontano solo se è la stessa immagine) e nessuna delle 12.245 coppie di cartine diverse; con
+// l'impronta 16 × 16 di prima ne riconosceva il 50% con lo 0,1% di falsi.
+const SIG_GRID = 24;        // lato della griglia dell'impronta
 const SIG_MIN_VALID = 0.4;  // cella valida se almeno questa frazione dei suoi pixel è cartina (non foglia né graffetta)
-const SIG_MIN_SPREAD = 0.04; // impronta più piatta di così (cartina quasi pulita o tutta macchiata): solo il confronto esatto
-const DUP_SIMILAR = 0.8;    // correlazione oltre cui due foto sembrano la stessa cartina
+const SIG_LOCAL = 4;        // si toglie la media delle celle vicine (raggio in celle): resta il disegno delle macchie
+const SIG_BORDER = 1;       // celle del bordo che non si confrontano (ritaglio diverso tra due foto)
+const SIG_SHIFT = 1;        // spostamenti provati tra le due impronte, in celle
+const SIG_MIN_SPREAD = 0.02; // impronta più piatta di così (cartina quasi pulita o tutta macchiata): solo il confronto esatto
+const DUP_SIMILAR = 0.5;    // correlazione oltre cui due foto sembrano la stessa cartina (0,45: 2 falsi su 12.245)
 
 function percentile(arr, p) {
   const s = Float32Array.from(arr).sort();
@@ -373,38 +382,6 @@ function borderStrips(sat, ok, w, h) {
   return out;
 }
 
-// Graffetta automatica: il segmento dritto di pixel grigi (scuri o lucidi) più lungo, al massimo uno.
-function autoStaple(prep) {
-  const { cw: w, ch: h, sat, lum, ok, lumPaper } = prep, side = Math.min(w, h), m = new Uint8Array(w * h);
-  for (let k = 0; k < w * h; k++) m[k] = ok[k] && sat[k] < STAPLE_GREY && (lum[k] < STAPLE_DARK * lumPaper || lum[k] > STAPLE_SHINY * lumPaper) ? 1 : 0;
-  const { lab, comps } = components(closeMask(m, w, h, 1), w, h);
-  let best = null, bestLen = 0;
-  for (const c of comps) {
-    if (c.area < 0.0005 * w * h || Math.max(c.x1 - c.x0 + 1, c.y1 - c.y0 + 1) < STAPLE_LEN[0] * side) continue;
-    // asse principale (componenti principali) e distanze dall'asse
-    let sx = 0, sy = 0, n = 0;
-    for (let y = c.y0; y <= c.y1; y++) for (let x = c.x0; x <= c.x1; x++) if (lab[y * w + x] === c.id) { sx += x; sy += y; n++; }
-    const mx = sx / n, my = sy / n;
-    let cxx = 0, cyy = 0, cxy = 0;
-    for (let y = c.y0; y <= c.y1; y++) for (let x = c.x0; x <= c.x1; x++) if (lab[y * w + x] === c.id) { const dx = x - mx, dy = y - my; cxx += dx * dx; cyy += dy * dy; cxy += dx * dy; }
-    const ang = 0.5 * Math.atan2(2 * cxy, cxx - cyy), ca = Math.cos(ang), sa = Math.sin(ang), us = [];
-    let near = 0;
-    for (let y = c.y0; y <= c.y1; y++) for (let x = c.x0; x <= c.x1; x++) {
-      if (lab[y * w + x] !== c.id) continue;
-      const dx = x - mx, dy = y - my;
-      if (Math.abs(-dx * sa + dy * ca) <= STAPLE_WIDTH * side) { near++; us.push(dx * ca + dy * sa); }
-    }
-    if (near < STAPLE_STRAIGHT * n) continue;
-    const len = percentile(us, 0.98) - percentile(us, 0.02);
-    if (len < STAPLE_LEN[0] * side || len > STAPLE_LEN[1] * side || near < STAPLE_FULL * len * 2 * STAPLE_WIDTH * side) continue;
-    if (len > bestLen) { best = c; bestLen = len; }
-  }
-  const out = new Uint8Array(w * h);
-  if (!best) return out;
-  for (let k = 0; k < w * h; k++) if (lab[k] === best.id) out[k] = 1;
-  return dilateDisc(out, w, h, Math.max(1, Math.round(STAPLE_BUFFER * side)));
-}
-
 // Valori per pixel che non dipendono dalla graffetta: v (con la luce locale), livelli di carta e macchie, esclusioni.
 function prepareCard(crop, cw, ch, gains, leaf, bgLum) {
   const n = cw * ch, d = crop.data;
@@ -491,126 +468,188 @@ function cardResult(prep, clip) {
   return { coverage: valid ? 100 * sum / valid : 0, clipFrac: 100 * clipCount / n, cropUrl: cropUrl, maskUrl: maskUrl, sig: sig, hash: prep.hash };
 }
 
-// "Indizio di graffetta" per pixel (0/1): metallo grigio oppure scuro e non viola, fuori dalle zone escluse.
-function clipEvidence(px, bg, n) {
-  const lumAll = [];
-  for (let k = 0; k < n; k++) if (!bg[k]) lumAll.push(Math.max(px[4 * k], px[4 * k + 1], px[4 * k + 2]));
-  const dark = CLIP_DARK * percentile(lumAll, 0.5);
-  const e = new Uint8Array(n);
-  for (let k = 0; k < n; k++) {
-    if (bg[k]) continue;
-    const r = px[4 * k], g = px[4 * k + 1], b = px[4 * k + 2], mx = Math.max(r, g, b);
-    const grey = (mx - Math.min(r, g, b)) / Math.max(mx, 1) < CLIP_GREY;
-    e[k] = grey || (mx < dark && b - (r + g) / 2 <= CLIP_VIOLET) ? 1 : 0;
-  }
-  return e;
-}
-
-// Barra: punti dentro (peso +) e due fasce ai lati (peso −), come scostamenti sulla griglia ridotta.
-function barKernel(L, W, angle) {
-  const ca = Math.cos(angle), sa = Math.sin(angle), R = Math.ceil(L / 2 + 2 * W + 1);
-  const inner = [], outer = [];
-  for (let dy = -R; dy <= R; dy++) {
-    for (let dx = -R; dx <= R; dx++) {
-      const u = dx * ca + dy * sa, v = -dx * sa + dy * ca;
-      if (Math.abs(u) > L / 2) continue;
-      if (Math.abs(v) <= W / 2) inner.push([dx, dy]);
-      else if (Math.abs(v) <= 1.5 * W + 1) outer.push([dx, dy]);
+// ---- Graffetta ----
+// Arrotondamento come round() di Python (metà al pari), per avere gli stessi segmenti di prova.
+function roundEven(x) { const f = Math.floor(x), d = x - f; return d < 0.5 ? f : d > 0.5 ? f + 1 : (f % 2 === 0 ? f : f + 1); }
+// Per ogni inclinazione: i pixel del segmento di prova e delle due righe ai suoi lati (scostamenti, senza doppioni).
+function clipSegments(side) {
+  const L = Math.max(5, Math.round(CLIP_SEG * side)), off = Math.max(2, Math.round(CLIP_SIDES * side)), out = [];
+  for (let k = 0; k < CLIP_ANGLES; k++) {
+    const t = Math.PI * k / CLIP_ANGLES, ca = Math.cos(t), sa = Math.sin(t), seg = new Map(), sides = new Map();
+    for (let i = 0; i <= 2 * L; i++) {
+      const u = -L / 2 + i * L / (2 * L);
+      const p = [roundEven(u * ca), roundEven(u * sa)]; seg.set(p.join(), p);
+      for (const g of [-1, 1]) { const q = [roundEven(u * ca - g * off * sa), roundEven(u * sa + g * off * ca)]; sides.set(q.join(), q); }
     }
+    out.push([Int32Array.from([].concat(...seg.values())), Int32Array.from([].concat(...sides.values()))]);
   }
-  return { inner: inner, outer: outer, horizontal: Math.abs(sa) < Math.sin(Math.PI / 9), vertical: Math.abs(ca) < Math.sin(Math.PI / 9) };
-}
-const BAR_KERNELS = [];
-CLIP_LENS.forEach((lf) => {
-  for (let a = 0; a < CLIP_ANGLES; a++) {
-    const angle = a * Math.PI / CLIP_ANGLES;
-    BAR_KERNELS.push(Object.assign({ lf: lf, angle: angle }, barKernel(lf * CLIP_GRID, Math.max(2, CLIP_WIDTH * CLIP_GRID), angle)));
-  }
-});
-
-// Migliore barra sulla griglia ridotta. near: {x, y} in coordinate della griglia per la ricerca guidata.
-function findBar(E, w, h, near) {
-  const s = CLIP_GRID / Math.max(w, h), gw = Math.max(1, Math.round(w * s)), gh = Math.max(1, Math.round(h * s));
-  // griglia ridotta: frazione di pixel "indizio" in ogni cella
-  const G = new Float32Array(gw * gh), cnt = new Float32Array(gw * gh);
-  for (let y = 0; y < h; y++) {
-    const gy = Math.min(gh - 1, Math.floor(y * s));
-    for (let x = 0; x < w; x++) {
-      const q = gy * gw + Math.min(gw - 1, Math.floor(x * s));
-      G[q] += E[y * w + x]; cnt[q]++;
-    }
-  }
-  for (let q = 0; q < G.length; q++) G[q] = cnt[q] ? G[q] / cnt[q] : 0;
-  const at = (x, y) => (x < 0 || y < 0 || x >= gw || y >= gh ? 0 : G[y * gw + x]);
-  const W = Math.max(2, CLIP_WIDTH * CLIP_GRID), edge = Math.floor(CLIP_EDGE * CLIP_GRID + W);
-  const r2 = near ? (CLIP_TAP_RADIUS * CLIP_GRID) ** 2 : Infinity;
-  let best = null;
-  for (let y = 0; y < gh; y++) {
-    for (let x = 0; x < gw; x++) {
-      if (G[y * gw + x] < 0.2) continue;   // il centro di una graffetta è sulla graffetta
-      if (near && (x - near.x) ** 2 + (y - near.y) ** 2 > r2) continue;
-      for (const k of BAR_KERNELS) {
-        if (!near && ((k.horizontal && (y < edge || y >= gh - edge)) || (k.vertical && (x < edge || x >= gw - edge)))) continue;
-        let si = 0, so = 0;
-        for (const [dx, dy] of k.inner) si += at(x + dx, y + dy);
-        for (const [dx, dy] of k.outer) so += at(x + dx, y + dy);
-        const resp = si / k.inner.length - so / k.outer.length;
-        if (!best || resp > best.resp) best = { resp: resp, x: x / s, y: y / s, L: k.lf * Math.max(w, h), angle: k.angle };
-      }
-    }
-  }
-  return best;
-}
-
-// Maschera finale: indizi dentro il rettangolo della barra (un po' più largo), più il margine.
-// La barra trovata ha una delle lunghezze provate: la si allunga lungo l'asse finché continua la graffetta.
-function barMask(E, w, h, bar) {
-  const side = Math.max(w, h), W = CLIP_WIDTH * side, ca = Math.cos(bar.angle), sa = Math.sin(bar.angle);
-  const maxU = 0.6 * side, step = Math.max(1, W / 2), nb = Math.ceil(maxU / step);
-  // per ogni tratto lungo l'asse: indizi sulla barra e ai suoi lati (un riflesso largo ce li ha anche ai lati)
-  const inHit = new Float32Array(2 * nb + 1), inTot = new Float32Array(2 * nb + 1);
-  const outHit = new Float32Array(2 * nb + 1), outTot = new Float32Array(2 * nb + 1);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const dx = x - bar.x, dy = y - bar.y, u = dx * ca + dy * sa, v = Math.abs(-dx * sa + dy * ca);
-      if (Math.abs(u) > maxU || v > 2 * W) continue;
-      const b = nb + Math.round(u / step);
-      if (v <= 0.75 * W) { inHit[b] += E[y * w + x]; inTot[b]++; } else if (v > W) { outHit[b] += E[y * w + x]; outTot[b]++; }
-    }
-  }
-  const on = (b) => inTot[b] > 0 && inHit[b] / inTot[b] - (outTot[b] ? outHit[b] / outTot[b] : 0) >= 0.25;
-  const reach = (dir) => {   // fino a dove continua, tollerando un buco breve (riflesso)
-    let b = nb + dir * Math.round(0.5 * bar.L / step), gap = 0, last = b;
-    while (b > 0 && b < 2 * nb) {
-      b += dir;
-      if (on(b)) { last = b; gap = 0; } else if (++gap > 3) break;
-    }
-    return (last - nb) * step + dir * (step / 2 + 1.5 * W);   // + le punte piegate, più scure
-  };
-  const u1 = reach(-1), u2 = reach(1);
-  const keep = new Uint8Array(w * h);
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const dx = x - bar.x, dy = y - bar.y, u = dx * ca + dy * sa;
-      const v = Math.abs(-dx * sa + dy * ca);
-      // tutta la barra (anche i riflessi al centro della graffetta) più gli indizi appena fuori
-      if (u >= u1 && u <= u2 && (v <= 0.6 * W || (v <= 1.5 * W && E[y * w + x]))) keep[y * w + x] = 1;
-    }
-  }
-  const buf = Math.max(1, Math.floor(Math.max(3, Math.floor(side * CLIP_BUFFER) | 1) / 2));
-  return dilate(keep, w, h, buf);
-}
-
-// Graffetta automatica (tap = null: quella trovata dall'analisi) o guidata dal tocco (tap = {x, y} in pixel della cartina).
-function clipZones(prep, tap) {
-  const { cw, ch, E } = prep, side = Math.max(cw, ch), s = CLIP_GRID / side;
-  if (!tap) return prep.autoClip;
-  const bar = findBar(E, cw, ch, { x: tap.x * s, y: tap.y * s });
-  if (bar && bar.resp >= CLIP_TAP_RESP) return barMask(E, cw, ch, bar);
-  // nessuna barra riconoscibile: si esclude un cerchio intorno al tocco
-  const out = new Uint8Array(cw * ch), r = CLIP_TAP_DISC * side;
-  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if ((x - tap.x) ** 2 + (y - tap.y) ** 2 <= r * r) out[y * cw + x] = 1;
   return out;
+}
+// Media di m sui pixel indicati intorno a (x, y) (pts: [dx0, dy0, dx1, dy1, …]); fuori dall'immagine conta 0.
+// Si ferma appena non può più arrivare a min (-1).
+function clipMean(m, w, h, x, y, pts, min) {
+  const n = pts.length / 2, need = min * n;
+  let s = 0;
+  for (let i = 0; i < n; i++) {
+    const xx = x + pts[2 * i], yy = y + pts[2 * i + 1];
+    if (xx >= 0 && yy >= 0 && xx < w && yy < h) s += m[yy * w + xx];
+    if (s + n - 1 - i < need) return -1;
+  }
+  return s / n;
+}
+// Asse principale di un insieme di pixel (indici k = y·w + x): centro, direzione, estensione lungo l'asse.
+function clipAxis(idx, w) {
+  let sx = 0, sy = 0;
+  for (const k of idx) { sx += k % w; sy += (k / w) | 0; }
+  const mx = sx / idx.length, my = sy / idx.length;
+  let cxx = 0, cyy = 0, cxy = 0;
+  for (const k of idx) { const dx = k % w - mx, dy = ((k / w) | 0) - my; cxx += dx * dx; cyy += dy * dy; cxy += dx * dy; }
+  const ang = 0.5 * Math.atan2(2 * cxy, cxx - cyy), d = [Math.cos(ang), Math.sin(ang)];
+  let u0 = Infinity, u1 = -Infinity;
+  for (const k of idx) { const u = (k % w - mx) * d[0] + (((k / w) | 0) - my) * d[1]; if (u < u0) u0 = u; if (u > u1) u1 = u; }
+  return { c: [mx, my], d: d, u: [u0, u1] };
+}
+const clipBlue = (r, g, b) => (b - (r + g) / 2) / (Math.max(r, g, b) + 1);
+
+// Maschera della graffetta sul ritaglio (0/1, cw × ch; tutta 0 se non la trova).
+// zone: maschera 0/1 della zona cerchiata dall'operatore (ricerca solo lì, soglie più larghe), null = automatica.
+function findClip(prep, zone) {
+  const { cw, ch, ok } = prep, px = prep.crop.data;
+  const full = zone ? CLIP_GUIDED.full : CLIP_FULL, odd = zone ? CLIP_GUIDED.odd : CLIP_ODD, len = zone ? CLIP_GUIDED.len : CLIP_LEN;
+  const sc = Math.min(1, CLIP_GRID / Math.max(cw, ch)), gw = Math.round(cw * sc), gh = Math.round(ch * sc), gn = gw * gh, side = Math.min(gw, gh);
+  // copia ridotta (media dei pixel di ogni cella) e zone valide
+  const g = new Float32Array(3 * gn), cnt = new Float32Array(gn), gok = new Uint8Array(gn), gzone = new Uint8Array(gn);
+  for (let y = 0; y < ch; y++) {
+    const gy = Math.min(gh - 1, Math.floor(y * gh / ch));
+    for (let x = 0; x < cw; x++) {
+      const q = gy * gw + Math.min(gw - 1, Math.floor(x * gw / cw)), k = y * cw + x;
+      g[3 * q] += px[4 * k]; g[3 * q + 1] += px[4 * k + 1]; g[3 * q + 2] += px[4 * k + 2]; cnt[q]++;
+    }
+  }
+  for (let q = 0; q < gn; q++) for (let c = 0; c < 3; c++) g[3 * q + c] /= Math.max(1, cnt[q]);
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+    const k = Math.min(ch - 1, Math.floor(y * ch / gh)) * cw + Math.min(cw - 1, Math.floor(x * cw / gw));
+    gok[y * gw + x] = ok[k]; if (zone) gzone[y * gw + x] = zone[k];
+  }
+  // colori di carta e macchia: i pixel più gialli e quelli più blu della cartina
+  let nOk = 0;
+  for (let q = 0; q < gn; q++) nOk += gok[q];
+  const use = (q) => nOk > 100 ? gok[q] === 1 : true;
+  const lum = [], v = new Float32Array(gn);
+  for (let q = 0; q < gn; q++) if (use(q)) lum.push(Math.max(g[3 * q], g[3 * q + 1], g[3 * q + 2]));
+  const lref = Math.max(1, percentile(lum, 0.95) || 255);
+  const vs = [];
+  for (let q = 0; q < gn; q++) { v[q] = ((g[3 * q] + g[3 * q + 1]) / 2 - g[3 * q + 2]) / lref; if (use(q)) vs.push(v[q]); }
+  const hi = percentile(vs, 0.8), lo = percentile(vs, 0.015);
+  const median = (sel, c) => percentile(pick(Array.from({ length: gn }, (_, q) => g[3 * q + c]), sel), 0.5);
+  const P = [0, 1, 2].map((c) => median((q) => use(q) && v[q] > hi, c));
+  let Q = [0, 1, 2].map((c) => median((q) => use(q) && v[q] < lo, c));
+  if (clipBlue(Q[0], Q[1], Q[2]) < 0.05) Q = [0.32, 0.30, 0.55].map((f) => f * Math.max(P[0], P[1], P[2]));   // poche macchie o non blu
+  // luce del pixel = a + b, con (a, b) dai minimi quadrati su carta e macchia
+  const a11 = P[0] * P[0] + P[1] * P[1] + P[2] * P[2], a12 = P[0] * Q[0] + P[1] * Q[1] + P[2] * Q[2], a22 = Q[0] * Q[0] + Q[1] * Q[1] + Q[2] * Q[2];
+  const det = a11 * a22 - a12 * a12 || 1e-6, light = new Float32Array(gn);
+  for (let q = 0; q < gn; q++) {
+    const r = g[3 * q], gg = g[3 * q + 1], b = g[3 * q + 2];
+    const bp = P[0] * r + P[1] * gg + P[2] * b, bq = Q[0] * r + Q[1] * gg + Q[2] * b;
+    light[q] = ((a22 * bp - a12 * bq) + (a11 * bq - a12 * bp)) / det;
+  }
+  const loc = gaussBlur(light, gw, gh, CLIP_LIGHT * side), rel = new Float32Array(gn), B = new Uint8Array(gn);
+  const e = Math.max(1, Math.round(CLIP_EDGE * side));
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+    const q = y * gw + x;
+    rel[q] = light[q] / Math.max(loc[q], 0.05);
+    B[q] = gok[q] && Math.abs(Math.log(Math.max(rel[q], 0.05))) > odd && x >= e && y >= e && x < gw - e && y < gh - e && (!zone || gzone[q]) ? 1 : 0;
+  }
+  // centri dei tratti dritti: segmento quasi tutto anomalo, righe ai lati no. Prima un filtro veloce: intorno
+  // al punto ci devono essere almeno tanti pixel anomali quanti ne chiede il segmento.
+  const segs = clipSegments(side), line = new Uint8Array(gn), R = Math.ceil(Math.round(CLIP_SEG * side) / 2) + 1;
+  const segN = Math.min(...segs.map((q) => q[0].length / 2)), W1 = gw + 1, sum = new Int32Array(W1 * (gh + 1));
+  for (let y = 0; y < gh; y++) { let row = 0; for (let x = 0; x < gw; x++) { row += B[y * gw + x]; sum[(y + 1) * W1 + x + 1] = sum[y * W1 + x + 1] + row; } }
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+    const x0 = Math.max(0, x - R), x1 = Math.min(gw, x + R + 1), y0 = Math.max(0, y - R), y1 = Math.min(gh, y + R + 1);
+    if (sum[y1 * W1 + x1] - sum[y0 * W1 + x1] - sum[y1 * W1 + x0] + sum[y0 * W1 + x0] < full * segN - 1) continue;
+    for (const [seg, sides] of segs) {
+      if (clipMean(B, gw, gh, x, y, seg, full) < full) continue;
+      if (clipMean(B, gw, gh, x, y, sides, 0) <= CLIP_SIDES_MAX) { line[y * gw + x] = 1; break; }
+    }
+  }
+  const { lab, comps } = components(dilate(line, gw, gh, 1), gw, gh);
+  const bP = clipBlue(P[0], P[1], P[2]), bQ = clipBlue(Q[0], Q[1], Q[2]), seg = Math.round(CLIP_SIDES * side), lim = CLIP_SIDE * side;
+  const sin12 = Math.sin(12 * Math.PI / 180), pieces = [];
+  const members = comps.map(() => []);
+  for (let q = 0; q < gn; q++) if (lab[q] >= 0) members[lab[q]].push(q);
+  comps.forEach((c, i) => {
+    const idx = members[i];
+    if (idx.length < 5) return;
+    const ax = clipAxis(idx, gw), L = ax.u[1] - ax.u[0] + CLIP_SEG * side;   // i centri non arrivano alle punte
+    // colore della parte scura vicino al tratto: tra carta (0) e macchia (1)
+    const mk = new Uint8Array(gn); idx.forEach((q) => { mk[q] = 1; });
+    const near = dilateDisc(mk, gw, gh, seg), blues = [];
+    for (let q = 0; q < gn; q++) if (near[q] && rel[q] < 0.75) blues.push(clipBlue(g[3 * q], g[3 * q + 1], g[3 * q + 2]));
+    const col = blues.length > 3 ? (percentile(blues, 0.5) - bP) / Math.max(bQ - bP, 1e-3) : 0;
+    const horiz = Math.abs(ax.d[1]) < sin12, vert = Math.abs(ax.d[0]) < sin12;
+    const edge = (horiz && Math.min(c.y0, gh - 1 - c.y1) <= lim) || (vert && Math.min(c.x0, gw - 1 - c.x1) <= lim);   // bordo della cartina
+    if (col <= CLIP_BLUE && !edge) pieces.push(Object.assign(ax, { L: L }));
+  });
+  const good = pieces.filter((k) => k.L >= len[0] * side && k.L <= len[1] * side);
+  let out = new Uint8Array(gn);
+  if (good.length) {
+    const best = good.reduce((m, k) => (k.L > m.L ? k : m)), keep = [best], nrm = [-best.d[1], best.d[0]];
+    pieces.forEach((k) => {   // altri pezzi della stessa graffetta: allineati e vicini (le gambe, un riflesso in mezzo)
+      if (k === best) return;
+      const dv = [k.c[0] - best.c[0], k.c[1] - best.c[1]];
+      if (Math.abs(dv[0] * best.d[0] + dv[1] * best.d[1]) <= (best.L + k.L) / 2 + CLIP_JOIN[0] * side &&
+          Math.abs(dv[0] * nrm[0] + dv[1] * nrm[1]) <= CLIP_JOIN[1] * side &&
+          Math.abs(k.d[0] * best.d[0] + k.d[1] * best.d[1]) >= Math.cos(35 * Math.PI / 180)) keep.push(k);
+    });
+    const half = Math.max(1, Math.round(CLIP_HALF * side)), bar = new Uint8Array(gn);
+    keep.forEach((k) => {   // la barra intera lungo l'asse
+      const ext = CLIP_SEG * side / 2, u0 = k.u[0] - ext, u1 = k.u[1] + ext;
+      for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+        const dx = x - k.c[0], dy = y - k.c[1], u = Math.min(u1, Math.max(u0, dx * k.d[0] + dy * k.d[1]));
+        const ex = dx - u * k.d[0], ey = dy - u * k.d[1];
+        if (ex * ex + ey * ey <= (half + 0.5) * (half + 0.5)) bar[y * gw + x] = 1;
+      }
+    });
+    // più i pixel anomali attaccati alla barra (punte piegate), non oltre una mezza larghezza
+    const zb = dilateDisc(bar, gw, gh, half), core = new Uint8Array(gn);
+    for (let q = 0; q < gn; q++) core[q] = bar[q] || (B[q] && zb[q]) ? 1 : 0;
+    const cc = components(core, gw, gh), hit = new Set();
+    for (let q = 0; q < gn; q++) if (bar[q]) hit.add(cc.lab[q]);
+    for (let q = 0; q < gn; q++) out[q] = core[q] && hit.has(cc.lab[q]) && zb[q] ? 1 : 0;
+    out = dilateDisc(out, gw, gh, Math.max(1, Math.round(CLIP_BUFFER * side)));
+  }
+  const res = new Uint8Array(cw * ch);
+  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
+    res[y * cw + x] = out[Math.min(gh - 1, Math.floor(y * gh / ch)) * gw + Math.min(gw - 1, Math.floor(x * gw / cw))] && ok[y * cw + x] ? 1 : 0;
+  }
+  return res;
+}
+
+// Zona indicata dall'operatore (poligono in pixel del ritaglio) come maschera 0/1.
+function polygonMask(poly, cw, ch) {
+  const out = new Uint8Array(cw * ch);
+  if (!poly || poly.length < 3) return out;
+  for (let y = 0; y < ch; y++) {
+    const yc = y + 0.5, xs = [];
+    for (let i = 0; i < poly.length; i++) {
+      const [x1, y1] = poly[i], [x2, y2] = poly[(i + 1) % poly.length];
+      if ((y1 <= yc) !== (y2 <= yc)) xs.push(x1 + (yc - y1) * (x2 - x1) / (y2 - y1));
+    }
+    xs.sort((a, b) => a - b);
+    for (let i = 0; i + 1 < xs.length; i += 2) {
+      for (let x = Math.max(0, Math.ceil(xs[i] - 0.5)); x <= Math.min(cw - 1, Math.floor(xs[i + 1] - 0.5)); x++) out[y * cw + x] = 1;
+    }
+  }
+  return out;
+}
+
+// Graffetta cerchiata dall'operatore (poligono in pixel del ritaglio): { clip, found }. Se lì non trova una graffetta,
+// clip è vuota e la pagina propone di escludere tutta la zona (polygonMask).
+function clipZones(prep, poly) {
+  if (!poly) return { clip: prep.autoClip, found: prep.autoClip.some((v) => v) };
+  const clip = findClip(prep, polygonMask(poly, prep.cw, prep.ch));
+  return { clip: clip, found: clip.some((v) => v) };
 }
 
 const NOT_FOUND = 'Non trovo la cartina. Prova ad avvicinarti e a metterla al centro del riquadro.';
@@ -646,66 +685,119 @@ function analyzeCard(src, region) {
   let hash = 2166136261;   // FNV-1a su un pixel ogni 7: stesso file caricato due volte, stessi pixel
   for (let k = 0; k < crop.data.length; k += 28) { hash ^= crop.data[k] ^ (crop.data[k + 1] << 8) ^ (crop.data[k + 2] << 16); hash = Math.imul(hash, 16777619); }
   const p = prepareCard(crop, cw, ch, gains, cleaf, bgInfo && bgInfo.lum);
-  const excl = new Uint8Array(n);
-  for (let k = 0; k < n; k++) excl[k] = p.ok[k] ? 0 : 1;
-  const prep = Object.assign(p, { crop: crop, cw: cw, ch: ch, E: clipEvidence(crop.data, excl, n), hash: cw + 'x' + ch + ':' + (hash >>> 0).toString(36) });
-  prep.autoClip = autoStaple(prep);
+  const prep = Object.assign(p, { crop: crop, cw: cw, ch: ch, hash: cw + 'x' + ch + ':' + (hash >>> 0).toString(36) });
+  prep.autoClip = findClip(prep, null);
+  prep.sharp = sharpness(crop, cw, ch);
   // box: dove è stata trovata la cartina, in pixel dell'immagine originale (angoli, rettangolo diritto che la
   // contiene e bilanciamento usato), per la taratura del ritaglio
   const xs = corners.map((q) => q[0]), ys = corners.map((q) => q[1]);
   const box = { x: Math.round(Math.min.apply(null, xs)), y: Math.round(Math.min.apply(null, ys)),
     w: Math.round(Math.max.apply(null, xs) - Math.min.apply(null, xs)), h: Math.round(Math.max.apply(null, ys) - Math.min.apply(null, ys)),
     angoli: corners.map((q) => [Math.round(q[0]), Math.round(q[1])]), bilanciamento: gains ? gains.map((g) => Math.round(g * 100) / 100) : null };
-  return { prep: prep, result: cardResult(prep, prep.autoClip), box: box };
+  return { prep: prep, result: Object.assign(cardResult(prep, prep.autoClip), { sharp: prep.sharp }), box: box };
+}
+
+// Nitidezza del ritaglio (vedi SHARP_MIN): rapporto tra gradiente fine e gradiente dopo una sfocatura, sui bordi forti.
+function sharpness(crop, cw, ch) {
+  const s = SHARP_SIDE / Math.max(cw, ch), w = Math.round(cw * s), h = Math.round(ch * s);
+  const src = document.createElement('canvas'); src.width = cw; src.height = ch; src.getContext('2d').putImageData(crop, 0, 0);
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.imageSmoothingQuality = 'high'; ctx.drawImage(src, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data, g = new Float32Array(w * h);
+  for (let k = 0; k < w * h; k++) g[k] = d[4 * k + 2] - (d[4 * k] + d[4 * k + 1]) / 2;   // blu − giallo: le macchie
+  const grad = (m) => {
+    const out = new Float32Array(w * h);
+    for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+      const k = y * w + x, a = m[k - w - 1], b = m[k - w], cc = m[k - w + 1], dd = m[k - 1], f = m[k + 1], gg = m[k + w - 1], hh = m[k + w], ii = m[k + w + 1];
+      out[k] = Math.hypot(cc + 2 * f + ii - a - 2 * dd - gg, gg + 2 * hh + ii - a - 2 * b - cc);
+    }
+    return out;
+  };
+  const fine = grad(g), coarse = grad(gaussBlur(g, w, h, SHARP_BLUR)), mg = Math.round(0.06 * SHARP_SIDE), cs = [];
+  for (let y = mg; y < h - mg; y++) for (let x = mg; x < w - mg; x++) cs.push(coarse[y * w + x]);
+  const lim = percentile(cs, 0.9), ratios = [];
+  for (let y = mg; y < h - mg; y++) for (let x = mg; x < w - mg; x++) { const k = y * w + x; if (coarse[k] > lim && coarse[k] > 1e-3) ratios.push(fine[k] / coarse[k]); }
+  return ratios.length > 50 ? percentile(ratios, 0.5) : null;
+}
+
+// Cartina ritagliata a mano (4 angoli in pixel di src, in senso orario da in alto a sinistra), per esempio in una
+// zona di scheda dove il ritaglio automatico è dubbio. Bilanciamento sulla carta bianca della scheda: i pixel con
+// tutti i canali più alti (come colore_carta in tools/analisi_schede.py). → { prep, result } come analyzeCard.
+function analyzeQuad(src, corners) {
+  const sw = src.videoWidth || src.naturalWidth || src.width, sh = src.videoHeight || src.naturalHeight || src.height;
+  const sc = Math.min(1, MAX_SIDE / Math.max(sw, sh)), w = Math.round(sw * sc), h = Math.round(sh * sc);
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(src, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data, mins = [];
+  for (let k = 0; k < w * h; k++) mins.push(Math.min(d[4 * k], d[4 * k + 1], d[4 * k + 2]));
+  const lim = percentile(mins, 0.9), sel = (k) => mins[k] >= lim;
+  const paper = [0, 1, 2].map((ch) => percentile(pick(Array.from({ length: w * h }, (_, k) => d[4 * k + ch]), sel), 0.5));
+  const m = (paper[0] + paper[1] + paper[2]) / 3, clamp = (v) => Math.min(1.6, Math.max(0.6, v));
+  const gains = Math.max(...paper) > 50 ? paper.map((v) => clamp(m / Math.max(v, 1))) : null;
+  const lum = gains ? Math.max(paper[0] * gains[0], paper[1] * gains[1], paper[2] * gains[2]) : null;
+  const { crop, cw, ch } = warpCard(src, corners);
+  const p = prepareCard(crop, cw, ch, gains, new Uint8Array(cw * ch), lum);
+  const prep = Object.assign(p, { crop: crop, cw: cw, ch: ch, hash: 'quad' });
+  prep.autoClip = findClip(prep, null);
+  return { prep: prep, result: cardResult(prep, prep.autoClip) };
 }
 
 // ---- Stessa cartina due volte ----
 // Impronta: densità delle macchie in una griglia SIG_GRID × SIG_GRID ('0'…'z', '-' = zona esclusa, foglia o graffetta).
 // Due foto della stessa cartina hanno le macchie negli stessi punti, anche su sfondi diversi e girate di 90°.
-// Cartine quasi pulite o quasi tutte macchiate hanno un'impronta quasi piatta: per quelle si confronta solo
-// l'immagine identica, perché si somigliano tutte (e comunque l'avviso lascia sempre proseguire).
-function sigValues(sig) {
-  return Array.from(sig, (ch) => (ch === '-' ? null : parseInt(ch, 36) / 35));
-}
-// Media 3×3 sulle celle valide: tollera piccoli spostamenti del ritaglio tra una foto e l'altra.
-function sigSmooth(v) {
-  const G = SIG_GRID, out = new Array(G * G).fill(null);
-  for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) {
-    if (v[y * G + x] == null) continue;
+// Si confronta il disegno delle macchie (meno la media dei dintorni), senza il bordo, con piccoli spostamenti e le 4
+// rotazioni. Cartine quasi pulite o quasi tutte macchiate hanno un disegno piatto: per quelle si confronta solo
+// l'immagine identica (e comunque l'avviso lascia sempre proseguire). Impronte di un'altra versione: nessun confronto.
+function sigPrep(sig) {
+  const G = SIG_GRID;
+  if (!sig || sig.length !== G * G) return null;
+  const v = Array.from(sig, (ch) => (ch === '-' ? null : parseInt(ch, 36) / 35)), n = G - 2 * SIG_BORDER, out = new Array(n * n).fill(null);
+  for (let y = SIG_BORDER; y < G - SIG_BORDER; y++) for (let x = SIG_BORDER; x < G - SIG_BORDER; x++) {
+    const c = v[y * G + x];
+    if (c == null) continue;
     let a = 0, m = 0;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-      const yy = y + dy, xx = x + dx;
-      if (yy < 0 || xx < 0 || yy >= G || xx >= G || v[yy * G + xx] == null) continue;
-      a += v[yy * G + xx]; m++;
+    for (let yy = Math.max(0, y - SIG_LOCAL); yy <= Math.min(G - 1, y + SIG_LOCAL); yy++) {
+      for (let xx = Math.max(0, x - SIG_LOCAL); xx <= Math.min(G - 1, x + SIG_LOCAL); xx++) {
+        const q = v[yy * G + xx];
+        if (q != null) { a += q; m++; }
+      }
     }
-    out[y * G + x] = a / m;
+    out[(y - SIG_BORDER) * n + x - SIG_BORDER] = c - a / m;
   }
+  const ok = out.filter((x) => x != null), mean = ok.reduce((s, x) => s + x, 0) / Math.max(1, ok.length);
+  const spread = Math.sqrt(ok.reduce((s, x) => s + (x - mean) * (x - mean), 0) / Math.max(1, ok.length));
+  return spread < SIG_MIN_SPREAD ? null : { v: out, n: n };
+}
+function sigRotate(v, n) {   // 90° in senso antiorario, come np.rot90
+  const out = new Array(n * n);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) out[(n - 1 - x) * n + y] = v[y * n + x];
   return out;
 }
-function sigRotate(v) {   // 90° in senso orario
-  const G = SIG_GRID, out = new Array(G * G);
-  for (let y = 0; y < G; y++) for (let x = 0; x < G; x++) out[x * G + (G - 1 - y)] = v[y * G + x];
-  return out;
+// Correlazione tra a e b spostata di (dx, dy) sulla parte in comune; null se le celle valide sono meno della metà.
+function sigCorr(a, b, n, dx, dy) {
+  const x0 = Math.max(0, dx), x1 = n + Math.min(0, dx), y0 = Math.max(0, dy), y1 = n + Math.min(0, dy), pa = [], pb = [];
+  for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+    const p = a[y * n + x], q = b[(y - dy) * n + x - dx];
+    if (p != null && q != null) { pa.push(p); pb.push(q); }
+  }
+  if (pa.length < 0.5 * (x1 - x0) * (y1 - y0)) return null;
+  const ma = pa.reduce((s, x) => s + x, 0) / pa.length, mb = pb.reduce((s, x) => s + x, 0) / pb.length;
+  let sab = 0, saa = 0, sbb = 0;
+  for (let i = 0; i < pa.length; i++) { const da = pa[i] - ma, db = pb[i] - mb; sab += da * db; saa += da * da; sbb += db * db; }
+  return saa > 1e-12 && sbb > 1e-12 ? sab / Math.sqrt(saa * sbb) : null;
 }
-function sigSpread(v) {
-  const ok = v.filter((x) => x != null), m = ok.reduce((a, x) => a + x, 0) / Math.max(1, ok.length);
-  return Math.sqrt(ok.reduce((a, x) => a + (x - m) * (x - m), 0) / Math.max(1, ok.length));
-}
-// Somiglianza tra due impronte: la correlazione migliore tra le 4 rotazioni (−1…1), null se non si può dire.
+// Somiglianza tra due impronte: la correlazione migliore tra rotazioni e spostamenti (−1…1), null se non si può dire.
 function sigSimilarity(a, b) {
-  if (!a || !b) return null;
-  const va = sigSmooth(sigValues(a));
-  let vb = sigSmooth(sigValues(b)), best = null;
-  if (sigSpread(va) < SIG_MIN_SPREAD || sigSpread(vb) < SIG_MIN_SPREAD) return null;
-  for (let r = 0; r < 4; r++, vb = sigRotate(vb)) {
-    const idx = [];
-    for (let k = 0; k < va.length; k++) if (va[k] != null && vb[k] != null) idx.push(k);
-    if (idx.length < 0.5 * va.length) continue;
-    const ma = idx.reduce((s, k) => s + va[k], 0) / idx.length, mb = idx.reduce((s, k) => s + vb[k], 0) / idx.length;
-    let sab = 0, saa = 0, sbb = 0;
-    idx.forEach((k) => { const da = va[k] - ma, db = vb[k] - mb; sab += da * db; saa += da * da; sbb += db * db; });
-    const corr = saa && sbb ? sab / Math.sqrt(saa * sbb) : 0;
-    if (best == null || corr > best) best = corr;
+  const A = sigPrep(a), Bp = sigPrep(b);
+  if (!A || !Bp) return null;
+  let vb = Bp.v, best = null;
+  for (let r = 0; r < 4; r++, vb = sigRotate(vb, A.n)) {
+    for (let dy = -SIG_SHIFT; dy <= SIG_SHIFT; dy++) for (let dx = -SIG_SHIFT; dx <= SIG_SHIFT; dx++) {
+      const c = sigCorr(A.v, vb, A.n, dx, dy);
+      if (c != null && (best == null || c > best)) best = c;
+    }
   }
   return best;
 }
@@ -725,6 +817,5 @@ function findDuplicate(card, others) {
 // Parametri dell'analisi, salvati con i dati di taratura.
 const ANALISI_PARAMETRI = { GUIDE, MAX_SIDE, BG_RING, BG_MAX_CHROMA, FIND_DIFF, FIND_CLOSE, CARD_FILL, QUAD_MIN, CARD_MIN, LEAF_GR, LEAF_WIN,
   LEAF_FRAC, EDGE_INSET, CARD_SIDE, PAPER_MIN, STAIN_MAX, STAIN_SURE, STAIN_TYPICAL, DEAD_ZONE, LOCAL_LIGHT, LIGHT_LIMITS, STRIP_NEUTRAL, STRIP_SIZE, STRIP_DENSE, GLARE_CHROMA,
-  GLARE_LUM, STAPLE_GREY, STAPLE_DARK, STAPLE_SHINY, STAPLE_LEN, STAPLE_WIDTH, STAPLE_STRAIGHT, STAPLE_FULL, STAPLE_BUFFER, CLIP_GREY,
-  CLIP_DARK, CLIP_VIOLET, CLIP_GRID, CLIP_LENS, CLIP_WIDTH, CLIP_ANGLES, CLIP_TAP_RESP, CLIP_TAP_RADIUS, CLIP_TAP_DISC, CLIP_EDGE,
-  CLIP_BUFFER, SIG_GRID, SIG_MIN_VALID, SIG_MIN_SPREAD, DUP_SIMILAR };
+  GLARE_LUM, CLIP_GRID, CLIP_LIGHT, CLIP_ODD, CLIP_SEG, CLIP_SIDES, CLIP_ANGLES, CLIP_FULL, CLIP_SIDES_MAX, CLIP_LEN, CLIP_BLUE, CLIP_EDGE,
+  CLIP_SIDE, CLIP_JOIN, CLIP_HALF, CLIP_BUFFER, CLIP_GUIDED, SHARP_SIDE, SHARP_BLUR, SHARP_MIN, SIG_GRID, SIG_MIN_VALID, SIG_LOCAL, SIG_BORDER, SIG_SHIFT, SIG_MIN_SPREAD, DUP_SIMILAR };

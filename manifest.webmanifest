@@ -1,6 +1,6 @@
 {
-  "name": "Rilievo irrorazione Perleuve",
-  "short_name": "Irrorazione",
+  "name": "4Sprayers",
+  "short_name": "4Sprayers",
   "lang": "it",
   "dir": "ltr",
   "description": "Prototipo per il rilievo dell’irrorazione con le cartine idrosensibili.",
@@ -9,7 +9,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FBF7F4",
-  "theme_color": "#4E7A1E",
+  "theme_color": "#FBF7F4",
   "icons": [
     {
       "src": "icons/icon-192.png",

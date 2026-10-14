@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#4E7A1E">
+<meta name="theme-color" content="#FBF7F4">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<meta name="apple-mobile-web-app-title" content="4Sprayers">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
-<title>I miei rilievi</title>
+<title>4Sprayers · I miei rilievi</title>
+<script src="./qrcode.js"></script>
 <script src="./jsQR.js"></script>
 <script src="./schede.js"></script>
 <script src="./support.js"></script>
@@ -45,11 +46,48 @@
   button, .btn-primary, .btn-ghost, .eyebrow, .tag, .chip, .field label, .rec-code, .back-link { font-family: 'Montserrat', system-ui, sans-serif; }
   input, textarea { font-family: inherit; font-variant-numeric: tabular-nums; }
 
-  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.94); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .topbar-title { display: flex; flex-direction: column; gap: 2px; }
-  .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
-  .topbar h1 { font-size: 22px; }
-  .topbar-actions { display: flex; gap: 8px; }
+  /* 4Sprayers (14/10/2026): logo e profilo in alto, barra di navigazione in basso (Rilievi · Nuovo · Schede). */
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.96); padding: 10px 16px 6px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .logo { display: flex; align-items: baseline; gap: 4px; font-family: 'Montserrat', system-ui, sans-serif; text-decoration: none; color: var(--ink); }
+  .logo-4 { font-size: 24px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .logo-name { font-size: 13px; font-weight: 600; letter-spacing: 0.3em; line-height: 1; }
+  .avatar { width: 44px; height: 44px; border-radius: 100px; border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 700; color: var(--ink); cursor: pointer; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #70a030; font-weight: 700; }
+  .page-title { font-size: 28px; font-weight: 800; }
+  .bottomnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: calc(72px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--surface); border-top: 1px solid var(--sand); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; }
+  .bottomnav.is-hidden { display: none; }
+  @media (max-width: 959px) {
+    .bottomnav.is-detail { display: none; }
+    /* sui telefoni il dettaglio è una schermata a sé: niente titolo, banner e riquadro; "Invia" fisso in basso */
+    .is-selected .rilievi-title, .is-selected .draft-banner { display: none; }
+    .detail-panel { background: none; border: 0; padding: 0; border-radius: 0; }
+    .back-link { font-size: 15px; }
+    .send-box { position: sticky; bottom: 0; z-index: 10; background: var(--bg); margin: 0 -20px; padding: 14px 20px calc(18px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--sand); }
+    .send-box .btn-primary { width: 100%; min-height: 56px; font-size: 16px; }
+  }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: none; color: var(--ink-soft); font-size: 12px; font-weight: 600; cursor: pointer; min-height: 56px; justify-content: center; text-decoration: none; }
+  .nav-item.is-on { color: var(--ink); font-weight: 700; }
+  .nav-item svg { stroke: currentColor; }
+  .nav-item.is-on svg { stroke: var(--accent-strong); }
+  .nav-new { justify-self: center; width: 64px; height: 64px; margin-top: -26px; border-radius: 100px; border: 0; background: var(--accent); box-shadow: 0 4px 14px rgba(35,31,32,0.18); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--ink); font-size: 11px; font-weight: 700; cursor: pointer; }
+  .nav-space { height: calc(96px + env(safe-area-inset-bottom, 0px)); grid-column: 1 / -1; }
+  .sheet-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(35,31,32,.45); border: 0; width: 100%; cursor: pointer; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; max-height: 92vh; overflow-y: auto; background: var(--bg); border-radius: 24px 24px 0 0; padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
+  .sheet::before { content: ""; align-self: center; width: 40px; height: 5px; border-radius: 100px; background: var(--line); }
+  .sheet h2 { font-size: 22px; font-weight: 800; }
+  .choice { display: flex; align-items: center; gap: 14px; padding: 18px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; text-decoration: none; color: var(--ink); }
+  .choice.is-main { border: 2px solid var(--accent); }
+  .choice-icon { width: 52px; height: 52px; border-radius: 14px; background: var(--sand); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .choice.is-main .choice-icon { background: var(--accent-soft); }
+  .choice-text { flex-grow: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .choice-title { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; font-size: 17px; }
+  .choice-sub { font-size: 15px; color: var(--ink-soft); }
+  .sheet-close { align-self: flex-end; border: 0; background: none; padding: 12px 8px; font-size: 15px; font-weight: 700; color: var(--ink); cursor: pointer; }
+  .menu-list { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+  .menu-list > * { min-height: 54px; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--sand); color: var(--ink); text-decoration: none; font-family: 'Montserrat', system-ui, sans-serif; font-size: 15px; font-weight: 600; }
+  .menu-list > *:last-child { border-bottom: 0; }
+  .menu-note { font-size: 13px; color: var(--ink-soft); }
+  @media (min-width: 700px) { .sheet { left: calc(50% - 280px); right: calc(50% - 280px); } .bottomnav { padding-left: calc(50% - 240px); padding-right: calc(50% - 240px); } }
 
   .btn-primary { display: inline-flex; align-items: center; justify-content: center; border: none; text-decoration: none; background: var(--accent); color: var(--ink); padding: 12px 24px; border-radius: 100px; font-size: 14px; font-weight: 700; min-height: 46px; cursor: pointer; }
   .btn-primary:hover { background: var(--accent-hover); color: var(--ink); }
@@ -57,7 +95,9 @@
   .btn-ghost { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 11px 22px; border-radius: 100px; font-size: 14px; font-weight: 700; min-height: 46px; cursor: pointer; }
   .btn-ghost:hover { background: var(--ink); color: var(--bg); }
 
-  .page { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .page { max-width: 1200px; margin: 0 auto; padding: 8px 20px 0; display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .tab-rilievi .print-panel, .tab-rilievi .shop-panel { display: none; }
+  .tab-schede .list-panel, .tab-schede .detail-panel, .tab-schede .draft-banner, .tab-schede .sample-note, .tab-schede .rilievi-title { display: none; }
   .sample-note { font-size: 13px; color: var(--ink-soft); background: var(--sand); border-radius: 10px; padding: 8px 12px; }
 
   .list-panel { display: flex; flex-direction: column; gap: 12px; }
@@ -77,7 +117,11 @@
   .rec-meta { color: var(--ink-soft); font-size: 14px; }
   .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 9px; border-radius: 100px; white-space: nowrap; }
   .tag-bozza { background: #231F20; color: #FBF7F4; }
-  .draft-banner { background: var(--surface); border: 1.5px solid var(--accent); border-radius: var(--radius); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .draft-banner { background: var(--ink); color: var(--bg); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .draft-banner .rec-title { color: var(--bg); }
+  .draft-banner .rec-meta { color: #D8D2CC; }
+  .draft-banner .tag-bozza { background: transparent; color: #9ECE5D; padding: 0; letter-spacing: 0.12em; }
+  .draft-banner .btn-primary { flex-shrink: 0; }
   .draft-text { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
   .tag-foto { background: var(--warn-soft); color: var(--warn); }
   .tag-elab { background: var(--sand); color: var(--ink); }
@@ -121,14 +165,20 @@
   .detail-empty { color: var(--ink-soft); text-align: center; padding: 48px 12px; }
   .detail-empty h2 { font-size: 18px; color: var(--ink); margin-bottom: 6px; }
 
-  .shop-panel { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 22px; margin-top: 8px; }
+  .print-panel { display: flex; flex-direction: column; gap: 14px; }
+  .print-box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+  .gen-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+  .gen-n { width: 140px; margin: 0; }
+  .lot-list { margin: 6px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+  .notice-ok { font-size: 14px; border-radius: 10px; padding: 10px 12px; background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; margin: 0; }
+  .free-list { font-weight: 700; }
+  .shop-panel { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 22px; }
   .shop-head h2 { font-size: 20px; margin-bottom: 4px; }
   .shop-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .shop-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
   .shop-card h3 { font-size: 16px; }
   .shop-search { background: var(--accent-soft); border-color: var(--accent-soft); }
   .shop-links { display: flex; flex-wrap: wrap; gap: 8px; }
-  .is-selected .shop-panel { display: none; }
   .is-selected .list-panel { display: none; }
   .no-selection .detail-panel { display: none; }
 
@@ -140,23 +190,12 @@
     .page { grid-template-columns: 380px minmax(0, 1fr); gap: 28px; padding: 28px 40px 80px; }
     .sample-note { grid-column: 1 / -1; }
     .draft-banner { grid-column: 1 / -1; }
-    .shop-panel { grid-column: 1 / -1; }
-    .is-selected .shop-panel { display: flex; }
     .shop-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .print-panel, .shop-panel, .rilievi-title { grid-column: 1 / -1; }
     .is-selected .list-panel { display: flex; }
     .no-selection .detail-panel { display: flex; }
     .back-link { display: none; }
   }
-  /* Telefoni: intestazione compatta su una riga, così resta in alto senza coprire la pagina. */
-  @media (max-width: 560px) {
-    .topbar { padding: 10px 16px; gap: 10px; flex-wrap: nowrap; }
-    .topbar h1 { font-size: 19px; }
-    .topbar .eyebrow { font-size: 11px; }
-    .topbar .btn-ghost, .topbar .btn-primary { min-height: 40px; padding: 8px 14px; font-size: 13px; flex-shrink: 0; }
-    .topbar-title { min-width: 0; }
-  }
-  /* con due pulsanti l'intestazione va a capo: sui telefoni non resta fissa in alto */
-  @media (max-width: 560px) { .topbar { flex-wrap: wrap; position: static; } }
   /* Schede del rilievo accurato: una riga per parete, come in "Schede e immagini" del modulo */
   .slots { display: flex; flex-direction: column; gap: 12px; }
   .slot { border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); }
@@ -196,27 +235,21 @@
 
 <div>
   <header class="topbar">
-    <div class="topbar-title">
-      <span class="eyebrow">Perleuve</span>
-      <h1>I miei rilievi</h1>
-    </div>
-    <div class="topbar-actions">
-      <a class="btn-primary" href="Scelta.dc.html">+ Nuovo rilievo</a>
-      <a class="btn-ghost" href="Login.dc.html">Esci</a>
-    </div>
+    <span class="logo" role="img" aria-label="4Sprayers"><span class="logo-4">4</span><span class="logo-name">SPRAYERS</span></span>
+    <button type="button" class="avatar" aria-label="Profilo e impostazioni" onClick="{{onMenu}}">GV</button>
   </header>
 
   <div class="{{pageCls}}">
-    <p class="sample-note">Prototipo: i rilievi da R-0001 a R-0006 sono esempi; i rilievi semplici e quelli accurati inviati sono quelli salvati in questo browser.</p>
+    <h1 class="page-title rilievi-title">{{pageTitle}}</h1>
 
     <sc-if value="{{hasDraft}}" hint-placeholder-val="{{true}}">
       <div class="draft-banner">
         <div class="draft-text">
           <span class="tag tag-bozza">Rilievo in corso</span>
-          <span class="rec-title">{{draft.azienda}} · {{draft.vigneto}}</span>
+          <span class="rec-title">{{draft.vigneto}}</span>
           <span class="rec-meta">{{draft.id}} · iniziato il {{draft.data}} · {{draft.progressText}}</span>
         </div>
-        <a class="btn-primary" href="Main.dc.html">Continua rilievo</a>
+        <a class="btn-primary" href="Main.dc.html">Continua</a>
       </div>
     </sc-if>
 
@@ -233,13 +266,14 @@
       <sc-for list="{{visible}}" as="r" hint-placeholder-count="5">
         <button type="button" class="{{r.cls}}" onClick="{{r.select}}" aria-pressed="{{r.pressed}}">
           <span class="rec-top"><span class="rec-code">{{r.id}} · {{r.data}}</span><span><sc-if value="{{r.semplice}}" hint-placeholder-val="{{false}}"><span class="tag tag-kind">Semplice</span></sc-if><span class="{{r.tagCls}}">{{r.statoLabel}}</span></span></span>
-          <span class="rec-title">{{r.azienda}} · {{r.vigneto}}</span>
+          <span class="rec-title">{{r.vigneto}}</span>
           <span class="rec-meta">{{r.descrizione}} — {{r.tipo}}</span>
         </button>
       </sc-for>
       <sc-if value="{{noResults}}" hint-placeholder-val="{{false}}">
         <p class="empty-list">Nessun rilievo corrisponde alla ricerca.</p>
       </sc-if>
+      <p class="sample-note">Prototipo: i rilievi da R-0001 a R-0006 sono esempi; i rilievi semplici e quelli accurati inviati sono quelli salvati in questo browser.</p>
     </section>
 
     <section class="detail-panel" aria-label="Dettaglio rilievo">
@@ -248,7 +282,7 @@
 
         <div class="detail-head">
           <div class="rec-top"><span class="rec-code">{{sel.id}} · {{sel.data}}</span><span class="{{sel.tagCls}}">{{sel.statoLabel}}</span></div>
-          <h2>{{sel.azienda}} · {{sel.vigneto}}</h2>
+          <h2>{{sel.vigneto}}</h2>
           <dl class="facts">
             <sc-if value="{{sel.notSimple}}" hint-placeholder-val="{{true}}">
               <dt>Tipo irroratrice</dt><dd>{{sel.tipo}}</dd>
@@ -332,6 +366,7 @@
                     <sc-if value="{{sl.noThumb}}" hint-placeholder-val="{{false}}"><span class="photo-sample">Immagine caricata</span></sc-if>
                     <div class="slot-photo-info">
                       <p class="{{sl.checkCls}}">{{sl.checkText}}</p>
+                      <sc-if value="{{sl.dpiText}}" hint-placeholder-val="{{false}}"><p class="{{sl.dpiCls}}">{{sl.dpiText}}</p></sc-if>
                       <sc-if value="{{sl.mismatch}}" hint-placeholder-val="{{false}}">
                         <div class="actions">
                           <button type="button" class="btn-ghost btn-small" onClick="{{sl.onConfirm}}">È la foto giusta: usala lo stesso</button>
@@ -408,6 +443,34 @@
       </sc-if>
     </section>
 
+    <section class="print-panel" aria-labelledby="print-title">
+      <div class="shop-head">
+        <h1 id="print-title" class="page-title">Schede da stampare</h1>
+        <p class="send-hint">Puoi preparare le schede prima di uscire in vigneto: ne serve una per parete ogni 5 repliche (un rilievo standard ne usa 2).</p>
+      </div>
+      <div class="print-box">
+        <p>{{print.freeText}} <sc-if value="{{print.hasFree}}" hint-placeholder-val="{{true}}"><span class="free-list">{{print.freeList}}</span></sc-if></p>
+        <div class="gen-row">
+          <div class="field gen-n">
+            <label for="lottoN">Quante schede</label>
+            <input id="lottoN" type="number" min="1" max="20" inputmode="numeric" value="{{print.nText}}" onChange="{{print.onN}}">
+          </div>
+          <button type="button" class="btn-primary" onClick="{{print.onGenerate}}">Scarica il PDF delle schede</button>
+        </div>
+        <sc-if value="{{print.msg}}" hint-placeholder-val="{{false}}"><p class="notice-ok" role="status">{{print.msg}}</p></sc-if>
+        <p class="send-hint">Ogni scheda ha un numero unico: se puoi, stampa il PDF <strong>una sola volta</strong>, in A4 e in scala 100%, e non fare fotocopie, così i dati di due rilievi non si mescolano. Nel rilievo accurato le schede libere ti vengono proposte da sole.</p>
+        <sc-if value="{{print.hasLots}}" hint-placeholder-val="{{false}}">
+          <details class="more">
+            <summary>Schede già generate su questo telefono</summary>
+            <ul class="lot-list">
+              <sc-for list="{{print.lots}}" as="l" hint-placeholder-count="2"><li>{{l.text}}</li></sc-for>
+            </ul>
+            <p class="send-hint">Un PDF già scaricato non si scarica di nuovo: se ti servono altre schede, generane di nuove.</p>
+          </details>
+        </sc-if>
+      </div>
+    </section>
+
     <section class="shop-panel" aria-labelledby="shop-title">
       <div class="shop-head">
         <h2 id="shop-title">Dove acquistare le cartine idrosensibili</h2>
@@ -443,7 +506,55 @@
         </article>
       </div>
     </section>
+    <div class="nav-space"></div>
   </div>
+
+  <nav class="{{navCls}}" aria-label="Navigazione">
+    <button type="button" class="{{navRilieviCls}}" onClick="{{onTabRilievi}}" aria-current="{{rilieviCurrent}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"></path></svg>Rilievi</button>
+    <button type="button" class="nav-new" onClick="{{onNuovo}}">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Nuovo</button>
+    <button type="button" class="{{navSchedeCls}}" onClick="{{onTabSchede}}" aria-current="{{schedeCurrent}}">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M4 10h16M10 4v16"></path></svg>Schede</button>
+  </nav>
+
+  <sc-if value="{{showNuovo}}" hint-placeholder-val="{{false}}">
+    <button type="button" class="sheet-backdrop" aria-label="Chiudi" onClick="{{onCloseSheet}}"></button>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="nuovo-title">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span class="eyebrow">— Nuovo rilievo</span>
+        <h2 id="nuovo-title">Che rilievo fai?</h2>
+      </div>
+      <a class="choice is-main" href="Semplice.dc.html">
+        <span class="choice-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4E7A1E" stroke-width="2" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
+        <span class="choice-text"><span class="choice-title">Rilievo semplice</span><span class="choice-sub">Fotografi una o più cartine, risultato subito</span></span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      </a>
+      <a class="choice" href="Main.dc.html">
+        <span class="choice-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="M7 9h2M11 9h2M15 9h2M7 13h2M11 13h2M15 13h2"></path></svg></span>
+        <span class="choice-text"><span class="choice-title">Rilievo accurato</span><span class="choice-sub">Macchina, ugelli e cartine sulle schede</span></span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#231F20" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+      </a>
+      <button type="button" class="sheet-close" onClick="{{onCloseSheet}}">Annulla</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showMenu}}" hint-placeholder-val="{{false}}">
+    <button type="button" class="sheet-backdrop" aria-label="Chiudi" onClick="{{onCloseSheet}}"></button>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span class="eyebrow">— Account</span>
+        <h2 id="menu-title">Azienda di prova</h2>
+        <span class="menu-note">giulia@venica.it · tecnico del cliente (esempio)</span>
+      </div>
+      <div class="menu-list">
+        <a href="Taratura.dc.html">Prove in ufficio: raccolta dati per la taratura</a>
+        <a href="Schede.dc.html">Prove in ufficio: foto delle schede con le cartine</a>
+        <a href="Login.dc.html">Esci</a>
+      </div>
+      <button type="button" class="sheet-close" onClick="{{onCloseSheet}}">Chiudi</button>
+    </div>
+  </sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
@@ -477,9 +588,10 @@ function loadRilievi() {
 function storeRilievi(list) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); return true; } catch (e) { return false; }
 }
-const TIPO_LABEL = { atomizzatore: 'Atomizzatore', nebulizzatore: 'Nebulizzatore' };
+// tipoMacchina: uno dei 4 tipi (dal 14/10/2026); i rilievi di prima hanno solo tipo (atomizzatore/nebulizzatore)
+const TIPO_LABEL = { atomizzatore: 'Atomizzatore', nebulizzatore: 'Nebulizzatore', recupero: 'Atomizzatore a recupero', torretta: 'Torretta' };
 function coverageClass(c) {
-  return c <= 20 ? 'SCARSO' : c <= 40 ? 'DISCRETO' : c <= 60 ? 'OTTIMALE' : 'ECCESSIVO';
+  return c < 20 ? 'SCARSO' : c < 40 ? 'DISCRETO' : c <= 70 ? 'OTTIMALE' : 'ECCESSIVO';   // classi del 13/10/2026
 }
 function pct(n) { return n.toLocaleString('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
 function simpleRecord(r) {
@@ -490,7 +602,7 @@ function simpleRecord(r) {
   return {
     id: r.id, data: r.savedDate, azienda: 'Azienda di prova', vigneto: 'Rilievo semplice', semplice: true, stato: 'done',
     descrizione: n + (n === 1 ? ' cartina' : ' cartine') + ' · ' + pct(mean) + '%',
-    tipo: TIPO_LABEL[r.tipo] || 'tipo non indicato',
+    tipo: TIPO_LABEL[r.tipoMacchina || r.tipo] || 'tipo non indicato',
     copertura: (n > 1 ? 'media ' : '') + pct(mean) + ' % · ' + coverageClass(mean),
     posizione: codes.join(', '), cartine: n,
     litriHa: r.volume || '—', velocita: r.velocita || '—',
@@ -539,7 +651,10 @@ class Component extends DCLogic {
     // ?rilievo=ID: si apre direttamente quel rilievo (dopo l'invio dal modulo)
     const want = new URLSearchParams(location.search).get('rilievo');
     const selectedId = want && records.some((r) => r.id === want) ? want : null;
+    // ?tab=schede apre la scheda "Schede"; ?nuovo=1 apre subito il pannello "Nuovo rilievo".
+    const qs = new URLSearchParams(location.search);
     this.state = { records: records, saved: JSON.parse(JSON.stringify(records)), selectedId: selectedId, query: '', filter: 'all', justSaved: false,
+      tab: qs.get('tab') === 'schede' ? 'schede' : 'rilievi', sheet: qs.get('nuovo') ? 'nuovo' : null,
       reading: {}, manualInput: {}, slotErr: {} };
     this.save = this.save.bind(this);
   }
@@ -586,7 +701,7 @@ class Component extends DCLogic {
     Promise.all([leggiQrScheda(file), miniaturaImmagine(file)]).then(([r, thumb]) => {
       this.setIn('reading', key, undefined);
       this.setIn('slotErr', key, undefined);
-      this.patchSlot(key, { foto: { nome: file.name, thumb: thumb, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() } });
+      this.patchSlot(key, { foto: { nome: file.name, thumb: thumb, qr: r.numero || '', metodoQr: r.metodo || '', dpi: r.dpi || null, manuale: '', confermata: null, quando: new Date().toISOString() } });
     });
   }
 
@@ -645,7 +760,7 @@ class Component extends DCLogic {
   }
 
   slotVals(r, sc) {
-    const s = this.state, key = sc.key, f = sc.foto, chk = controlloFoto(sc), tc = testoControllo(chk, sc);
+    const s = this.state, key = sc.key, f = sc.foto, chk = controlloFoto(sc), tc = testoControllo(chk, sc), td = testoDpi(f);
     const canEdit = r.stato === 'foto';
     let badge = 'Scheda ' + sc.id + (f ? '' : ' · immagine da caricare'), badgeCls = 'slot-badge', cls = 'slot';
     if (chk.stato === 'ok' || chk.stato === 'confermata') { badge = 'Scheda ' + sc.id + ' · immagine ok'; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
@@ -656,7 +771,7 @@ class Component extends DCLogic {
       camId: 'cam-' + uid, fileId: 'file-' + uid, manualId: 'man-' + uid,
       noPhoto: !f && canEdit, hasPhoto: !!f, canEdit: canEdit && !!f, reading: !!s.reading[key],
       thumb: f && f.thumb ? f.thumb : '', noThumb: !!f && !f.thumb, photoAlt: 'Immagine della scheda ' + sc.id, photoName: f ? f.nome : '',
-      checkText: tc.testo, checkCls: tc.cls, mismatch: canEdit && chk.stato === 'diverso',
+      checkText: tc.testo, checkCls: tc.cls, dpiText: td ? td.testo : '', dpiCls: td ? td.cls : 'check-info', mismatch: canEdit && chk.stato === 'diverso',
       manualOpen: chk.stato === 'illeggibile', manualText: s.manualInput[key] || '', err: s.slotErr[key] || '',
       onPhoto: (e) => this.slotPhoto(key, e),
       onConfirm: () => this.slotFoto(key, { confermata: { quando: new Date().toISOString(), visto: chk.visto, atteso: sc.numero } }),
@@ -664,6 +779,13 @@ class Component extends DCLogic {
       onManual: () => this.slotManual(key),
       onClear: () => this.patchSlot(key, { foto: null })
     };
+  }
+
+  // Nuovo lotto di schede da stampare: numeri mai usati, PDF scaricato subito e una volta sola.
+  generateLot() {
+    const n = Math.max(1, Math.min(20, parseInt(this.state.lottoN, 10) || 2));
+    const { nome } = scaricaLotto(n);
+    this.setState({ lottoMsg: 'Scaricato ' + nome + ' (' + n + (n === 1 ? ' scheda' : ' schede') + '). Se puoi, stampalo una sola volta e senza fotocopie.' });
   }
 
   renderVals() {
@@ -715,8 +837,43 @@ class Component extends DCLogic {
         : 'Rilievo elaborato. Le modifiche salvate richiederanno una nuova elaborazione.'
     } : {};
 
+    // Schede da stampare: libere = generate su questo telefono e non ancora collegate a un rilievo
+    const lots = schedeRegistro().lotti.slice().reverse(), libere = schedeLibere(), reg = schedeRegistro();
+    const giorno = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('it-IT'); };
+    const print = {
+      hasFree: libere.length > 0,
+      freeText: libere.length ? 'Su questo telefono ' + (libere.length === 1 ? 'c’è 1 scheda generata e non ancora usata:' : 'ci sono ' + libere.length + ' schede generate e non ancora usate:')
+        : 'Nessuna scheda pronta su questo telefono: puoi generarne di nuove qui sotto.',
+      freeList: libere.join(', '),
+      nText: s.lottoN || '2',
+      onN: (e) => this.setState({ lottoN: e.target.value }),
+      onGenerate: () => this.generateLot(),
+      msg: s.lottoMsg || '',
+      hasLots: lots.length > 0,
+      lots: lots.map((l) => {
+        const used = l.numeri.filter((n) => reg.usi[n] && reg.usi[n].length).length;
+        return { text: l.numeri[0] + (l.numeri.length > 1 ? ' … ' + l.numeri[l.numeri.length - 1] : '') + ' · ' + l.numeri.length + (l.numeri.length === 1 ? ' scheda' : ' schede')
+          + ' · scaricate il ' + giorno(l.creato) + ' · ' + (used ? used + ' già usat' + (used === 1 ? 'a' : 'e') : 'nessuna usata') };
+      })
+    };
+
     return {
-      pageCls: r ? 'page is-selected' : 'page no-selection',
+      pageCls: (r ? 'page is-selected' : 'page no-selection') + ' tab-' + s.tab,
+      pageTitle: 'I miei rilievi',
+      // dentro il dettaglio di un rilievo la barra in basso sparisce (sui telefoni il dettaglio è una schermata a sé)
+      navCls: r && s.tab === 'rilievi' ? 'bottomnav is-detail' : 'bottomnav',
+      navRilieviCls: s.tab === 'rilievi' ? 'nav-item is-on' : 'nav-item',
+      navSchedeCls: s.tab === 'schede' ? 'nav-item is-on' : 'nav-item',
+      rilieviCurrent: s.tab === 'rilievi' ? 'page' : 'false',
+      schedeCurrent: s.tab === 'schede' ? 'page' : 'false',
+      onTabRilievi: () => { this.setState({ tab: 'rilievi', selectedId: null }); window.scrollTo(0, 0); },
+      onTabSchede: () => { this.setState({ tab: 'schede', selectedId: null }); window.scrollTo(0, 0); },
+      onNuovo: () => this.setState({ sheet: 'nuovo' }),
+      onMenu: () => this.setState({ sheet: 'menu' }),
+      onCloseSheet: () => this.setState({ sheet: null }),
+      showNuovo: s.sheet === 'nuovo',
+      showMenu: s.sheet === 'menu',
+      print: print,
       hasDraft: !!draftRec,
       draft: draftRec ? { id: draftRec.id, data: draftRec.data, azienda: draftRec.azienda, vigneto: draftRec.vigneto, progressText: progressText(draftRec) } : {},
       query: s.query,

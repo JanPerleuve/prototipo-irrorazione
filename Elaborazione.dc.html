@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#4E7A1E">
+<meta name="theme-color" content="#FBF7F4">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<meta name="apple-mobile-web-app-title" content="4Sprayers">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
-<title>Elaborazione rilievo</title>
+<title>4Sprayers · Elaborazione rilievo</title>
 <script src="./schede.js"></script>
 <script src="./support.js"></script>
 </head>
@@ -40,6 +40,10 @@
   .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.92); border-bottom: 1px solid var(--line); padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; }
   .eyebrow { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
   .topbar h1 { font-size: 24px; }
+  .topbar { border-bottom: 0; padding: 14px 20px 6px; }
+  .logo { display: flex; align-items: baseline; gap: 4px; font-family: 'Montserrat', system-ui, sans-serif; }
+  .logo-4 { font-size: 24px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .logo-name { font-size: 13px; font-weight: 600; letter-spacing: 0.3em; line-height: 1; }
   .subtitle { color: var(--ink-soft); font-size: 14px; }
   .page { display: flex; justify-content: center; padding: 40px 20px 80px; }
   .card { width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 40px 28px; display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center; }
@@ -55,7 +59,10 @@
   .dot-done { background: var(--accent); color: var(--ink); }
   .dot-wait { border: 2px solid var(--accent-strong); }
   .step-state { margin-left: auto; font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
-  .actions { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  /* 4Sprayers (14/10/2026): pulsanti in basso, il principale a destra */
+  .actions { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-direction: row; gap: 10px; padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--line); }
+  .actions > .btn-primary { flex: 1; }
+  main { padding-bottom: 110px; }
   .btn-primary { display: flex; align-items: center; justify-content: center; border: none; text-decoration: none; background: var(--accent); color: var(--ink); padding: 14px 28px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 15px; font-weight: 700; min-height: 52px; cursor: pointer; width: 100%; }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-primary:disabled { background: #DCE9C8; color: #6F6A67; cursor: not-allowed; }
@@ -77,9 +84,7 @@
 
 <div>
   <div class="topbar">
-    <span class="eyebrow">Perleuve</span>
-    <h1>Rilievo condizioni operative</h1>
-    <span class="subtitle">Verifica taratura irroratrice in vigneto</span>
+    <span class="logo" role="img" aria-label="4Sprayers"><span class="logo-4">4</span><span class="logo-name">SPRAYERS</span></span>
   </div>
 
   <main class="page">
@@ -109,13 +114,13 @@
       </ul>
 
       <div class="actions">
+        <a class="btn-ghost" href="Rilievi.dc.html">I miei rilievi</a>
         <sc-if value="{{processing}}" hint-placeholder-val="{{true}}">
           <button type="button" class="btn-primary" disabled="{{true}}">Vedi risultati</button>
         </sc-if>
         <sc-if value="{{done}}" hint-placeholder-val="{{false}}">
           <a class="btn-primary" href="{{resultsHref}}">Vedi risultati</a>
         </sc-if>
-        <a class="btn-ghost" href="Scelta.dc.html">Nuovo rilievo</a>
       </div>
     </div>
   </main>

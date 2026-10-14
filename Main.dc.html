@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#4E7A1E">
+<meta name="theme-color" content="#FBF7F4">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<meta name="apple-mobile-web-app-title" content="4Sprayers">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
-<title>Rilievo condizioni operative</title>
+<title>Rilievo accurato</title>
 <script src="./qrcode.js"></script>
 <script src="./jsQR.js"></script>
 <script src="./schede.js"></script>
@@ -46,26 +46,6 @@
   input, textarea { font-variant-numeric: tabular-nums; }
   a { color: var(--accent-strong); }
   ::placeholder { color: #9AA28D; }
-  .app-shell { max-width: 1160px; margin: 0 auto; padding: 0 0 96px; }
-  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(251, 247, 244, 0.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 16px 20px; display: flex; flex-direction: row; align-items: center; gap: 18px; }
-  .topbar-titles { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-  .back-btn { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; text-decoration: none; border: 1.5px solid var(--ink); color: var(--ink); background: var(--surface); padding: 10px 18px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 14px; font-weight: 700; min-height: 44px; }
-  .back-btn:hover { background: var(--ink); color: var(--bg); }
-  .topbar-divider { width: 1px; align-self: stretch; background: var(--line); flex-shrink: 0; }
-  .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-strong); font-weight: 700; }
-  .title-row h1 { font-size: 24px; font-weight: 700; }
-  .subtitle { color: var(--ink-soft); font-size: 14px; }
-  .layout { display: block; padding: 20px; }
-  .title-row h1 { overflow-wrap: anywhere; }
-  /* telefoni: intestazione compatta, il pulsante indietro resta solo con la freccia */
-  @media (max-width: 560px) {
-    .topbar { padding: 10px 16px; gap: 12px; }
-    .title-row h1 { font-size: 19px; }
-    .subtitle { font-size: 13px; }
-    .back-btn { padding: 8px 14px; }
-    .back-label { display: none; }
-    .layout { padding: 16px; }
-  }
   .sidebar { display: none; }
   .content { display: flex; flex-direction: column; gap: 20px; }
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
@@ -93,9 +73,6 @@
   .photo-name { font-size: 13px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .btn-ghost { border: 1.5px solid var(--ink); background: transparent; color: var(--ink); padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 700; cursor: pointer; min-height: 44px; }
   .btn-ghost:hover { background: var(--ink); color: var(--bg); }
-  .btn-primary { border: none; background: var(--accent); color: var(--ink); padding: 14px 32px; border-radius: 100px; font-size: 15px; font-weight: 700; cursor: pointer; min-height: 50px; }
-  .btn-primary:hover { background: var(--accent-hover); }
-  .btn-primary:disabled { background: #DCE9C8; color: #6F6A67; cursor: not-allowed; }
   .btn-icon-remove { border: 1px solid var(--line); background: var(--surface); color: var(--wine); width: 36px; height: 36px; border-radius: 100px; cursor: pointer; font-size: 16px; line-height: 1; flex-shrink: 0; }
   .btn-icon-remove:hover { border-color: var(--wine); }
   .nozzle-cards { display: flex; flex-direction: column; gap: 12px; }
@@ -186,7 +163,7 @@
   .sheet-title { font-size: 16px; }
   .sheet-note { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
   .sheet-scroll { overflow-x: auto; }
-  .sheet { display: flex; flex-direction: column; gap: 6px; min-width: 460px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .sheet-grid { display: flex; flex-direction: column; gap: 6px; min-width: 460px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
   .sheet-row { display: grid; grid-template-columns: 116px repeat(8, minmax(0, 1fr)); gap: 6px; align-items: center; }
   .sheet-label { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
   .sheet-n { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-size: 11px; flex-shrink: 0; }
@@ -267,7 +244,6 @@
   .ntype-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #231F20; flex-shrink: 0; }
   @media (min-width: 960px) {
     .ugelli-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    .nz-figure { position: sticky; top: 110px; }
   }
   .pass-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .pass-options .type-option { border-radius: 14px; align-items: flex-start; }
@@ -310,7 +286,7 @@
   .step-btn:active { background: var(--accent-soft); }
   .acq-photo .only-scan, .acq-scan .only-photo { display: none; }
   .template-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
-  .sheet { position: relative; padding: 26px 26px 22px; }
+  .sheet-grid { position: relative; padding: 26px 26px 22px; }
   .sheet-marker { position: absolute; width: 14px; height: 14px; background: #231F20; border-radius: 2px; }
   .sheet-marker::after { content: ''; position: absolute; inset: 4px; background: #FFFFFF; }
   .m-tl { top: 6px; left: 6px; } .m-tr { top: 6px; right: 6px; } .m-bl { bottom: 6px; left: 6px; } .m-br { bottom: 6px; right: 6px; }
@@ -332,7 +308,6 @@
 
   @media (min-width: 960px) {
     .type-options { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: start; padding: 32px 40px 0; }
     .sidebar { display: block; position: sticky; top: 96px; }
     .nozzle-cards { display: none; }
     .nozzle-table { display: table; width: 100%; border-collapse: collapse; }
@@ -394,63 +369,224 @@
   fieldset { min-width: 0; }
   input, select, textarea, button { max-width: 100%; }
   h1, h2, h3, h4, p, li, dd, dt, label, a, span, td, th { overflow-wrap: break-word; }
+  /* ---- 4Sprayers: componenti comuni (14/10/2026) ---- */
+  .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg); }
+  .topbar .back { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 100px; color: var(--ink); text-decoration: none; background: none; border: 0; cursor: pointer; flex-shrink: 0; }
+  .topbar .title { flex: 1; min-width: 0; font: 700 16px 'Montserrat', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .topbar .step { font: 600 13px 'Montserrat', sans-serif; color: var(--ink-soft); padding-right: 8px; }
+  .progress { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 4px; padding: 0 20px 8px; }
+  .progress span { height: 4px; border-radius: 100px; background: var(--line); }
+  .progress span.done { background: var(--accent); }
+  .actionbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; gap: 10px; padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--sand); }
+  .actionbar > .btn-primary { flex: 1; }
+  .actionbar-space { height: calc(96px + env(safe-area-inset-bottom, 0px)); } /* in fondo al contenuto, così niente resta sotto la barra */
+  .btn-primary { min-height: 56px; border-radius: 100px; background: var(--accent); color: var(--ink); font: 700 17px 'Montserrat', sans-serif; border: 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 22px; text-decoration: none; cursor: pointer; }
+  .btn-secondary { min-height: 56px; border-radius: 100px; background: transparent; color: var(--ink); border: 1.5px solid var(--ink); font: 700 15px 'Montserrat', sans-serif; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 18px; text-decoration: none; cursor: pointer; }
+  .btn-link { background: none; border: 0; padding: 8px 0; font: 700 15px 'Montserrat', sans-serif; color: var(--accent-strong); text-decoration: none; cursor: pointer; align-self: flex-start; text-align: left; min-height: 44px; }
+  .eyebrow { font: 700 11px 'Montserrat', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #70a030; }
+  @media (min-width: 700px) { .actionbar { padding-left: calc(50% - 300px); padding-right: calc(50% - 300px); } }
+
+  /* ---- Rilievo accurato a passi (14/10/2026) ---- */
+  :root { --sand: #F4E9E1; }
+  [hidden] { display: none !important; }
+  .svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .app-shell { max-width: 640px; margin: 0 auto; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { background: #DCE9C8; color: #6F6A67; cursor: not-allowed; }
+  .btn-secondary:hover { background: var(--ink); color: var(--bg); }
+  .step-label { margin: 0; padding: 0 20px 4px; font: 600 12px 'Montserrat', sans-serif; color: var(--ink-soft); }
+  .steps { padding: 14px 20px 0; }
+  .step { display: flex; flex-direction: column; gap: 24px; }
+  .step > * { min-width: 0; }
+  .step h1 { font: 800 24px 'Montserrat', sans-serif; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+  .group { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .group h2, .sum-head h2, .assign-title { font: 800 17px 'Montserrat', sans-serif; letter-spacing: -0.01em; }
+  .group .field-grid { gap: 12px; }
+  fieldset.group { border: 0; padding: 0; margin: 0; }
+  fieldset.group > legend { font: 800 17px 'Montserrat', sans-serif; color: var(--ink); margin-bottom: 12px; padding: 0; }
+  .hint { margin: 0; font-size: 15px; color: var(--ink-soft); line-height: 1.45; }
+  .hint-small { font-size: 14px; }
+  .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .two-col > * { min-width: 0; }
+  .two-col .field { display: flex; flex-direction: column; justify-content: flex-end; }
+  .field label { color: var(--ink); font-weight: 700; font-size: 13px; }
+  .field input, .field textarea, .field select { font-size: 16px; min-height: 48px; border-radius: 12px; }
+  .more-body { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; color: var(--ink); }
+  .more > .dual-grid, .more > .schema, .more > .pass-figure { margin-top: 8px; }
+  .more .schema { margin-bottom: 0; }
+  .preset-btn { min-height: 0; padding: 14px 16px; }
+  .preset-grid { grid-template-columns: minmax(0, 1fr); }
+  .preset-note { margin-top: 0; }
+  /* macchina ripresa dai rilievi precedenti */
+  .machine-card { background: var(--surface); border: 2px solid var(--accent); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .machine-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .machine-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .machine-name { font: 800 17px 'Montserrat', sans-serif; }
+  .machine-sub { font-size: 14px; color: var(--ink-soft); }
+  .btn-chip { min-height: 44px; padding: 0 16px; border-radius: 100px; border: 1.5px solid var(--ink); background: transparent; font: 700 13px 'Montserrat', sans-serif; color: var(--ink); flex-shrink: 0; cursor: pointer; }
+  .btn-chip[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
+  .step > .btn-link { margin-top: -18px; }
+  .step > .machine-card + .btn-link { margin-top: -16px; }
+  /* misure: tabella compatta, un lato alla volta */
+  .h1-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .help-btn { width: 44px; height: 44px; flex-shrink: 0; border-radius: 100px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 800 17px 'Montserrat', sans-serif; cursor: pointer; }
+  .help-btn[aria-expanded="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .help-panel .explain-figure { margin: 0; }
+  .help-panel .footnote { margin-top: 10px; }
+  .seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); background: var(--sand); border-radius: 100px; padding: 4px; }
+  .seg button { min-height: 44px; border-radius: 100px; border: 0; background: transparent; color: var(--ink); font: 700 14px 'Montserrat', sans-serif; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .copy-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: -12px; }
+  .copy-row .hint-small { color: var(--accent-strong); font-weight: 600; }
+  .meas-table { background: var(--surface); border: 1px solid var(--sand); border-radius: 16px; overflow: hidden; margin-top: -8px; }
+  .meas-row { display: grid; grid-template-columns: 56px repeat(4, minmax(0, 1fr)); gap: 6px; padding: 8px 10px; align-items: center; border-bottom: 1px solid var(--sand); }
+  .meas-row:last-child { border-bottom: 0; }
+  .no-fan .meas-row { grid-template-columns: 56px repeat(3, minmax(0, 1fr)); }
+  .meas-row > * { min-width: 0; }
+  .meas-headrow { background: var(--sand); font: 700 12px 'Montserrat', sans-serif; line-height: 1.25; }
+  .meas-headrow small { font-weight: 500; }
+  .meas-row input { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: 0 8px; font: 600 16px 'Barlow', sans-serif; color: var(--ink); background: var(--surface); }
+  .meas-row input:focus { outline: 2px solid var(--accent-strong); outline-offset: 0; border-color: var(--accent-strong); }
+  .meas-row.is-active { background: var(--accent-soft); }
+  .meas-row .meas-badge { min-width: 0; height: 30px; padding: 0 4px; font-size: 12px; }
+  .meas-fig { width: 100%; max-width: 300px; margin: 0 auto; padding: 8px; }
+  .meas-fig .schema-caption { text-align: center; }
+  /* schede */
+  .rep-field { max-width: 260px; }
+  .gen-box, .slots { margin: 0; }
+  .slot { border-radius: 16px; }
+  /* barra in basso: nota gentile o motivo del blocco sopra il pulsante */
+  .actionbar { flex-wrap: wrap; }
+  .actionbar-note { flex-basis: 100%; margin: 0; font-size: 14px; line-height: 1.4; border-radius: 12px; padding: 10px 12px; color: var(--ink); background: var(--accent-soft); }
+  .actionbar-space.is-tall { height: calc(210px + env(safe-area-inset-bottom, 0px)); }
+  .actionbar-note.is-warn { color: #6E2A21; background: #F7E6E2; }
+  /* riepilogo prima dell'invio */
+  .sum-group { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .sum-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .sum-head .btn-link { align-self: center; }
+  .sum-list { margin: 0; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 6px 14px; font-size: 15px; line-height: 1.4; }
+  .sum-list dt { color: var(--ink-soft); }
+  .sum-list dd { margin: 0; font-weight: 600; }
+  .sum-list dd.is-warn { color: #9B3B2F; }
+  .sum-list dd.is-ok { color: var(--accent-strong); }
+  @media (max-width: 359px) {
+    .sum-list { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .sum-list dd { margin-bottom: 8px; }
+    .meas-row { gap: 4px; padding: 8px 6px; grid-template-columns: 48px repeat(4, minmax(0, 1fr)); }
+    .no-fan .meas-row { grid-template-columns: 48px repeat(3, minmax(0, 1fr)); }
+    .meas-row input { padding: 0 5px; }
+    .two-col { gap: 10px; }
+  }
+  @media (min-width: 700px) { .steps { padding-top: 20px; } }
+  .type-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 440px) { .type-options { grid-template-columns: minmax(0, 1fr); } }
+
 </style>
 </helmet>
 
 <div class="app-shell">
+  <!-- Definizioni comuni agli schemi SVG (fuori dai passi nascosti, così le frecce si vedono in ogni passo) -->
+  <svg class="svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <marker id="tk" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M5 0 L5 10" stroke="#231F20" stroke-width="2"></path>
+      </marker>
+    </defs>
+  </svg>
+
+  <!-- Barra in alto: freccia = passo precedente (dal primo passo torna a I miei rilievi) -->
   <div class="topbar">
-    <a class="back-btn" href="Rilievi.dc.html" aria-label="Torna a I miei rilievi"><span aria-hidden="true">←</span><span class="back-label"> I miei rilievi</span></a>
-    <span class="topbar-divider" aria-hidden="true"></span>
-    <div class="topbar-titles">
-      <span class="eyebrow">Perleuve</span>
-      <div class="title-row"><h1>Rilievo condizioni operative</h1></div>
-      <span class="subtitle">Verifica taratura irroratrice in vigneto</span>
-    </div>
+    <sc-if value="{{nav.first}}" hint-placeholder-val="{{true}}">
+      <a class="back" href="Rilievi.dc.html" aria-label="Torna a I miei rilievi"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+    </sc-if>
+    <sc-if value="{{nav.notFirst}}" hint-placeholder-val="{{false}}">
+      <button type="button" class="back" onClick="{{nav.onBack}}" aria-label="{{nav.backAria}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+    </sc-if>
+    <span class="title">Rilievo accurato</span>
   </div>
+  <div class="progress" aria-hidden="true">
+    <sc-for list="{{nav.bars}}" as="b" hint-placeholder-count="6"><span class="{{b.cls}}"></span></sc-for>
+  </div>
+  <p class="step-label" aria-live="polite">{{nav.label}}</p>
 
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-card">
-        <nav aria-label="Sezioni del rilievo">
-          <a href="#sez-cartine">Istruzioni generali</a>
-          <a href="#sez-preset">Tipo di rilievo</a>
-          <sc-if value="{{prev.has}}" hint-placeholder-val="{{true}}"><a href="#sez-precedenti">La macchina di prima</a></sc-if>
-          <a href="#sez-generale">Dati generali</a>
-          <a href="#sez-descrizione">Descrizione prova</a>
-          <a href="#sez-attrezzatura">Attrezzatura</a>
-          <a href="#sez-condizioni">Condizioni operative</a>
-          <a href="#sez-ugelli">{{term.P}}</a>
-          <a href="#sez-misure">Misure per {{term.s}}</a>
-          <a href="#sez-foto">Schede e immagini</a>
-          <a href="#sez-invio">Invio</a>
-        </nav>
+  <sc-if value="{{notSubmitted}}" hint-placeholder-val="{{true}}">
+  <main class="steps">
+
+    <!-- ===== Passo 1: Rilievo ===== -->
+    <section class="step" hidden="{{nav.h1}}" aria-labelledby="h-passo1">
+      <h1 id="h-passo1">Il rilievo</h1>
+
+      <div class="group" id="sez-preset">
+        <h2>Tipo di rilievo</h2>
+        <p class="hint">Un rilievo standard imposta irroratrice, pareti e repliche; puoi cambiare tutto dopo.</p>
+        <div class="preset-grid">
+          <sc-for list="{{presetOptions}}" as="pr" hint-placeholder-count="3">
+            <button type="button" class="{{pr.cls}}" aria-pressed="{{pr.pressed}}" onClick="{{pr.pick}}">
+              <span class="preset-title">{{pr.title}}</span>
+              <span class="preset-sub">{{pr.sub}}</span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{presetApplied}}" hint-placeholder-val="{{false}}">
+          <p class="preset-note" role="status">{{presetNote}}</p>
+        </sc-if>
       </div>
-    </aside>
 
-    <div class="content">
+      <div class="group" id="sez-generale">
+        <h2>Dove</h2>
+        <div class="field vy-field">
+          <label for="vigneto" id="vigneto-label">Vigneto *</label>
+          <div class="combo">
+            <input id="vigneto" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="{{vy.expanded}}" aria-controls="vy-list" aria-activedescendant="{{vy.activeId}}"
+              placeholder="{{vy.placeholder}}" value="{{vigneto}}" onChange="{{vy.onInput}}" onFocus="{{vy.onOpen}}" onClick="{{vy.onOpen}}" onKeyDown="{{vy.onKey}}" onBlur="{{vy.onBlur}}">
+            <sc-if value="{{vy.showList}}" hint-placeholder-val="{{false}}">
+              <ul class="combo-list" id="vy-list" role="listbox" aria-labelledby="vigneto-label">
+                <sc-for list="{{vy.options}}" as="o" hint-placeholder-count="3">
+                  <li id="{{o.id}}" role="option" aria-selected="{{o.selected}}" class="{{o.cls}}" onMouseDown="{{vy.keepFocus}}" onClick="{{o.pick}}">
+                    <span class="combo-name">{{o.name}}</span>
+                    <span class="combo-sub">{{o.sub}}</span>
+                  </li>
+                </sc-for>
+              </ul>
+            </sc-if>
+          </div>
+          <sc-if value="{{vy.known}}" hint-placeholder-val="{{false}}">
+            <p class="vy-note" role="status">{{vy.knownText}} <button type="button" class="link-btn" onClick="{{vy.onEdit}}">{{vy.editLabel}}</button></p>
+          </sc-if>
+          <sc-if value="{{vy.isNew}}" hint-placeholder-val="{{false}}">
+            <p class="vy-note vy-new">Nuovo vigneto: se puoi, indica qui sotto sesto e sistema di allevamento. Dal prossimo rilievo li troverai già pronti.</p>
+          </sc-if>
+        </div>
+        <!-- sesto e allevamento: nascosti quando il vigneto è già noto (salvo "Modifica") -->
+        <sc-for list="{{vineyardFields}}" as="f" hint-placeholder-count="2">
+          <div class="field">
+            <label for="{{f.key}}">{{f.label}}</label>
+            <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+          </div>
+        </sc-for>
+        <sc-for list="{{generalFields}}" as="f" hint-placeholder-count="1">
+          <div class="field">
+            <label for="{{f.key}}">{{f.label}}<sc-if value="{{f.required}}" hint-placeholder-val="{{false}}"> *</sc-if></label>
+            <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+          </div>
+        </sc-for>
+        <div class="field" id="sez-descrizione">
+          <label for="descrizioneProva">Descrizione prova: due o tre parole chiave</label>
+          <input id="descrizioneProva" type="text" maxlength="40" placeholder="es. taratura pre-fioritura" value="{{descrizioneProva}}" onChange="{{onDescrizioneProva}}">
+        </div>
+      </div>
 
-      <sc-if value="{{notSubmitted}}" hint-placeholder-val="{{true}}">
-        <section class="card collapsible" id="sez-cartine">
-          <button type="button" class="collapse-head" onClick="{{onToggleIstr}}" aria-expanded="{{istrExpanded}}" aria-controls="istr-body">
-            <span class="collapse-title">
-              <span class="collapse-h">Istruzioni generali</span>
-              <span class="collapse-sub">Come applicare le cartine nella chioma: consigliato a chi fa un rilievo per la prima volta.</span>
-            </span>
-            <span class="{{istrChevronCls}}" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
-            </span>
-          </button>
-          <sc-if value="{{showIstr}}" hint-placeholder-val="{{false}}">
-            <div id="istr-body" class="collapse-body">
+      <details class="more" id="sez-cartine">
+        <summary>Istruzioni generali: come applicare le cartine</summary>
           <div class="dual-grid">
             <ol class="howto">
               <li><strong>Maneggiale all’asciutto.</strong> Usa guanti asciutti e tieni le cartine solo dai bordi: la superficie gialla si macchia a contatto con acqua, rugiada o sudore.</li>
               <li><strong>Scegli le piante.</strong> Piante rappresentative nel tratto centrale del filare, lontano dalle testate.</li>
               <li><strong>Posiziona le cartine.</strong> Su due altezze (alta e bassa) e due profondità (esterna, verso l’interfila trattata, e interna alla chioma), come nello schema. In ogni posizione fissa due cartine sulla stessa foglia con una graffetta: una sulla pagina superiore e una sulla pagina inferiore, lato giallo verso l’esterno della foglia. In totale 8 cartine per pianta.</li>
               <li><strong>Codifica ogni cartina.</strong> Scrivi sul retro la posizione e il numero della pianta, es. <em>A-E-sup</em> = alta, esterna, pagina superiore.</li>
-              <li><strong>Esegui il trattamento</strong> con le condizioni operative riportate più sotto.</li>
+              <li><strong>Esegui il trattamento</strong> con le condizioni operative inserite nel passo “Macchina”.</li>
               <li><strong>Raccogli a secco.</strong> Attendi che le cartine siano asciutte, raccoglile con i guanti e disponile sulla scheda nell’ordine dello schema.</li>
-              <li><strong>Fotografa la scheda</strong> su sfondo bianco, con buona luce e spazio tra le cartine (vedi le indicazioni nella sezione della foto), e caricala nella sezione “Immagine scheda cartine”, in fondo alla pagina: puoi farlo anche più tardi.</li>
+              <li><strong>Fotografa la scheda</strong> su sfondo bianco, con buona luce e spazio tra le cartine (vedi le indicazioni nella sezione della foto), e caricala nel passo “Schede”: puoi farlo anche più tardi, da “I miei rilievi”.</li>
             </ol>
             <figure class="wsp-figure">
               <svg viewBox="0 0 320 300" role="img" aria-label="Posizioni delle cartine nella chioma: alta e bassa, esterna e interna; in ogni posizione una cartina sulla pagina superiore e una sulla pagina inferiore della foglia">
@@ -491,100 +627,56 @@
               <figcaption>Sezione della chioma vista lungo il filare: 4 posizioni × 2 pagine della foglia = 8 cartine.</figcaption>
             </figure>
           </div>
-            </div>
-          </sc-if>
-        </section>
+      </details>
+    </section>
 
-        <section class="card" id="sez-preset">
-          <div class="card-header"><h2>Tipo di rilievo</h2></div>
-          <p class="type-desc" style="margin: 0 0 14px">Scegli un rilievo standard per precompilare configurazione, pareti e repliche, oppure imposta tutto a mano.</p>
+    <!-- ===== Passo 2: Macchina ===== -->
+    <section class="step" hidden="{{nav.h2}}" aria-labelledby="h-passo2">
+      <h1 id="h-passo2">La macchina</h1>
+
+      <!-- Macchina ripresa dai rilievi precedenti: riassunto, con "Modifica" per vedere marca e modello -->
+      <sc-if value="{{prev.showCard}}" hint-placeholder-val="{{false}}">
+        <div class="machine-card" id="sez-precedenti">
+          <div class="machine-head">
+            <div class="machine-text">
+              <span class="eyebrow">{{prev.cardEyebrow}}</span>
+              <span class="machine-name">{{prev.cardTitle}}</span>
+              <span class="machine-sub">{{prev.cardSub}}</span>
+            </div>
+            <button type="button" class="btn-chip" aria-expanded="{{eq.expanded}}" aria-controls="sez-attrezzatura" onClick="{{eq.onToggle}}">{{eq.label}}</button>
+          </div>
+        </div>
+        <button type="button" class="btn-link" onClick="{{prev.onOther}}">Un’altra macchina</button>
+      </sc-if>
+      <sc-if value="{{prev.showList}}" hint-placeholder-val="{{true}}">
+        <div class="group" id="sez-precedenti-lista">
+          <h2>Dai rilievi precedenti</h2>
+          <p class="hint">La macchina di solito non cambia: toccala per riprenderne i dati, poi controlla che siano ancora giusti.</p>
           <div class="preset-grid">
-            <sc-for list="{{presetOptions}}" as="pr" hint-placeholder-count="3">
-              <button type="button" class="{{pr.cls}}" aria-pressed="{{pr.pressed}}" onClick="{{pr.pick}}">
-                <span class="preset-title">{{pr.title}}</span>
-                <span class="preset-sub">{{pr.sub}}</span>
+            <sc-for list="{{prev.machines}}" as="m" hint-placeholder-count="2">
+              <button type="button" class="{{m.cls}}" aria-pressed="{{m.pressed}}" onClick="{{m.pick}}">
+                <span class="preset-title">{{m.title}}</span>
+                <span class="preset-sub">{{m.sub}}</span>
               </button>
             </sc-for>
           </div>
-          <sc-if value="{{presetApplied}}" hint-placeholder-val="{{false}}">
-            <p class="preset-note" role="status">{{presetNote}}</p>
-          </sc-if>
-        </section>
-
-        <sc-if value="{{prev.has}}" hint-placeholder-val="{{true}}">
-        <section class="card" id="sez-precedenti">
-          <div class="card-header"><h2>Dai rilievi precedenti: la macchina</h2></div>
-          <p class="type-desc" style="margin: 0 0 14px">La macchina di solito non cambia da un rilievo all’altro: toccala per riprenderne i dati, poi controlla che siano ancora giusti. Il vigneto lo scegli nel campo “Vigneto” qui sotto.</p>
-          <sc-if value="{{prev.hasMachines}}" hint-placeholder-val="{{true}}">
-            <p class="section-label">Macchina: trattrice, irroratrice, {{term.p}} e misure</p>
-            <div class="preset-grid">
-              <sc-for list="{{prev.machines}}" as="m" hint-placeholder-count="2">
-                <button type="button" class="{{m.cls}}" aria-pressed="{{m.pressed}}" onClick="{{m.pick}}">
-                  <span class="preset-title">{{m.title}}</span>
-                  <span class="preset-sub">{{m.sub}}</span>
-                </button>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{prev.note}}" hint-placeholder-val="{{false}}">
-            <div class="preset-note prev-note" role="status">
-              <p>{{prev.note}}</p>
-              <div class="prev-actions">
-                <sc-if value="{{prev.canSettings}}" hint-placeholder-val="{{false}}">
-                  <button type="button" class="btn-ghost btn-small" onClick="{{prev.onSettings}}">{{prev.settingsLabel}}</button>
-                </sc-if>
-                <button type="button" class="btn-ghost btn-small" onClick="{{prev.onUndo}}">Annulla</button>
-              </div>
-            </div>
-          </sc-if>
-        </section>
-        </sc-if>
-
-        <section class="card" id="sez-generale">
-          <div class="card-header"><h2>Dati generali</h2></div>
-          <div class="field-grid">
-            <div class="field vy-field">
-              <label for="vigneto" id="vigneto-label">Vigneto *</label>
-              <div class="combo">
-                <input id="vigneto" type="text" role="combobox" autocomplete="off" aria-autocomplete="list" aria-expanded="{{vy.expanded}}" aria-controls="vy-list" aria-activedescendant="{{vy.activeId}}"
-                  placeholder="{{vy.placeholder}}" value="{{vigneto}}" onChange="{{vy.onInput}}" onFocus="{{vy.onOpen}}" onClick="{{vy.onOpen}}" onKeyDown="{{vy.onKey}}" onBlur="{{vy.onBlur}}">
-                <sc-if value="{{vy.showList}}" hint-placeholder-val="{{false}}">
-                  <ul class="combo-list" id="vy-list" role="listbox" aria-labelledby="vigneto-label">
-                    <sc-for list="{{vy.options}}" as="o" hint-placeholder-count="3">
-                      <li id="{{o.id}}" role="option" aria-selected="{{o.selected}}" class="{{o.cls}}" onMouseDown="{{vy.keepFocus}}" onClick="{{o.pick}}">
-                        <span class="combo-name">{{o.name}}</span>
-                        <span class="combo-sub">{{o.sub}}</span>
-                      </li>
-                    </sc-for>
-                  </ul>
-                </sc-if>
-              </div>
-              <sc-if value="{{vy.known}}" hint-placeholder-val="{{false}}">
-                <p class="vy-note" role="status">{{vy.knownText}} <button type="button" class="link-btn" onClick="{{vy.onEdit}}">{{vy.editLabel}}</button></p>
-              </sc-if>
-              <sc-if value="{{vy.isNew}}" hint-placeholder-val="{{false}}">
-                <p class="vy-note vy-new">Nuovo vigneto: compila sesto e sistema di allevamento in “Condizioni operative”. Dal prossimo rilievo li troverai già pronti.</p>
-              </sc-if>
-            </div>
-            <sc-for list="{{generalFields}}" as="f" hint-placeholder-count="1">
-              <div class="field">
-                <label for="{{f.key}}">{{f.label}}<sc-if value="{{f.required}}" hint-placeholder-val="{{false}}"> *</sc-if></label>
-                <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
-              </div>
-            </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{prev.note}}" hint-placeholder-val="{{false}}">
+        <div class="preset-note prev-note" role="status">
+          <p>{{prev.note}}</p>
+          <div class="prev-actions">
+            <sc-if value="{{prev.canSettings}}" hint-placeholder-val="{{false}}">
+              <button type="button" class="btn-ghost btn-small" onClick="{{prev.onSettings}}">{{prev.settingsLabel}}</button>
+            </sc-if>
+            <button type="button" class="btn-ghost btn-small" onClick="{{prev.onUndo}}">Annulla</button>
           </div>
-        </section>
+        </div>
+      </sc-if>
 
-        <section class="card" id="sez-descrizione">
-          <div class="card-header"><h2>Descrizione prova</h2></div>
-          <div class="field">
-            <label for="descrizioneProva">Due o tre parole chiave</label>
-            <input id="descrizioneProva" type="text" maxlength="40" placeholder="es. taratura pre-fioritura" style="max-width: 420px" value="{{descrizioneProva}}" onChange="{{onDescrizioneProva}}">
-          </div>
-        </section>
-
-        <section class="card" id="sez-attrezzatura">
-          <div class="card-header"><h2>Attrezzatura</h2></div>
+      <sc-if value="{{eq.show}}" hint-placeholder-val="{{true}}">
+        <div class="group" id="sez-attrezzatura">
+          <h2>Attrezzatura</h2>
           <div class="field-grid">
             <sc-for list="{{equipmentFields}}" as="f" hint-placeholder-count="4">
               <div class="field">
@@ -593,62 +685,102 @@
               </div>
             </sc-for>
           </div>
-        </section>
+        </div>
+      </sc-if>
 
-        <section class="card" id="sez-condizioni">
-          <div class="card-header"><h2>Condizioni operative</h2></div>
+      <fieldset class="type-picker group" id="sez-condizioni">
+        <legend>Tipo di irroratrice</legend>
+        <div class="type-options">
+          <sc-for list="{{typeOptions}}" as="o" hint-placeholder-count="5">
+            <label class="{{o.cls}}">
+              <input type="radio" name="tipoIrroratrice" value="{{o.key}}" checked="{{o.checked}}" onChange="{{o.pick}}">
+              <span>{{o.label}}</span>
+            </label>
+          </sc-for>
+        </div>
+        <details class="more">
+          <summary>Com’è fatta questa irroratrice</summary>
+          <p class="type-desc">{{typeDesc}}</p>
+        </details>
+        <sc-if value="{{canIndirect}}" hint-placeholder-val="{{false}}">
+          <label class="{{indCls}}" style="border-radius: 14px; align-items: flex-start">
+            <input type="checkbox" checked="{{indiretto}}" onChange="{{onIndiretto}}" style="margin-top: 2px">
+            <span class="wall-text">
+              <span>Trattamento indiretto</span>
+              <span class="pass-sub">Il getto attraversa il filare adiacente e raggiunge anche i filari successivi.</span>
+            </span>
+          </label>
+        </sc-if>
+      </fieldset>
 
-          <fieldset class="type-picker">
-            <legend>Tipo di irroratrice</legend>
-            <div class="type-options">
-              <sc-for list="{{typeOptions}}" as="o" hint-placeholder-count="5">
-                <label class="{{o.cls}}">
-                  <input type="radio" name="tipoIrroratrice" value="{{o.key}}" checked="{{o.checked}}" onChange="{{o.pick}}">
-                  <span>{{o.label}}</span>
-                </label>
-              </sc-for>
-            </div>
-            <p class="type-desc">{{typeDesc}}</p>
-            <sc-if value="{{canIndirect}}" hint-placeholder-val="{{false}}">
-              <label class="{{indCls}}" style="margin-top: 12px; border-radius: 14px; align-items: flex-start">
-                <input type="checkbox" checked="{{indiretto}}" onChange="{{onIndiretto}}" style="margin-top: 2px">
-                <span class="wall-text">
-                  <span>Trattamento indiretto</span>
-                  <span style="font-family: 'Barlow', system-ui, sans-serif; font-weight: 400; font-size: 14px; color: var(--ink-soft)">Il getto attraversa il filare adiacente e raggiunge anche i filari successivi.</span>
-                </span>
-              </label>
-            </sc-if>
-          </fieldset>
-
-          <fieldset class="type-picker">
-            <legend>Passaggio di trattamento</legend>
-            <div class="pass-options">
-              <sc-for list="{{passOptions}}" as="po" hint-placeholder-count="2">
-                <label class="{{po.cls}}">
-                  <input type="radio" name="passaggio" value="{{po.key}}" checked="{{po.checked}}" onChange="{{po.pick}}">
-                  <span class="wall-text">
-                    <span>{{po.label}}</span>
-                    <span class="pass-sub">{{po.sub}}</span>
-                  </span>
-                </label>
-              </sc-for>
-            </div>
-            <div class="pass-figure">
+      <fieldset class="type-picker group">
+        <legend>Passaggio di trattamento</legend>
+        <div class="pass-options">
+          <sc-for list="{{passOptions}}" as="po" hint-placeholder-count="2">
+            <label class="{{po.cls}}">
+              <input type="radio" name="passaggio" value="{{po.key}}" checked="{{po.checked}}" onChange="{{po.pick}}">
+              <span class="wall-text">
+                <span>{{po.label}}</span>
+                <span class="pass-sub">{{po.sub}}</span>
+              </span>
+            </label>
+          </sc-for>
+        </div>
+        <details class="more">
+          <summary>Vedi lo schema del passaggio</summary>
+          <div class="pass-figure">
               <div class="{{passEveryCls}}"><svg viewBox="0 0 300 110" class="pass-svg" aria-hidden="true"><rect x="25" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="85" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="145" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="205" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="265" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><line x1="60" y1="18" x2="60" y2="84" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M53 80 L60 94 L67 80 Z" fill="#4E7A1E"></path><line x1="120" y1="26" x2="120" y2="92" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M113 30 L120 16 L127 30 Z" fill="#4E7A1E"></path><line x1="180" y1="18" x2="180" y2="84" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M173 80 L180 94 L187 80 Z" fill="#4E7A1E"></path><line x1="240" y1="26" x2="240" y2="92" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M233 30 L240 16 L247 30 Z" fill="#4E7A1E"></path></svg></div>
               <div class="{{passAltCls}}"><svg viewBox="0 0 300 110" class="pass-svg" aria-hidden="true"><rect x="25" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="85" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="145" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="205" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><rect x="265" y="14" width="10" height="82" rx="4" fill="#DCEBC4" stroke="#6E9A36" stroke-width="1.2"></rect><line x1="60" y1="18" x2="60" y2="84" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M53 80 L60 94 L67 80 Z" fill="#4E7A1E"></path><line x1="180" y1="26" x2="180" y2="92" stroke="#4E7A1E" stroke-width="3" stroke-linecap="round"></line><path d="M173 30 L180 16 L187 30 Z" fill="#4E7A1E"></path></svg></div>
-              <p class="type-desc" style="margin: 0">{{passDesc}}</p>
-            </div>
-          </fieldset>
+            <p class="type-desc" style="margin: 0">{{passDesc}}</p>
+          </div>
+        </details>
+      </fieldset>
 
+      <div class="group">
+        <h2>Regolazioni di oggi</h2>
+        <div class="two-col">
+          <sc-for list="{{settingsMain}}" as="f" hint-placeholder-count="4">
+            <div class="field">
+              <label for="{{f.key}}">{{f.label}}</label>
+              <input id="{{f.key}}" type="{{f.type}}" step="any" inputmode="{{f.inputmode}}" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+            </div>
+          </sc-for>
+        </div>
+        <details class="more">
+          <summary>Altre regolazioni: marcia, giri presa di potenza, miscela</summary>
+          <div class="more-body">
+            <sc-for list="{{settingsMore}}" as="f" hint-placeholder-count="2">
+              <div class="field">
+                <label for="{{f.key}}">{{f.label}}</label>
+                <input id="{{f.key}}" type="{{f.type}}" step="any" inputmode="{{f.inputmode}}" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+              </div>
+            </sc-for>
+            <div class="field">
+              <label for="miscela">Miscela utilizzata (prodotti)</label>
+              <textarea id="miscela" value="{{miscela}}" onChange="{{onMiscela}}"></textarea>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="group">
+        <h2>La chioma oggi</h2>
+        <p class="hint">Cambia durante la stagione: se puoi, misurala a ogni rilievo.</p>
+        <div class="two-col">
+          <sc-for list="{{chiomaFields}}" as="f" hint-placeholder-count="3">
+            <div class="field">
+              <label for="{{f.key}}">{{f.label}}</label>
+              <input id="{{f.key}}" type="{{f.type}}" step="any" inputmode="decimal" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
+            </div>
+          </sc-for>
+        </div>
+        <details class="more">
+          <summary>Schema nel filare: cosa si misura</summary>
           <div class="schema">
-            <p class="schema-caption">Schema nel filare, vista da dietro · i valori mostrati sono quelli inseriti per {{term.art}} {{refNozzleLabel}}</p>
+            <p class="schema-caption">Vista da dietro · i valori mostrati sono quelli inseriti per {{term.art}} {{refNozzleLabel}}</p>
             <div class="svg-wrap">
               <svg viewBox="{{g.viewBox}}" role="img" aria-label="Schema dell'irroratrice nel filare, vista da dietro, con i parametri da misurare">
-              <defs>
-                <marker id="tk" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-                  <path d="M5 0 L5 10" stroke="#231F20" stroke-width="2"></path>
-                </marker>
-              </defs>
+              
 
               <rect class="sv-soil" x="{{g.vbX}}" y="380" width="{{g.vbW}}" height="40"></rect>
               <line class="sv-ground" x1="{{g.vbX}}" y1="380" x2="{{g.vbX2}}" y2="380"></line>
@@ -849,167 +981,36 @@
               <p class="param-desc" style="color: var(--ink-soft)">Tocca un parametro, o compila un campo, per evidenziarlo nello schema.</p>
             </sc-if>
           </div>
+        </details>
+      </div>
+    </section>
 
-          <fieldset class="type-picker" id="sez-pareti">
-            <legend>Pareti con cartine</legend>
-            <p class="type-desc" style="margin: 0 0 12px">Seleziona le pareti su cui hai applicato le cartine: compaiono in giallo nello schema. F1, F2… sono i filari da sinistra a destra, visti da dietro l’irroratrice.</p>
-            <div class="wall-options">
-              <sc-for list="{{wallOptions}}" as="w" hint-placeholder-count="4">
-                <label class="{{w.cls}}">
-                  <input type="checkbox" checked="{{w.checked}}" onChange="{{w.toggle}}">
-                  <span class="wall-text">
-                    <span>{{w.label}}</span>
-                    <sc-if value="{{w.treated}}" hint-placeholder-val="{{false}}"><span class="wall-tag">{{w.tagText}}</span></sc-if>
-                  </span>
-                </label>
-              </sc-for>
-            </div>
-            <p class="type-desc">{{wallSummary}}</p>
-          </fieldset>
-
-          <div class="field" style="max-width: 260px; margin-bottom: 24px">
-            <label for="repliche">Numero di repliche</label>
+    <!-- ===== Passo 3: Ugelli ===== -->
+    <section class="step" hidden="{{nav.h3}}" aria-labelledby="h-passo3">
+      <h1 id="h-passo3">{{term.P}}</h1>
+      <p class="hint">Quanti {{term.p}} ci sono per lato e di che tipo: lo schema si colora di conseguenza.</p>
+      <div class="count-fields" id="sez-ugelli">
+        <sc-if value="{{isTor}}" hint-placeholder-val="{{false}}">
+          <div class="field">
+            <label for="nTower">Ventagli sulla torretta, per lato</label>
             <div class="stepper">
-              <button type="button" class="step-btn" onClick="{{onRepMinus}}" aria-label="Diminuisci numero di repliche">−</button>
-              <input id="repliche" type="number" min="1" step="1" inputmode="numeric" value="{{repliche}}" onChange="{{onRepliche}}">
-              <button type="button" class="step-btn" onClick="{{onRepPlus}}" aria-label="Aumenta numero di repliche">+</button>
-            </div>
-          </div>
-
-          <div class="dual-grid">
-            <div>
-              <p class="section-label">Vigneto e avanzamento</p>
-              <div class="field-grid" style="grid-template-columns: 1fr;">
-                <sc-for list="{{operatingFields}}" as="f" hint-placeholder-count="10">
-                  <div class="field">
-                    <label for="{{f.key}}">{{f.label}}</label>
-                    <div class="input-row">
-                      <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
-                      <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
-                    </div>
-                  </div>
-                </sc-for>
-              </div>
-            </div>
-            <div>
-              <p class="section-label">Volume e miscela</p>
-              <div class="field-grid" style="grid-template-columns: 1fr; margin-top: 16px">
-                <sc-for list="{{nozzleSummaryFields}}" as="f" hint-placeholder-count="1">
-                  <div class="field">
-                    <label for="{{f.key}}">{{f.label}}</label>
-                    <div class="input-row">
-                      <input id="{{f.key}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}" onFocus="{{f.onFocus}}">
-                      <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
-                    </div>
-                  </div>
-                </sc-for>
-              </div>
-              <div class="field" style="margin-top: 16px">
-                <label for="miscela">Miscela utilizzata (prodotti)</label>
-                <textarea id="miscela" value="{{miscela}}" onChange="{{onMiscela}}"></textarea>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="card" id="sez-ugelli">
-          <div class="card-header"><h2>{{term.P}}</h2></div>
-          <p class="type-desc" style="margin: 0 0 14px">Indica quanti {{term.p}} ci sono per lato sull’irroratrice scelta in “Condizioni operative”, descrivi i tipi di {{term.s}} montati e assegna a ogni posizione il suo tipo: lo schema si colora di conseguenza.</p>
-          <div class="ugelli-layout">
-            <div class="ugelli-left">
-              <div class="assign-box">
-                <div class="assign-head">
-                  <h3 class="assign-title">{{term.P}} sulla macchina</h3>
-                  <span class="assign-count">{{assignSummary}}</span>
-                </div>
-                <div class="count-fields">
-                  <sc-if value="{{isTor}}" hint-placeholder-val="{{false}}">
-                    <div class="field">
-                      <label for="nTower">Ventagli sulla torretta, per lato</label>
-                      <div class="stepper">
               <button type="button" class="step-btn" onClick="{{onTowerMinus}}" aria-label="Diminuisci ventagli sulla torretta">−</button>
               <input id="nTower" type="number" min="1" max="{{nTowerMax}}" step="1" inputmode="numeric" placeholder="1" value="{{nTowerVal}}" onChange="{{onNTower}}">
               <button type="button" class="step-btn" onClick="{{onTowerPlus}}" aria-label="Aumenta ventagli sulla torretta">+</button>
             </div>
-                    </div>
-                  </sc-if>
-                  <div class="field">
-                    <label for="nozzlesPerSide">{{nPerSideLabel}}</label>
-                    <div class="stepper">
-              <button type="button" class="step-btn" onClick="{{onNMinus}}" aria-label="Diminuisci numero per lato">−</button>
-              <input id="nozzlesPerSide" type="number" min="{{nMin}}" max="12" step="1" inputmode="numeric" placeholder="{{nPlaceholder}}" value="{{nozzlesPerSide}}" onChange="{{onNozzlesPerSide}}">
-              <button type="button" class="step-btn" onClick="{{onNPlus}}" aria-label="Aumenta numero per lato">+</button>
-            </div>
-                  </div>
-                </div>
-                <p class="type-desc" style="margin: 6px 0 14px; font-size: 13px">{{nHint}}</p>
-                <p class="type-desc" style="margin: 0 0 12px">Tocca il numero del tipo per assegnarlo a ciascun {{term.s}}.</p>
-                <div class="quick-row" role="group" aria-label="Assegnazione rapida">
-                  <button type="button" class="btn-ghost btn-small" onClick="{{onAllSame}}">Tutti uguali</button>
-                  <button type="button" class="btn-ghost btn-small" onClick="{{onOnePerPosition}}">Un tipo per posizione</button>
-                  <button type="button" class="btn-ghost btn-small" onClick="{{onClearAssign}}">Azzera</button>
-                </div>
-                <label class="sym-toggle">
-                  <input type="checkbox" checked="{{symmetric}}" onChange="{{onSymmetric}}">
-                  <span>Lato DX uguale al lato SX</span>
-                </label>
-                <div class="assign-table" role="table" aria-label="Tipo di {{term.s}} per posizione e lato">
-                  <div class="assign-row assign-headrow" role="row">
-                    <span role="columnheader">{{term.S}}</span>
-                    <span role="columnheader">Lato SX</span>
-                    <span role="columnheader">Lato DX</span>
-                  </div>
-                  <sc-for list="{{assignRows}}" as="row" hint-placeholder-count="4">
-                    <div class="assign-row" role="row">
-                      <span class="assign-pos" role="rowheader">n. {{row.n}}</span>
-                      <div class="pick-group" role="cell">
-                        <sc-for list="{{row.sx}}" as="o" hint-placeholder-count="2">
-                          <button type="button" class="{{o.cls}}" style="background: {{o.bg}}; color: {{o.fg}}" aria-pressed="{{o.pressed}}" aria-label="{{o.aria}}" onClick="{{o.pick}}">{{o.label}}</button>
-                        </sc-for>
-                      </div>
-                      <div class="pick-group" role="cell">
-                        <sc-if value="{{showDx}}" hint-placeholder-val="{{false}}">
-                          <sc-for list="{{row.dx}}" as="o" hint-placeholder-count="2">
-                            <button type="button" class="{{o.cls}}" style="background: {{o.bg}}; color: {{o.fg}}" aria-pressed="{{o.pressed}}" aria-label="{{o.aria}}" onClick="{{o.pick}}">{{o.label}}</button>
-                          </sc-for>
-                        </sc-if>
-                        <sc-if value="{{symmetric}}" hint-placeholder-val="{{true}}">
-                          <span class="same-as">= SX</span>
-                        </sc-if>
-                      </div>
-                    </div>
-                  </sc-for>
-                </div>
-              </div>
+          </div>
+        </sc-if>
+        <div class="field">
+          <label for="nozzlesPerSide">{{nPerSideLabel}}</label>
+          <div class="stepper">
+            <button type="button" class="step-btn" onClick="{{onNMinus}}" aria-label="Diminuisci numero per lato">−</button>
+            <input id="nozzlesPerSide" type="number" min="{{nMin}}" max="12" step="1" inputmode="numeric" placeholder="{{nPlaceholder}}" value="{{nozzlesPerSide}}" onChange="{{onNozzlesPerSide}}">
+            <button type="button" class="step-btn" onClick="{{onNPlus}}" aria-label="Aumenta numero per lato">+</button>
+          </div>
+        </div>
+      </div>
+      <p class="hint hint-small">{{nHint}}</p>
 
-              <h3 class="assign-title" style="margin: 22px 0 10px">Tipi di {{term.s}}</h3>
-              <div class="ntype-list">
-                <sc-for list="{{nozzleTypes}}" as="t" hint-placeholder-count="1">
-                  <div class="ntype-card">
-                    <div class="nozzle-card-head">
-                      <span class="ntype-name"><span class="ntype-swatch" style="background: {{t.color}}"></span>Tipo {{term.s}} {{t.n}}</span>
-                      <sc-if value="{{t.canRemove}}" hint-placeholder-val="{{false}}">
-                        <button type="button" class="btn-icon-remove" onClick="{{t.onRemove}}" aria-label="Rimuovi tipo {{term.s}} {{t.n}}">×</button>
-                      </sc-if>
-                    </div>
-                    <p class="ntype-usage">{{t.usage}}</p>
-                    <div class="ntype-grid">
-                      <sc-for list="{{t.fields}}" as="f" hint-placeholder-count="4">
-                        <div class="{{f.cls}}">
-                          <label for="{{f.id}}">{{f.label}}</label>
-                          <div class="input-row">
-                            <input id="{{f.id}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}">
-                            <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
-                          </div>
-                        </div>
-                      </sc-for>
-                    </div>
-                    <button type="button" class="btn-ghost btn-small" style="margin-top: 10px" onClick="{{t.onApplyAll}}">Usa per {{term.all}}</button>
-                  </div>
-                </sc-for>
-              </div>
-              <button type="button" class="btn-ghost" onClick="{{onAddNozzleType}}" style="margin-top: 12px">+ Aggiungi tipo di {{term.s}}</button>
-            </div>
             <figure class="nz-figure">
               <p class="schema-caption">{{tipoLabel}} · vista da dietro · {{term.p}} numerati dall’alto verso il basso su ogni lato</p>
               <div class="svg-wrap">
@@ -1170,20 +1171,90 @@
                 <p class="nz-warn">{{nzConflictText}}</p>
               </sc-if>
             </figure>
+
+      <div class="assign-box">
+        <div class="assign-head">
+          <h2 class="assign-title">Tipo per posizione</h2>
+          <span class="assign-count">{{assignSummary}}</span>
+        </div>
+        <p class="type-desc" style="margin: 0 0 12px">Tocca il numero del tipo per assegnarlo a ciascun {{term.s}}.</p>
+        <div class="quick-row" role="group" aria-label="Assegnazione rapida">
+          <button type="button" class="btn-ghost btn-small" onClick="{{onAllSame}}">Tutti uguali</button>
+          <button type="button" class="btn-ghost btn-small" onClick="{{onOnePerPosition}}">Un tipo per posizione</button>
+          <button type="button" class="btn-ghost btn-small" onClick="{{onClearAssign}}">Azzera</button>
+        </div>
+        <label class="sym-toggle">
+          <input type="checkbox" checked="{{symmetric}}" onChange="{{onSymmetric}}">
+          <span>Lato DX uguale al lato SX</span>
+        </label>
+        <div class="assign-table" role="table" aria-label="Tipo di {{term.s}} per posizione e lato">
+          <div class="assign-row assign-headrow" role="row">
+            <span role="columnheader">{{term.S}}</span>
+            <span role="columnheader">Lato SX</span>
+            <span role="columnheader">Lato DX</span>
           </div>
-        </section>
+          <sc-for list="{{assignRows}}" as="row" hint-placeholder-count="4">
+            <div class="assign-row" role="row">
+              <span class="assign-pos" role="rowheader">n. {{row.n}}</span>
+              <div class="pick-group" role="cell">
+                <sc-for list="{{row.sx}}" as="o" hint-placeholder-count="2">
+                  <button type="button" class="{{o.cls}}" style="background: {{o.bg}}; color: {{o.fg}}" aria-pressed="{{o.pressed}}" aria-label="{{o.aria}}" onClick="{{o.pick}}">{{o.label}}</button>
+                </sc-for>
+              </div>
+              <div class="pick-group" role="cell">
+                <sc-if value="{{showDx}}" hint-placeholder-val="{{false}}">
+                  <sc-for list="{{row.dx}}" as="o" hint-placeholder-count="2">
+                    <button type="button" class="{{o.cls}}" style="background: {{o.bg}}; color: {{o.fg}}" aria-pressed="{{o.pressed}}" aria-label="{{o.aria}}" onClick="{{o.pick}}">{{o.label}}</button>
+                  </sc-for>
+                </sc-if>
+                <sc-if value="{{symmetric}}" hint-placeholder-val="{{true}}">
+                  <span class="same-as">= SX</span>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
 
-        <section class="card" id="sez-misure">
-          <div class="card-header"><h2>Misure per {{term.s}}</h2></div>
-          <p class="type-desc" style="margin: 0 0 14px">Una riga per ogni {{term.s}} della macchina, secondo la configurazione scelta ({{measConfigText}}). <strong>SX 1</strong> = lato sinistro guardando la macchina da dietro, primo {{term.s}} dall’alto; il colore indica il tipo. Tocca un campo: {{term.art}} corrispondente si evidenzia nello schema.</p>
+      <div class="group">
+        <h2>Tipi di {{term.s}}</h2>
+        <div class="ntype-list">
+          <sc-for list="{{nozzleTypes}}" as="t" hint-placeholder-count="1">
+            <div class="ntype-card">
+              <div class="nozzle-card-head">
+                <span class="ntype-name"><span class="ntype-swatch" style="background: {{t.color}}"></span>Tipo {{term.s}} {{t.n}}</span>
+                <sc-if value="{{t.canRemove}}" hint-placeholder-val="{{false}}">
+                  <button type="button" class="btn-icon-remove" onClick="{{t.onRemove}}" aria-label="Rimuovi tipo {{term.s}} {{t.n}}">×</button>
+                </sc-if>
+              </div>
+              <p class="ntype-usage">{{t.usage}}</p>
+              <div class="ntype-grid">
+                <sc-for list="{{t.fields}}" as="f" hint-placeholder-count="4">
+                  <div class="{{f.cls}}">
+                    <label for="{{f.id}}">{{f.label}}</label>
+                    <div class="input-row">
+                      <input id="{{f.id}}" type="{{f.type}}" step="any" value="{{f.value}}" onChange="{{f.onChange}}">
+                      <sc-if value="{{f.unit}}" hint-placeholder-val="{{false}}"><span class="unit">{{f.unit}}</span></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <button type="button" class="btn-ghost btn-small" style="margin-top: 10px" onClick="{{t.onApplyAll}}">Usa per {{term.all}}</button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="btn-link" onClick="{{onAddNozzleType}}">+ Aggiungi un tipo di {{term.s}}</button>
+      </div>
+    </section>
 
-          <label class="sym-toggle">
-            <input type="checkbox" checked="{{showFan}}" onChange="{{onFan}}">
-            <span>{{fanToggleLabel}} <span class="fan-note">{{fanNote}}</span></span>
-          </label>
-
-          <div class="misure-wrap {{fanCls}}">
-            <div class="misure-figs">
+    <!-- ===== Passo 4: Misure ===== -->
+    <section class="step {{fanCls}}" hidden="{{nav.h4}}" aria-labelledby="h-passo4" id="sez-misure">
+      <div class="h1-row">
+        <h1 id="h-passo4">Misure per {{term.s}}</h1>
+        <button type="button" class="help-btn" aria-label="Cosa misurare" aria-expanded="{{meas.helpExpanded}}" aria-controls="meas-help" onClick="{{meas.onHelp}}">?</button>
+      </div>
+      <sc-if value="{{meas.help}}" hint-placeholder-val="{{false}}">
+        <div class="help-panel" id="meas-help">
               <figure class="explain-figure">
                 <h3 class="assign-title">Cosa misurare</h3>
                 <svg viewBox="-70 -14 590 244" role="img" aria-label="Significato delle misure: distanza dalla parete, altezza da terra, apertura del ventaglio e inclinazione del getto">
@@ -1228,7 +1299,11 @@
                   <li><strong>D</strong> Angolo del getto rispetto all’orizzontale: 0° perpendicolare alla parete, positivo verso l’alto.</li>
                 </ul>
               </figure>
-            <figure class="nz-figure misure-figure">
+          <p class="footnote">D: un getto ortogonale all’asse verticale del filare corrisponde a 0°, uno orientato verso il cielo a 90°; verso l’alto valori positivi, verso il basso negativi. Le righe cambiano con il numero di {{term.p}} per lato del passo “{{term.P}}”.</p>
+        </div>
+      </sc-if>
+
+            <figure class="nz-figure meas-fig">
               <p class="schema-caption">{{tipoLabel}} · vista da dietro · {{measActiveText}}</p>
               <div class="svg-wrap">
               <svg viewBox="{{nzView.box}}" role="img" aria-label="Numerazione dei {{term.p}} sull’irroratrice, vista da dietro">
@@ -1405,77 +1480,78 @@
             </div>
             </figure>
 
-            </div>
+      <div class="seg" role="group" aria-label="Lato della macchina">
+        <button type="button" aria-pressed="{{meas.sxPressed}}" onClick="{{meas.onSx}}">Lato SX</button>
+        <button type="button" aria-pressed="{{meas.dxPressed}}" onClick="{{meas.onDx}}">Lato DX</button>
+      </div>
+      <sc-if value="{{meas.isR}}" hint-placeholder-val="{{false}}">
+        <div class="copy-row">
+          <button type="button" class="btn-link" onClick="{{meas.onCopy}}">Copia le misure del lato SX</button>
+          <sc-if value="{{meas.copyMsg}}" hint-placeholder-val="{{false}}"><span class="hint-small" role="status">{{meas.copyMsg}}</span></sc-if>
+        </div>
+      </sc-if>
 
-            <div class="misure-data">
-              <div class="nozzle-cards">
-                <sc-for list="{{nozzleRows}}" as="row" hint-placeholder-count="6">
-                  <div class="{{row.cardCls}}">
-                    <div class="nozzle-card-head">
-                      <span class="meas-label"><span class="meas-badge" style="background: {{row.bg}}; color: {{row.fg}}">{{row.label}}</span>{{row.typeLabel}}</span>
-                    </div>
-                    <div class="nozzle-grid">
-                      <div class="field">
-                        <label for="nozzle-{{row.id}}-distanza">A · Distanza da parete (cm)</label>
-                        <input id="nozzle-{{row.id}}-distanza" type="number" step="any" value="{{row.distanza}}" onChange="{{row.onDistanza}}" onFocus="{{row.fDistanza}}">
-                      </div>
-                      <div class="field">
-                        <label for="nozzle-{{row.id}}-altezza">B · Altezza da terra (cm)</label>
-                        <input id="nozzle-{{row.id}}-altezza" type="number" step="any" value="{{row.altezza}}" onChange="{{row.onAltezza}}" onFocus="{{row.fAltezza}}">
-                      </div>
-                      <div class="field col-fan">
-                        <label for="nozzle-{{row.id}}-apertura">C · Apertura ventaglio (°)</label>
-                        <input id="nozzle-{{row.id}}-apertura" type="number" step="any" value="{{row.apertura}}" onChange="{{row.onApertura}}" onFocus="{{row.fApertura}}">
-                      </div>
-                      <div class="field">
-                        <label for="nozzle-{{row.id}}-inclinazione">D · Inclinazione (°)</label>
-                        <input id="nozzle-{{row.id}}-inclinazione" type="number" step="any" value="{{row.inclinazione}}" onChange="{{row.onInclinazione}}" onFocus="{{row.fInclinazione}}">
-                      </div>
-                    </div>
-                  </div>
-                </sc-for>
-              </div>
-
-              <table class="nozzle-table">
-                <thead>
-                  <tr>
-                    <th>{{term.S}}</th>
-                    <th>Tipo</th>
-                    <th>A · Distanza da parete (cm)</th>
-                    <th>B · Altezza da terra (cm)</th>
-                    <th class="col-fan">C · Apertura ventaglio (°)</th>
-                    <th>D · Inclinazione (°)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <sc-for list="{{nozzleRows}}" as="row" hint-placeholder-count="6">
-                    <tr class="{{row.trCls}}">
-                      <td><span class="meas-badge" style="background: {{row.bg}}; color: {{row.fg}}">{{row.label}}</span></td>
-                      <td class="meas-type">{{row.typeShort}}</td>
-                      <td><input type="number" step="any" value="{{row.distanza}}" onChange="{{row.onDistanza}}" onFocus="{{row.fDistanza}}" aria-label="Distanza da parete, {{term.s}} {{row.label}}"></td>
-                      <td><input type="number" step="any" value="{{row.altezza}}" onChange="{{row.onAltezza}}" onFocus="{{row.fAltezza}}" aria-label="Altezza da terra, {{term.s}} {{row.label}}"></td>
-                      <td class="col-fan"><input type="number" step="any" value="{{row.apertura}}" onChange="{{row.onApertura}}" onFocus="{{row.fApertura}}" aria-label="Apertura ventaglio, {{term.s}} {{row.label}}"></td>
-                      <td><input type="number" step="any" value="{{row.inclinazione}}" onChange="{{row.onInclinazione}}" onFocus="{{row.fInclinazione}}" aria-label="Inclinazione, {{term.s}} {{row.label}}"></td>
-                    </tr>
-                  </sc-for>
-                </tbody>
-              </table>
-            </div>
+      <div class="meas-table" role="table" aria-label="Misure per {{term.s}}, {{meas.sideLabel}}">
+        <div class="meas-row meas-headrow" role="row">
+          <span role="columnheader">{{term.S}}</span>
+          <span role="columnheader">A distanza<br><small>cm</small></span>
+          <span role="columnheader">B altezza<br><small>cm</small></span>
+          <span role="columnheader" class="col-fan">C apertura<br><small>gradi</small></span>
+          <span role="columnheader">D inclin.<br><small>gradi</small></span>
+        </div>
+        <sc-for list="{{meas.rows}}" as="row" hint-placeholder-count="6">
+          <div class="{{row.rowCls}}" role="row">
+            <span class="meas-badge" role="rowheader" title="{{row.typeLabel}}" style="background: {{row.bg}}; color: {{row.fg}}">{{row.label}}</span>
+            <input id="nozzle-{{row.id}}-distanza" type="number" step="any" inputmode="decimal" value="{{row.distanza}}" onChange="{{row.onDistanza}}" onFocus="{{row.fDistanza}}" aria-label="Distanza da parete, {{term.s}} {{row.label}}">
+            <input id="nozzle-{{row.id}}-altezza" type="number" step="any" inputmode="decimal" value="{{row.altezza}}" onChange="{{row.onAltezza}}" onFocus="{{row.fAltezza}}" aria-label="Altezza da terra, {{term.s}} {{row.label}}">
+            <input id="nozzle-{{row.id}}-apertura" class="col-fan" type="number" step="any" inputmode="decimal" value="{{row.apertura}}" onChange="{{row.onApertura}}" onFocus="{{row.fApertura}}" aria-label="Apertura ventaglio, {{term.s}} {{row.label}}">
+            <input id="nozzle-{{row.id}}-inclinazione" type="number" step="any" inputmode="decimal" value="{{row.inclinazione}}" onChange="{{row.onInclinazione}}" onFocus="{{row.fInclinazione}}" aria-label="Inclinazione, {{term.s}} {{row.label}}">
           </div>
+        </sc-for>
+      </div>
+      <p class="hint hint-small">{{term.P}} dall’alto verso il basso, guardando la macchina da dietro; il colore indica il tipo. Tocca un campo: {{term.art}} si evidenzia nello schema.</p>
+      <label class="sym-toggle">
+        <input type="checkbox" checked="{{showFan}}" onChange="{{onFan}}">
+        <span>{{fanToggleLabel}} <span class="fan-note">{{fanNote}}</span></span>
+      </label>
+    </section>
 
-          <p class="footnote">Il numero di righe cambia con il numero di {{term.p}} per lato impostato nella sezione “{{term.P}}”.</p>
-          <p class="footnote">* Un getto ortogonale all'asse verticale del filare corrisponde a 0°. Un getto orientato direttamente verso il cielo corrisponde a 90°. I getti orientati verso l'alto sono descritti da valori positivi, quelli verso il basso da valori negativi.</p>
-        </section>
+    <!-- ===== Passo 5: Schede ===== -->
+    <section class="step {{acqCls}}" hidden="{{nav.h5}}" aria-labelledby="h-passo5" id="sez-foto">
+      <h1 id="h-passo5">Schede e cartine</h1>
 
-        <section class="card {{acqCls}}" id="sez-foto">
-          <div class="card-header"><h2>Schede e immagini</h2></div>
-          <p class="later-note"><strong>Una scheda per parete</strong> (fino a 5 repliche). Collega ogni scheda alla sua parete prima di iniziare: serve per inviare il rilievo. L’immagine puoi caricarla anche più tardi, da “I miei rilievi”.</p>
+      <fieldset class="type-picker group" id="sez-pareti">
+        <legend>Pareti con cartine</legend>
+        <p class="hint hint-small">F1, F2… sono i filari da sinistra a destra, visti da dietro l’irroratrice.</p>
+        <div class="wall-options">
+          <sc-for list="{{wallOptions}}" as="w" hint-placeholder-count="4">
+            <label class="{{w.cls}}">
+              <input type="checkbox" checked="{{w.checked}}" onChange="{{w.toggle}}">
+              <span class="wall-text">
+                <span>{{w.label}}</span>
+                <sc-if value="{{w.treated}}" hint-placeholder-val="{{false}}"><span class="wall-tag">{{w.tagText}}</span></sc-if>
+              </span>
+            </label>
+          </sc-for>
+        </div>
+        <div class="field rep-field">
+          <label for="repliche">Numero di repliche</label>
+          <div class="stepper">
+            <button type="button" class="step-btn" onClick="{{onRepMinus}}" aria-label="Diminuisci numero di repliche">−</button>
+            <input id="repliche" type="number" min="1" step="1" inputmode="numeric" value="{{repliche}}" onChange="{{onRepliche}}">
+            <button type="button" class="step-btn" onClick="{{onRepPlus}}" aria-label="Aumenta numero di repliche">+</button>
+          </div>
+        </div>
+        <p class="hint hint-small">{{wallSummary}}</p>
+      </fieldset>
 
-          <sc-if value="{{sheetMissing}}" hint-placeholder-val="{{false}}">
-            <p class="sheet-note">{{sheetMissingText}}</p>
-          </sc-if>
-
-          <sc-if value="{{sheetReady}}" hint-placeholder-val="{{true}}">
+      <div class="group">
+        <h2>Schede e immagini</h2>
+        <p class="later-note"><strong>Una scheda per parete</strong> (fino a 5 repliche). Collega ogni scheda alla sua parete prima di iniziare: serve per inviare il rilievo. L’immagine puoi caricarla anche più tardi, da “I miei rilievi”.</p>
+        <sc-if value="{{sheetMissing}}" hint-placeholder-val="{{false}}">
+          <p class="sheet-note">{{sheetMissingText}}</p>
+        </sc-if>
+        <sc-if value="{{sheetReady}}" hint-placeholder-val="{{true}}">
             <!-- Generatore: schede numerate, numeri unici, PDF scaricabile una volta -->
             <div class="gen-box">
               <h3 class="sheet-title">Non hai le schede? Generale qui</h3>
@@ -1485,7 +1561,7 @@
                   <label for="lottoN">Quante schede</label>
                   <input id="lottoN" type="number" min="1" max="20" inputmode="numeric" value="{{gen.nText}}" onChange="{{gen.onN}}">
                 </div>
-                <button type="button" class="btn-primary" onClick="{{gen.onGenerate}}">Scarica il PDF delle schede</button>
+                <button type="button" class="btn-secondary" onClick="{{gen.onGenerate}}">Scarica il PDF delle schede</button>
               </div>
               <sc-if value="{{gen.msg}}" hint-placeholder-val="{{false}}">
                 <p class="notice-ok" role="status">{{gen.msg}}</p>
@@ -1563,6 +1639,7 @@
                         <sc-if value="{{sl.preview}}" hint-placeholder-val="{{true}}"><img src="{{sl.preview}}" alt="{{sl.photoAlt}}" class="photo-img"></sc-if>
                         <div class="slot-photo-info">
                           <p class="{{sl.checkCls}}">{{sl.checkText}}</p>
+                          <sc-if value="{{sl.dpiText}}" hint-placeholder-val="{{false}}"><p class="{{sl.dpiCls}}">{{sl.dpiText}}</p></sc-if>
                           <sc-if value="{{sl.mismatch}}" hint-placeholder-val="{{false}}">
                             <div class="actions">
                               <button type="button" class="btn-ghost btn-small" onClick="{{sl.onConfirm}}">È la foto giusta: usala lo stesso</button>
@@ -1600,7 +1677,7 @@
                   <li class="only-scan"><strong>Scansione a colori</strong> a 600 dpi (1200 per nebulizzatori e torrette), senza correzioni automatiche, con tutta la scheda sul vetro.</li>
                 </ol>
                 <div class="sheet-scroll">
-                  <div class="sheet" role="table" aria-label="Disposizione delle cartine sulla scheda">
+                  <div class="sheet-grid" role="table" aria-label="Disposizione delle cartine sulla scheda">
                     <span class="sheet-marker m-tl" aria-hidden="true"></span><span class="sheet-marker m-tr" aria-hidden="true"></span><span class="sheet-marker m-bl" aria-hidden="true"></span><span class="sheet-marker m-br" aria-hidden="true"></span>
                     <div class="sheet-qr" aria-hidden="true"><span class="qr-box"></span><span>N. scheda</span></div>
                     <div class="sheet-row sheet-head" role="row">
@@ -1621,25 +1698,43 @@
                 </div>
               </div>
             </details>
-          </sc-if>
-        </section>
+        </sc-if>
+      </div>
+    </section>
 
-        <section class="card submit-card" id="sez-invio">
-          <div class="card-header" style="width: 100%"><h2>Invio rilievo</h2></div>
-          <p class="submit-hint">Verifica i dati inseriti prima di inviare. Il rilievo verrà salvato in “I miei rilievi”: se non hai ancora le immagini delle schede potrai caricarle da lì in un secondo momento.</p>
-          <sc-if value="{{submitBlock}}" hint-placeholder-val="{{false}}">
-            <div class="slot-warn-box" role="alert">
-              <p>{{submitBlock}}</p>
-            </div>
-          </sc-if>
-          <button type="button" class="btn-primary" onClick="{{onSend}}">Invia rilievo</button>
-        </section>
-      </sc-if>
+    <!-- ===== Passo 6: Invio ===== -->
+    <section class="step" hidden="{{nav.h6}}" aria-labelledby="h-passo6" id="sez-invio">
+      <h1 id="h-passo6">Controlla e invia</h1>
+      <p class="hint">Il rilievo si salva in “I miei rilievi”: se non hai ancora le immagini delle schede potrai caricarle da lì.</p>
+      <sc-for list="{{sum.groups}}" as="g" hint-placeholder-count="5">
+        <div class="sum-group">
+          <div class="sum-head">
+            <h2>{{g.title}}</h2>
+            <button type="button" class="btn-link" onClick="{{g.onEdit}}" aria-label="Modifica: {{g.title}}">Modifica</button>
+          </div>
+          <dl class="sum-list">
+            <sc-for list="{{g.items}}" as="it" hint-placeholder-count="3"><dt>{{it.k}}</dt><dd class="{{it.cls}}">{{it.v}}</dd></sc-for>
+          </dl>
+        </div>
+      </sc-for>
+    </section>
 
+  </main>
+  <div class="{{nav.spaceCls}}"></div>
 
-    </div>
+  <!-- Barra in basso: un solo pulsante principale -->
+  <div class="actionbar">
+    <sc-if value="{{nav.note}}" hint-placeholder-val="{{false}}">
+      <p class="{{nav.noteCls}}" role="status">{{nav.note}}</p>
+    </sc-if>
+    <sc-if value="{{nav.secondaryLabel}}" hint-placeholder-val="{{false}}">
+      <button type="button" class="btn-secondary" onClick="{{nav.onSecondary}}">{{nav.secondaryLabel}}</button>
+    </sc-if>
+    <button type="button" class="btn-primary" disabled="{{nav.disabled}}" onClick="{{nav.onNext}}">{{nav.nextLabel}}<sc-if value="{{nav.chevron}}" hint-placeholder-val="{{true}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></sc-if></button>
   </div>
+  </sc-if>
 </div>
+
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":960}}'>
 // Azienda e data non si chiedono: l'azienda viene dall'account (login), la data è quella del giorno
@@ -1724,6 +1819,19 @@ const OPERATING_FIELDS = [
 const NOZZLE_SUMMARY_FIELDS = [
   { key: 'ugelliLitriHa', label: 'Volume distribuito (totale macchina)', type: 'number', unit: 'l/ha' }
 ];
+
+// Modulo a passi (14/10/2026): un passo per schermata, nell'ordine.
+const STEP_NAMES = ['Rilievo', 'Macchina', 'Ugelli', 'Misure', 'Schede', 'Invio'];
+// Etichette brevi (con l'unità) per le regolazioni e la chioma, in due colonne sul telefono.
+const SHORT_LABELS = {
+  velocita: 'Velocità (km/h)', ugelliLitriHa: 'Volume (l/ha)', pressione: 'Pressione (bar)', giriMotore: 'Giri motore (rpm)',
+  marcia: 'Marcia', giriPresaPotenza: 'Giri presa di potenza (rpm)',
+  altezzaTotale: 'Altezza piante (cm)', altezzaChioma: 'Altezza chioma (cm)', spessoreChioma: 'Spessore chioma basale (cm)'
+};
+const SETTINGS_MAIN = ['velocita', 'ugelliLitriHa', 'pressione', 'giriMotore'];
+const SETTINGS_MORE = ['marcia', 'giriPresaPotenza'];
+const CHIOMA_KEYS = ['altezzaTotale', 'altezzaChioma', 'spessoreChioma'];
+const PRESET_TITLES = { atomizzatore: 'Rilievo standard atomizzatore', torretta: 'Rilievo standard torretta', custom: 'Rilievo personalizzato' };
 
 const NOZZLE_TYPE_FIELDS = [
   { key: 'tipo', label: 'Tipo irroratore / nebulizzatore', type: 'text', wide: true },
@@ -2030,6 +2138,8 @@ function initialState() {
   // schede: id del rilievo in corso (per collegarle), schede collegate per parete, campi e avvisi del collegamento
   Object.assign(state, { rilievoId: 'R-' + Date.now().toString(36).toUpperCase(), schede: {}, schedaInput: {}, schedaErr: {}, schedaConflitto: {},
     slotReading: {}, manualInput: {}, lottoN: '', lottoMsg: '', submitBlock: '' });
+  // modulo a passi: passo corrente (1–6), avviso gentile di "Avanti", lato delle misure, pannelli aperti
+  Object.assign(state, { step: 1, stepWarn: null, measSide: 'L', measHelp: false, copyMsg: '', eqOpen: false, machineList: false });
   return state;
 }
 
@@ -2203,7 +2313,7 @@ class Component extends DCLogic {
       this.setIn('slotReading', key, undefined);
       const sc = this.state.schede[key];
       if (!sc) return;
-      const foto = { dataUrl: url, thumb: thumb, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', manuale: '', confermata: null, quando: new Date().toISOString() };
+      const foto = { dataUrl: url, thumb: thumb, nome: file.name, tipo: file.type, qr: r.numero || '', metodoQr: r.metodo || '', dpi: r.dpi || null, manuale: '', confermata: null, quando: new Date().toISOString() };
       this.setState({ schede: Object.assign({}, this.state.schede, { [key]: Object.assign({}, sc, { foto: foto }) }), submitBlock: '' });
     });
   }
@@ -2233,12 +2343,13 @@ class Component extends DCLogic {
   }
 
   // Valori della riga di una scheda (parete) per la pagina.
-  slotVals(d) {
+  // prop: numero proposto (una scheda già generata su questo telefono e non ancora usata), finché non si scrive altro.
+  slotVals(d, prop) {
     const s = this.state, key = d.key, sc = s.schede[key], conf = s.schedaConflitto[key], f = sc && sc.foto;
     const chk = this.photoCheck(sc), anchor = 'scheda-' + key;
     let badge = 'Da collegare', badgeCls = 'slot-badge', cls = 'slot';
     if (sc) { badge = 'Scheda ' + sc.id; badgeCls = 'slot-badge is-ok'; cls = 'slot is-ok'; }
-    const tc = testoControllo(chk, sc), checkText = tc.testo, checkCls = tc.cls;
+    const tc = testoControllo(chk, sc), checkText = tc.testo, checkCls = tc.cls, td = testoDpi(f);
     if (chk.stato === 'diverso' || chk.stato === 'illeggibile') { badge = 'Immagine da controllare'; badgeCls = 'slot-badge is-warn'; cls = 'slot is-warn'; }
     else if (chk.stato === 'ok' || chk.stato === 'confermata') badge = 'Scheda ' + sc.id + ' · immagine ok';
     if (conf) { cls = 'slot is-warn'; badgeCls = 'slot-badge is-warn'; badge = 'Scheda già usata'; }
@@ -2248,8 +2359,8 @@ class Component extends DCLogic {
       key: key, anchor: anchor, title: d.title, cls: cls, badge: badge, badgeCls: badgeCls,
       unlinked: !sc && !conf, linked: !!sc, conflict: !!conf,
       inputId: 'num-' + key, qrId: 'qr-' + key, photoId: 'img-' + key, manualId: 'man-' + key,
-      inputText: s.schedaInput[key] || '', onInput: (e) => this.setIn('schedaInput', key, e.target.value),
-      onLink: () => this.slotLink(key), onQr: (e) => this.slotQr(key, e),
+      inputText: s.schedaInput[key] != null ? s.schedaInput[key] : prop || '', onInput: (e) => this.setIn('schedaInput', key, e.target.value),
+      onLink: () => this.slotLink(key, s.schedaInput[key] == null && prop ? prop : undefined), onQr: (e) => this.slotQr(key, e),
       err: s.schedaErr[key] || '',
       conflictText: conf ? 'La scheda ' + conf.numero + ' è già collegata a un altro rilievo (' + altro.rilievo + ', ' + itDate(altro.quando) + '). Una scheda vale per un solo rilievo: se puoi, usane una nuova. Se devi proprio usare questa, la salviamo come ' + nextId + ', così i dati dei due rilievi non si mescolano.' : '',
       forceLabel: conf ? 'Usala come ' + nextId : '',
@@ -2260,7 +2371,7 @@ class Component extends DCLogic {
       noPhoto: !!sc && !f, hasPhoto: !!f, reading: !!s.slotReading[key],
       onPhoto: (e) => this.slotPhoto(key, e),
       preview: f ? f.dataUrl : '', photoAlt: 'Immagine della scheda di ' + d.title, photoName: f ? f.nome : '',
-      checkText: checkText, checkCls: checkCls,
+      checkText: checkText, checkCls: checkCls, dpiText: td ? td.testo : '', dpiCls: td ? td.cls : 'check-info',
       mismatch: chk.stato === 'diverso',
       onConfirm: () => this.slotPhotoPatch(key, { confermata: { quando: new Date().toISOString(), visto: chk.visto, atteso: sc.numero } }),
       manualOpen: chk.stato === 'illeggibile',
@@ -2273,11 +2384,7 @@ class Component extends DCLogic {
   // Nuovo lotto di schede: numeri mai usati, PDF scaricato subito e una volta sola.
   generateLot(needed, freeKeys) {
     const n = Math.max(1, Math.min(20, parseInt(this.state.lottoN, 10) || needed || 1));
-    const lotto = nuovoLotto(n), blob = pdfSchede(lotto.numeri);
-    const name = 'schede_' + lotto.numeri[0] + (n > 1 ? '_' + lotto.numeri[n - 1] : '') + '.pdf';
-    const url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    const { lotto, nome: name } = scaricaLotto(n);
     // i numeri nuovi si propongono, nell'ordine, alle pareti ancora senza scheda (si collegano con "Collega")
     const input = Object.assign({}, this.state.schedaInput);
     freeKeys.forEach((k, i) => { if (lotto.numeri[i]) input[k] = lotto.numeri[i]; });
@@ -2285,12 +2392,66 @@ class Component extends DCLogic {
   }
 
   // Invio: ogni parete deve avere la sua scheda; un'immagine che non torna va controllata (o confermata).
-  send(slots) {
+  // ---- Passi del modulo: lo stato resta tutto nel componente, cambiare passo non perde nulla ----
+  goStep(n) {
+    this.setState({ step: Math.max(1, Math.min(STEP_NAMES.length, n)), stepWarn: null, copyMsg: '' }, () => window.scrollTo(0, 0));
+  }
+
+  // Cosa manca in un passo: { text, focus } oppure null. Non blocca: al secondo "Avanti" si prosegue lo stesso.
+  stepCheck(n, slots) {
+    const s = this.state;
+    if (n === 1 && !String(s.vigneto || '').trim()) {
+      return { text: 'Se puoi, indica il vigneto: serve per ritrovare il rilievo. Puoi anche andare avanti e tornare qui dopo.', focus: 'vigneto' };
+    }
+    if (n === 5) {
+      if (!slots.length) return { text: 'Prova a scegliere le pareti con cartine e il numero di repliche: servono per collegare le schede e inviare.', focus: 'sez-pareti' };
+      const missing = slots.filter((x) => !s.schede[x.key]);
+      if (missing.length) return { text: 'Manca ancora la scheda di: ' + missing.map((x) => x.title).join(', ') + '. Puoi collegarla ora oppure prima dell’invio.', focus: 'scheda-' + missing[0].key };
+    }
+    return null;
+  }
+
+  nextStep(slots) {
+    const s = this.state, n = s.step;
+    const warn = this.stepCheck(n, slots);
+    if (warn && !(s.stepWarn && s.stepWarn.step === n)) {
+      // primo tocco: si indica con gentilezza cosa manca e ci si porta sopra
+      this.setState({ stepWarn: { step: n } }, () => {
+        const el = document.getElementById(warn.focus);
+        if (!el) return;
+        el.scrollIntoView({ block: 'center' });
+        if (el.localName === 'input') el.focus({ preventScroll: true });
+      });
+      return;
+    }
+    // nelle misure si passa prima dal lato SX al lato DX
+    if (n === 4 && s.measSide === 'L') { this.setState({ measSide: 'R', stepWarn: null, copyMsg: '', activeNozzle: null }, () => window.scrollTo(0, 0)); return; }
+    this.goStep(n + 1);
+  }
+
+  // "Copia le misure del lato SX": il lato DX riceve le misure del SX, poi si correggono quelle diverse.
+  copyMeasures(nPerSide) {
+    const all = Object.assign({}, this.state.measures);
+    let n = 0;
+    for (let i = 1; i <= nPerSide; i++) {
+      if (all['L' + i]) { all['R' + i] = Object.assign({}, all['L' + i]); n++; }
+    }
+    this.setState({ measures: all, copyMsg: n ? 'Copiate ' + n + (n === 1 ? ' riga' : ' righe') + ': correggi solo quelle diverse.' : 'Sul lato SX non ci sono ancora misure da copiare.' });
+  }
+
+  // Perché non si può ancora inviare ('' = si può): si mostra sopra "Invia rilievo", che resta disattivato.
+  sendBlock(slots) {
     const missing = slots.filter((x) => !this.state.schede[x.key]).map((x) => x.title);
     const toCheck = slots.filter((x) => { const c = this.photoCheck(this.state.schede[x.key]).stato; return c === 'diverso' || c === 'illeggibile'; }).map((x) => x.title);
-    if (!slots.length) { this.setState({ submitBlock: 'Prima di inviare, prova a indicare in “Condizioni operative” le pareti con cartine e il numero di repliche.' }); return; }
-    if (missing.length) { this.setState({ submitBlock: 'Prima di inviare, collega una scheda a: ' + missing.join(', ') + '. Puoi inquadrare il QR o scrivere il numero.' }); return; }
-    if (toCheck.length) { this.setState({ submitBlock: 'Prima di inviare, prova a controllare l’immagine della scheda di: ' + toCheck.join(', ') + '. Se è la foto giusta puoi confermarla, oppure scrivere il numero a mano.' }); return; }
+    if (!slots.length) return 'Prima di inviare, prova a indicare nel passo “Schede” le pareti con cartine e il numero di repliche.';
+    if (missing.length) return 'Prima di inviare, collega una scheda a: ' + missing.join(', ') + '. Puoi inquadrare il QR o scrivere il numero.';
+    if (toCheck.length) return 'Prima di inviare, prova a controllare l’immagine della scheda di: ' + toCheck.join(', ') + '. Se è la foto giusta puoi confermarla, oppure scrivere il numero a mano.';
+    return '';
+  }
+
+  send(slots) {
+    const block = this.sendBlock(slots);
+    if (block) { this.setState({ submitBlock: block }); return; }
     this.submitForm();
     const rec = this.sentRecord(slots);
     salvaRilievoAccurato(rec);
@@ -2305,7 +2466,7 @@ class Component extends DCLogic {
     const schede = slots.map((x) => {
       const sc = s.schede[x.key], f = sc.foto;
       return { key: x.key, title: x.title, numero: sc.numero, id: sc.id,
-        foto: f ? { nome: f.nome, thumb: f.thumb || '', qr: f.qr, manuale: f.manuale, confermata: f.confermata, quando: f.quando } : null };
+        foto: f ? { nome: f.nome, thumb: f.thumb || '', qr: f.qr, dpi: f.dpi || null, manuale: f.manuale, confermata: f.confermata, quando: f.quando } : null };
     });
     const tutte = schede.every((sc) => sc.foto && fotoInOrdine(sc));
     return { id: s.rilievoId, data: p[2] + '/' + p[1] + '/' + p[0], inviato: new Date().toISOString(), azienda: s.azienda || ACCOUNT.azienda,
@@ -2339,7 +2500,7 @@ class Component extends DCLogic {
     if (!undo) return;
     const blank = {}, fresh = initialState();
     MACHINE_KEYS.concat(SETTING_KEYS).forEach((k) => { blank[k] = k in undo ? undo[k] : fresh[k]; });
-    this.setState(Object.assign(blank, { prevUndo: null, prevMachine: null, prevSettings: false }));
+    this.setState(Object.assign(blank, { prevUndo: null, prevMachine: null, prevSettings: false, machineList: false, eqOpen: false }));
   }
 
   // Vigneti dell'azienda già inseriti nei rilievi precedenti, dal più recente.
@@ -2442,10 +2603,18 @@ class Component extends DCLogic {
           title: name + ' · ' + typeLabel(m.tipoIrroratrice),
           sub: [tractor ? 'Trattrice ' + tractor : '', m.nozzlesPerSide ? m.nozzlesPerSide + ' per lato' : '', 'ultimo rilievo ' + when(e)].filter(Boolean).join(' · '),
           cls: on ? 'preset-btn is-on' : 'preset-btn', pressed: on ? 'true' : 'false',
-          pick: () => this.fillFromHistory(e.machine, { prevMachine: machineId(m), prevSettings: false })
+          pick: () => this.fillFromHistory(e.machine, { prevMachine: machineId(m), prevSettings: false, machineList: false, eqOpen: false })
         };
       }),
-      note: bits.length ? 'Ripresi ' + bits.join('; ') + '. Controlla che siano ancora giusti: puoi cambiare tutto nelle sezioni sotto.' : '',
+      // macchina ripresa: si riassume in una scheda (con i valori attuali, anche se poi cambiati); "Un'altra macchina" riapre l'elenco
+      showCard: !!chosen && !s.machineList,
+      showList: machines.length > 0 && (!chosen || !!s.machineList),
+      cardEyebrow: chosen ? 'Dal rilievo del ' + when(chosen) : '',
+      cardTitle: ([s.irroratriceMarca, s.irroratriceModello].filter(Boolean).join(' ') || 'Irroratrice senza nome') + ' · ' + typeLabel(s.tipoIrroratrice),
+      cardSub: [[s.trattriceMarca, s.trattriceModello].filter(Boolean).join(' ') ? 'Trattrice ' + [s.trattriceMarca, s.trattriceModello].filter(Boolean).join(' ') : '',
+        s.nozzlesPerSide ? s.nozzlesPerSide + ' per lato' : ''].filter(Boolean).join(' · '),
+      onOther: () => this.setState({ machineList: true }),
+      note: bits.length ? 'Ripresi ' + bits.join('; ') + '. Controlla che siano ancora giusti: puoi cambiare tutto qui sotto e nei passi successivi.' : '',
       canSettings: !!chosen && !s.prevSettings && Object.keys(chosen.settings || {}).some((k) => chosen.settings[k]),
       settingsLabel: 'Riprendi anche le regolazioni (velocità, marcia, giri, pressione, volume)',
       onSettings: () => chosen && this.fillFromHistory(chosen.settings, { prevSettings: true }),
@@ -2640,13 +2809,89 @@ class Component extends DCLogic {
       }
     });
     let sheetMissingText = '';
-    if (!selWalls.length && !(nRep > 0)) sheetMissingText = 'Prova a indicare in “Condizioni operative” le pareti con cartine e il numero di repliche: qui compariranno le schede da collegare.';
-    else if (!selWalls.length) sheetMissingText = 'Prova a indicare in “Condizioni operative” le pareti con cartine: qui compariranno le schede da collegare.';
-    else if (!(nRep > 0)) sheetMissingText = 'Prova a indicare in “Condizioni operative” il numero di repliche: qui compariranno le schede da collegare.';
+    if (!selWalls.length && !(nRep > 0)) sheetMissingText = 'Prova a indicare qui sopra le pareti con cartine e il numero di repliche: qui compariranno le schede da collegare.';
+    else if (!selWalls.length) sheetMissingText = 'Prova a indicare qui sopra le pareti con cartine: qui compariranno le schede da collegare.';
+    else if (!(nRep > 0)) sheetMissingText = 'Prova a indicare qui sopra il numero di repliche: qui compariranno le schede da collegare.';
     let wallSummary = nSel === 0 ? 'Nessuna parete selezionata.' : nSel + (nSel === 1 ? ' parete selezionata' : ' pareti selezionate') + ' · ' + (nSel * 8) + ' cartine per replica (8 per parete)';
     if (nSel > 0) wallSummary += nRep > 0 ? ' × ' + nRep + (nRep === 1 ? ' replica' : ' repliche') + ' = ' + (nSel * 8 * nRep) + ' cartine in totale.' : '.';
 
+    // ---- Passi: campi di ogni passo, misure per lato, riepilogo e barra in basso ----
+    const fieldsOf = (keys) => buildFields(keys.map((k) => {
+      const f = OPERATING_FIELDS.concat(NOZZLE_SUMMARY_FIELDS).find((x) => x.key === k);
+      return Object.assign({}, f, { label: SHORT_LABELS[k] || f.label, unit: '' });
+    })).map((f) => Object.assign(f, { inputmode: f.type === 'number' ? 'decimal' : 'text' }));
+    const stepN = s.step || 1;
+    const names = STEP_NAMES.map((x, i) => (i === 2 ? term.P : x));
+    const sideRows = measRows.filter((r) => r.id.charAt(0) === s.measSide).map((r) => Object.assign({}, r, { rowCls: r.id === s.activeNozzle ? 'meas-row is-active' : 'meas-row' }));
+    const block = this.sendBlock(slotDefs);
+    const warnNow = s.stepWarn && s.stepWarn.step === stepN ? this.stepCheck(stepN, slotDefs) : null;
+    const dash = (v, unit) => (v === '' || v == null ? '—' : v + (unit || ''));
+    const join = (arr) => arr.filter(Boolean).join(' · ') || '—';
+    const measured = measRows.filter((r) => r.distanza || r.altezza || r.inclinazione || r.apertura).length;
+    const linkedSlots = slotDefs.filter((d) => s.schede[d.key]);
+    const withPhoto = linkedSlots.filter((d) => s.schede[d.key].foto);
+    const photoToCheck = withPhoto.filter((d) => { const c = controlloFoto(s.schede[d.key]).stato; return c === 'diverso' || c === 'illeggibile'; });
+    const sumGroups = [
+      { step: 1, title: 'Rilievo', items: [
+        { k: 'Vigneto', v: s.vigneto || 'da indicare', cls: s.vigneto ? '' : 'is-warn' },
+        { k: 'Data', v: itDate(s.dataVerifica) },
+        { k: 'Tipo di rilievo', v: s.preset ? PRESET_TITLES[s.preset] : '—' },
+        { k: 'BBCH · descrizione', v: join([s.bbch, s.descrizioneProva]) }] },
+      { step: 2, title: 'Macchina', items: [
+        { k: 'Irroratrice', v: join([[s.irroratriceMarca, s.irroratriceModello].filter(Boolean).join(' '), baseType.label]) },
+        { k: 'Trattrice', v: join([[s.trattriceMarca, s.trattriceModello].filter(Boolean).join(' ')]) },
+        { k: 'Regolazioni', v: join([s.velocita && s.velocita + ' km/h', s.ugelliLitriHa && s.ugelliLitriHa + ' l/ha', s.pressione && s.pressione + ' bar', s.giriMotore && s.giriMotore + ' rpm']) },
+        { k: 'Chioma', v: join([s.altezzaTotale && 'piante ' + s.altezzaTotale + ' cm', s.altezzaChioma && 'chioma ' + s.altezzaChioma + ' cm', s.spessoreChioma && 'spessore ' + s.spessoreChioma + ' cm']) }] },
+      { step: 3, title: term.P, items: [
+        { k: 'Per lato', v: nPerSide + ' (' + (nPerSide * 2) + ' in totale)' },
+        { k: 'Tipi', v: s.nozzleTypes.length + (s.nozzleTypes.length === 1 ? ' tipo' : ' tipi') + ' · ' + assignedCount + ' / ' + (nPerSide * 2) + ' assegnati' }] },
+      { step: 4, title: 'Misure', items: [
+        { k: 'Misurati', v: measured + ' di ' + (nPerSide * 2) + ' ' + term.p }] },
+      { step: 5, title: 'Schede', items: [
+        { k: 'Pareti', v: selWalls.length ? selWalls.map((w) => w.label).join(', ') : 'da scegliere', cls: selWalls.length ? '' : 'is-warn' },
+        { k: 'Repliche', v: dash(s.repliche) },
+        { k: 'Schede', v: slotDefs.length ? linkedSlots.length + ' di ' + slotDefs.length + ' collegate' + (linkedSlots.length ? ' (' + linkedSlots.map((d) => s.schede[d.key].id).join(', ') + ')' : '') : '—',
+          cls: slotDefs.length && linkedSlots.length === slotDefs.length ? 'is-ok' : 'is-warn' },
+        { k: 'Immagini caricate', v: withPhoto.length + ' di ' + slotDefs.length + (photoToCheck.length ? ' · ' + photoToCheck.length + ' da controllare' : withPhoto.length ? ' · in ordine' : ' · puoi caricarle anche dopo'),
+          cls: photoToCheck.length ? 'is-warn' : withPhoto.length && withPhoto.length === slotDefs.length ? 'is-ok' : '' }] }
+    ].map((g) => Object.assign(g, { onEdit: () => this.goStep(g.step) }));
+    const last = stepN === STEP_NAMES.length;
+    const nav = {
+      first: stepN === 1, notFirst: stepN > 1,
+      onBack: () => this.goStep(stepN - 1),
+      backAria: stepN > 1 ? 'Torna al passo ' + names[stepN - 2] : '',
+      bars: names.map((x, i) => ({ cls: i < stepN ? 'done' : '' })),
+      label: 'Passo ' + stepN + ' di ' + names.length + ' · ' + (last ? 'ultimo passo' : 'poi ' + names.slice(stepN).join(', ')),
+      h1: stepN !== 1, h2: stepN !== 2, h3: stepN !== 3, h4: stepN !== 4, h5: stepN !== 5, h6: stepN !== 6,
+      nextLabel: last ? 'Invia rilievo'
+        : (warnNow ? 'Avanti lo stesso' : stepN === 4 && s.measSide === 'L' ? 'Avanti: lato DX' : 'Avanti: ' + names[stepN].toLowerCase()),
+      chevron: !last,
+      disabled: last && !!block,
+      onNext: last ? () => this.send(slotDefs) : () => this.nextStep(slotDefs),
+      note: last ? block : warnNow ? warnNow.text : '',
+      noteCls: last ? 'actionbar-note is-warn' : 'actionbar-note',
+      // con la nota la barra è più alta: più spazio in fondo, così niente resta sotto
+      spaceCls: (last ? block : warnNow) ? 'actionbar-space is-tall' : 'actionbar-space',
+      secondaryLabel: last && block ? 'Vai alle schede' : '',
+      onSecondary: () => this.goStep(5)
+    };
+
     return {
+      vineyardFields: s.vyKnown && !s.vyEdit ? [] : fieldsOf(VINEYARD_KEYS.slice(1)),
+      settingsMain: fieldsOf(SETTINGS_MAIN),
+      settingsMore: fieldsOf(SETTINGS_MORE),
+      chiomaFields: fieldsOf(CHIOMA_KEYS),
+      eq: { show: !s.prevMachine || !!s.eqOpen, expanded: s.eqOpen ? 'true' : 'false', label: s.eqOpen ? 'Chiudi' : 'Modifica',
+        onToggle: () => this.setState({ eqOpen: !this.state.eqOpen }) },
+      meas: {
+        rows: sideRows, isR: s.measSide === 'R', sideLabel: s.measSide === 'R' ? 'lato DX' : 'lato SX',
+        sxPressed: s.measSide === 'L' ? 'true' : 'false', dxPressed: s.measSide === 'R' ? 'true' : 'false',
+        onSx: () => this.setState({ measSide: 'L', copyMsg: '', activeNozzle: null }), onDx: () => this.setState({ measSide: 'R', copyMsg: '', activeNozzle: null }),
+        onCopy: () => this.copyMeasures(nPerSide), copyMsg: s.copyMsg,
+        help: !!s.measHelp, helpExpanded: s.measHelp ? 'true' : 'false', onHelp: () => this.setState({ measHelp: !this.state.measHelp })
+      },
+      sum: { groups: sumGroups },
+      nav: nav,
       generalFields: buildFields(GENERAL_FIELDS.filter((f) => f.key !== 'vigneto')),
       equipmentFields: buildFields(EQUIPMENT_FIELDS),
       // vigneto già inserito: sesto e sistema di allevamento sono compilati e non si mostrano (salvo "Modifica")
@@ -2749,10 +2994,10 @@ class Component extends DCLogic {
       })),
       presetApplied: !!s.preset,
       presetNote: s.preset === 'atomizzatore'
-        ? 'Impostato: atomizzatore, trattamento diretto, passaggio in ogni filare, cartine su F1 lato DX e F2 lato SX (le due pareti ai lati della macchina), 5 repliche. Puoi modificare tutto nelle sezioni sotto.'
+        ? 'Impostato: atomizzatore, trattamento diretto, passaggio in ogni filare, cartine su F1 lato DX e F2 lato SX (le due pareti ai lati della macchina), 5 repliche. Puoi cambiare tutto nei passi successivi.'
         : s.preset === 'torretta'
-          ? 'Impostato: nebulizzatore a torretta (4 mezze pareti), passaggio a filari alterni, cartine sul filare F2 a sinistra della macchina: lato DX, trattato a questo passaggio, e lato SX, trattato quando la macchina torna indietro nell’interfila accanto. 5 repliche. Puoi modificare tutto nelle sezioni sotto.'
-          : 'Rilievo personalizzato: compila liberamente tutte le sezioni.',
+          ? 'Impostato: nebulizzatore a torretta (4 mezze pareti), passaggio a filari alterni, cartine sul filare F2 a sinistra della macchina: lato DX, trattato a questo passaggio, e lato SX, trattato quando la macchina torna indietro nell’interfila accanto. 5 repliche. Puoi cambiare tutto nei passi successivi.'
+          : 'Rilievo personalizzato: compila liberamente tutti i passi.',
       passOptions: [
         { key: 'ogni', label: 'Ogni filare', sub: 'La macchina passa in tutte le interfile' },
         { key: 'alterni', label: 'Filari alterni', sub: 'La macchina passa un’interfila sì e una no' }
@@ -2830,7 +3075,13 @@ class Component extends DCLogic {
       sheetMissingText: sheetMissingText,
       sheetRows: sheetRows,
       sheetCols: SHEET_COLS,
-      slots: slotDefs.map((d) => this.slotVals(d)),
+      slots: (() => {
+        // schede già generate (anche da I miei rilievi) e non ancora usate: si propongono in ordine alle pareti senza scheda
+        const linked = Object.keys(s.schede).map((k) => s.schede[k] && numeroBase(s.schede[k].id));
+        const libere = schedeLibere().filter((n) => linked.indexOf(n) === -1), prop = {};
+        slotDefs.forEach((d) => { if (!s.schede[d.key] && s.schedaInput[d.key] == null && libere.length) prop[d.key] = libere.shift(); });
+        return slotDefs.map((d) => this.slotVals(d, prop[d.key]));
+      })(),
       gen: (() => {
         const lots = schedeRegistro().lotti.slice().reverse(), free = slotDefs.filter((d) => !s.schede[d.key]).map((d) => d.key);
         return {

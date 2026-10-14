@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#4E7A1E">
+<meta name="theme-color" content="#FBF7F4">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Irrorazione">
+<meta name="apple-mobile-web-app-title" content="4Sprayers">
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});</script>
-<title>Accesso</title>
+<title>4Sprayers</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -34,40 +34,25 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Barlow', system-ui, sans-serif; font-size: 16px; -webkit-font-smoothing: antialiased; }
-  h1, h2 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
   p { margin: 0; }
   a { color: var(--accent-strong); }
-  .login-shell { min-height: 100vh; display: flex; flex-direction: column; }
-  .brand-panel { background: var(--ink); color: var(--bg); padding: 32px 24px; display: flex; flex-direction: column; gap: 10px; }
-  .eyebrow { font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
-  .brand-panel h1 { font-size: 28px; color: var(--bg); line-height: 1.15; }
-  .brand-panel .lead { color: #D9D2CC; font-size: 16px; line-height: 1.5; max-width: 420px; }
-  .brand-rows { display: none; }
-  .form-side { flex-grow: 1; display: flex; align-items: flex-start; justify-content: center; padding: 32px 20px 48px; }
-  .form-card { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 18px; }
-  .form-card h2 { font-size: 24px; }
-  .form-intro { color: var(--ink-soft); font-size: 15px; }
-  .field label { display: block; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; }
-  .field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 16px; background: var(--surface); color: var(--ink); min-height: 48px; }
+  /* 4Sprayers (14/10/2026): logo al centro, modulo e "Accedi" in basso, sotto il pollice. */
+  .login-shell { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; max-width: 440px; margin: 0 auto; padding: 0 24px calc(28px + env(safe-area-inset-bottom, 0px)); }
+  .brand { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 48px 0 32px; text-align: center; }
+  .logo { display: flex; align-items: baseline; gap: 6px; font-family: 'Montserrat', system-ui, sans-serif; }
+  .logo-4 { font-size: 46px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .logo-name { font-size: 26px; font-weight: 600; letter-spacing: 0.32em; line-height: 1; margin-right: -0.32em; }
+  .tagline { font-size: 15px; color: var(--ink-soft); }
+  .form-card { display: flex; flex-direction: column; gap: 18px; }
+  .field label { display: block; font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .field input { width: 100%; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 17px; background: var(--surface); color: var(--ink); height: 54px; }
   .field input:focus { outline: 2px solid var(--accent-strong); outline-offset: 1px; border-color: var(--accent-strong); }
-  .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .remember { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
-  .remember input { width: 18px; height: 18px; margin: 0; accent-color: #4E7A1E; }
-  .link-small { font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; }
-  .btn-primary { display: flex; align-items: center; justify-content: center; text-decoration: none; background: var(--accent); color: var(--ink); padding: 14px 32px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 15px; font-weight: 700; min-height: 52px; }
+  .btn-primary { display: flex; align-items: center; justify-content: center; text-decoration: none; background: var(--accent); color: var(--ink); padding: 0 32px; border-radius: 100px; font-family: 'Montserrat', system-ui, sans-serif; font-size: 17px; font-weight: 700; min-height: 56px; }
   .btn-primary:hover { background: var(--accent-hover); color: var(--ink); }
-  .btn-toggle { border: 0; background: transparent; color: var(--accent-strong); font-family: 'Montserrat', system-ui, sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; padding: 4px 6px; }
-  .pw-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .btn-toggle { border: 0; background: transparent; color: var(--accent-strong); font-family: 'Montserrat', system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 4px; }
+  .pw-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
   .pw-row label { margin-bottom: 0; }
-  .help { font-size: 14px; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 16px; }
-
-  @media (min-width: 900px) {
-    .login-shell { flex-direction: row; }
-    .brand-panel { width: 44%; padding: 56px; justify-content: space-between; }
-    .brand-panel h1 { font-size: 40px; }
-    .brand-rows { display: block; width: 100%; max-width: 440px; }
-    .form-side { align-items: center; padding: 56px; }
-  }
+  .help { font-size: 14px; color: var(--ink-soft); line-height: 1.45; }
   /* Adattamento a qualsiasi schermo: niente scorrimento orizzontale della pagina. */
   img, svg, video, canvas { max-width: 100%; }
   fieldset { min-width: 0; }
@@ -77,54 +62,28 @@
 </helmet>
 
 <div class="login-shell">
-  <aside class="brand-panel">
-    <div style="display: flex; flex-direction: column; gap: 12px">
-      <span class="eyebrow">Perleuve</span>
-      <h1>Rilievo condizioni operative</h1>
-      <p class="lead">Verifica taratura irroratrice in vigneto</p>
+  <div class="brand">
+    <div class="logo" role="img" aria-label="4Sprayers"><span class="logo-4">4</span><span class="logo-name">SPRAYERS</span></div>
+    <p class="tagline">Verifica della taratura in vigneto</p>
+  </div>
+
+  <main class="form-card">
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="username" value="{{email}}" onChange="{{onEmail}}">
     </div>
-    <svg class="brand-rows" viewBox="0 0 440 200" aria-hidden="true">
-      <line x1="0" y1="180" x2="440" y2="180" stroke="#5E5856" stroke-width="2"></line>
-      <rect x="67" y="130" width="6" height="50" fill="#7A5A3E"></rect>
-      <path d="M48 134 L48 60 Q48 40 70 40 Q92 40 92 60 L92 134 Z" fill="#4E7A1E" stroke="#8BC53E" stroke-width="1.5"></path>
-      <rect x="367" y="130" width="6" height="50" fill="#7A5A3E"></rect>
-      <path d="M348 134 L348 60 Q348 40 370 40 Q392 40 392 60 L392 134 Z" fill="#4E7A1E" stroke="#8BC53E" stroke-width="1.5"></path>
-      <path d="M200 95 L92 60 L92 125 Z" fill="rgba(139, 197, 62, 0.35)"></path>
-      <path d="M240 95 L348 60 L348 125 Z" fill="rgba(139, 197, 62, 0.35)"></path>
-      <rect x="190" y="80" width="60" height="100" rx="12" fill="#FBF7F4"></rect>
-      <circle cx="220" cy="120" r="18" fill="none" stroke="#231F20" stroke-width="1.5" stroke-dasharray="3 3"></circle>
-    </svg>
-  </aside>
 
-  <main class="form-side">
-    <div class="form-card">
-      <div style="display: flex; flex-direction: column; gap: 6px">
-        <h2>Accedi</h2>
-        <p class="form-intro">Inserisci le tue credenziali per accedere ai tuoi rilievi.</p>
+    <div class="field">
+      <div class="pw-row">
+        <label for="password">Password</label>
+        <button type="button" class="btn-toggle" onClick="{{onTogglePw}}" aria-controls="password">{{pwToggleLabel}}</button>
       </div>
-
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" type="email" autocomplete="username" value="{{email}}" onChange="{{onEmail}}">
-      </div>
-
-      <div class="field">
-        <div class="pw-row">
-          <label for="password">Password</label>
-          <button type="button" class="btn-toggle" onClick="{{onTogglePw}}" aria-controls="password">{{pwToggleLabel}}</button>
-        </div>
-        <input id="password" type="{{pwType}}" autocomplete="current-password" value="{{password}}" onChange="{{onPassword}}">
-      </div>
-
-      <div class="row-between">
-        <label class="remember"><input type="checkbox" checked="{{remember}}" onChange="{{onRemember}}"><span>Ricordami</span></label>
-        <a class="link-small" href="#">Password dimenticata?</a>
-      </div>
-
-      <a class="btn-primary" href="Scelta.dc.html">Accedi</a>
-
-      <p class="help">Non hai un account? Contatta l'amministratore Perleuve per ricevere le credenziali.</p>
+      <input id="password" type="{{pwType}}" autocomplete="current-password" value="{{password}}" onChange="{{onPassword}}">
     </div>
+
+    <p class="help">Resti collegato per 30 giorni su questo telefono. Non hai un account? Chiedilo al tuo tecnico Perleuve.</p>
+
+    <a class="btn-primary" href="Rilievi.dc.html">Accedi</a>
   </main>
 </div>
 </x-dc>
@@ -132,7 +91,7 @@
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { email: '', password: '', showPw: false, remember: true };
+    this.state = { email: '', password: '', showPw: false };
     this.togglePw = this.togglePw.bind(this);
   }
 
@@ -149,9 +108,7 @@ class Component extends DCLogic {
       onPassword: (e) => this.setState({ password: e.target.value }),
       pwType: s.showPw ? 'text' : 'password',
       pwToggleLabel: s.showPw ? 'Nascondi' : 'Mostra',
-      onTogglePw: this.togglePw,
-      remember: s.remember,
-      onRemember: (e) => this.setState({ remember: e.target.checked })
+      onTogglePw: this.togglePw
     };
   }
 }
